@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dark-bg: #0D0D0D;
+  --color-dark-grid: #1A1A1A;
+  --color-dark-card: #141414;
+  --color-dark-border: #333333;
+  --color-dark-border-active: #00E5FF;
+  --color-dark-accent: #FF5A00;
+  --color-dark-text-primary: #EDEDED;
+  --color-dark-text-secondary: #888888;
+
+  --color-light-bg: #F4F7FA;
+  --color-light-card: #FFFFFF;
+  --color-light-border: #00A3C4;
+  --color-light-border-active: #E65100;
+  --color-light-text-primary: #1E293B;
+  --color-light-text-secondary: #64748B;
+
+  --font-inter: var(--font-inter);
+  --font-jetbrains: var(--font-jetbrains-mono);
+}
+
+@layer base {
+  :root {
+    --bg-color: var(--color-light-bg);
+    --card-color: var(--color-light-card);
+    --border-color: var(--color-light-border);
+    --border-active: var(--color-light-border-active);
+    --text-primary: var(--color-light-text-primary);
+    --text-secondary: var(--color-light-text-secondary);
+    --accent-color: var(--color-light-border-active);
+  }
+
+  .dark {
+    --bg-color: var(--color-dark-bg);
+    --card-color: var(--color-dark-card);
+    --border-color: var(--color-dark-border);
+    --border-active: var(--color-dark-border-active);
+    --text-primary: var(--color-dark-text-primary);
+    --text-secondary: var(--color-dark-text-secondary);
+    --accent-color: var(--color-dark-accent);
+  }
+
+  body {
+    @apply bg-[var(--bg-color)] text-[var(--text-primary)] font-inter antialiased transition-colors duration-300;
+  }
+}
+
+@layer utilities {
+  .bg-grid-dark {
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, var(--color-dark-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-dark-grid) 1px, transparent 1px);
+  }
+
+  .bg-grid-light {
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, rgba(0, 163, 196, 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 163, 196, 0.1) 1px, transparent 1px);
+  }
+
+  .clip-angular {
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  }
+
+  .clip-angular-reverse {
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+
+  .scanline {
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.15),
+      rgba(0, 0, 0, 0.15) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  .animate-marquee {
+    animation: marquee 25s linear infinite;
+  }
+}
+
