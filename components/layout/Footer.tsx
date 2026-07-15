@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Mail } from "lucide-react";
-import { GithubIcon, InstagramIcon, LinkedinIcon } from "@/components/ui/BrandIcons";
+import { FaceBookIcon, InstagramIcon, LinkedinIcon } from "@/components/ui/BrandIcons";
 import { Logo } from "@/components/ui/Logo";
 
 const QUICK_LINKS = [
@@ -11,11 +11,10 @@ const QUICK_LINKS = [
   { href: "/help", label: "Support" },
 ];
 
-// Swap the hrefs for real profiles later — all use real brand marks.
 const SOCIALS = [
-  { label: "LinkedIn", icon: LinkedinIcon, href: "#" },
-  { label: "Instagram", icon: InstagramIcon, href: "#" },
-  { label: "GitHub", icon: GithubIcon, href: "#" },
+  { label: "LinkedIn", icon: LinkedinIcon, href: "https://www.linkedin.com/in/isa-rait-student-chapter-3a99451b6/" },
+  { label: "Instagram", icon: InstagramIcon, href: "https://www.instagram.com/isa_rait/" },
+  { label: "Facebook", icon: FaceBookIcon, href: "https://www.facebook.com/isarait2k18/" },
 ];
 
 export function Footer() {
@@ -30,10 +29,10 @@ export function Footer() {
               className="flex items-center gap-2 font-jetbrains font-bold tracking-tight text-[var(--text-primary)]"
             >
               <Logo className="h-7" />
-              <span>[ISA Logo]</span>
+              <span>International Society of Automation, RAIT</span>
             </Link>
             <p className="text-sm text-[var(--text-secondary)]">
-              [ Short chapter tagline placeholder ]
+              Setting the Standard of Automation.
             </p>
           </div>
 
@@ -64,9 +63,9 @@ export function Footer() {
             <ul className="mt-4 space-y-2 text-sm text-[var(--text-secondary)]">
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0" />
-                <span>[email@placeholder.com]</span>
+                <span>[ email@placeholder.com ]</span>
               </li>
-              <li>[ Address / Room No. Placeholder ]</li>
+              <li>ISA Room, 1st floor, Ramrao Adik Insitute of Technology, DYPU.</li>
             </ul>
           </div>
 
