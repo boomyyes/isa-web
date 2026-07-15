@@ -6,7 +6,7 @@ import { StatusBlock } from "@/components/ui/StatusBlock";
 
 export function IsaacSpotlight() {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -36,7 +36,7 @@ export function IsaacSpotlight() {
 
   return (
     <section id="spotlight" className="py-32 relative z-20 bg-[var(--bg-color)]">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 100 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.1 }}
@@ -58,19 +58,19 @@ export function IsaacSpotlight() {
           {/* Left Stats */}
           <div className="space-y-6 hidden lg:block">
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular">
-              <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">SYSTEM DIAGNOSTICS</p>
-              <p className="text-3xl font-bold font-inter text-[var(--text-primary)]">14,200</p>
-              <p className="text-sm text-[var(--text-secondary)]">Reads this month</p>
+              <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">INDUSTRIES IN COLLABORATION</p>
+              <p className="text-3xl font-bold font-inter text-[var(--text-primary)]">5</p>
+              <p className="text-sm text-[var(--text-secondary)]">Latest Company: Siemens</p>
             </div>
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular">
-              <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">LATEST TOPIC</p>
-              <p className="text-xl font-bold font-inter text-[var(--text-primary)]">Neuromorphic Chips</p>
-              <p className="text-sm text-[var(--text-secondary)] mt-1">pg. 42</p>
+              <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">UPCOMING WORKSHOP</p>
+              <p className="text-xl font-bold font-inter text-[var(--text-primary)]">ROS- Robotic Operating Systems</p>
+              <p className="text-sm text-[var(--text-secondary)] mt-1">Coming Soon.</p>
             </div>
           </div>
 
           {/* Center 3D Cover */}
-          <div 
+          <div
             ref={containerRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
@@ -82,19 +82,19 @@ export function IsaacSpotlight() {
             >
               {/* Glowing ring under */}
               <div className="absolute inset-0 bg-[var(--border-active)] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-sm" />
-              
+
               <div className="absolute inset-0 bg-gradient-to-tr from-[var(--border-color)] to-[var(--bg-color)] border border-[var(--border-active)] shadow-2xl overflow-hidden flex flex-col justify-between p-8">
                 <div className="flex justify-between items-start">
                   <h3 className="font-inter font-black text-4xl text-[var(--text-primary)] leading-none tracking-tighter">
-                    ISAAC<br/>2026
+                    ISAAC<br />2026
                   </h3>
                   <div className="w-8 h-8 bg-[var(--border-active)] clip-angular" />
                 </div>
-                
+
                 <div className="space-y-4">
                   <div className="h-0.5 w-full bg-[var(--text-primary)] opacity-20" />
                   <p className="font-jetbrains text-sm font-bold text-[var(--text-primary)] uppercase tracking-widest">
-                    The Automation<br/>Singularity
+                    The Automation<br />Singularity
                   </p>
                 </div>
               </div>
@@ -111,9 +111,9 @@ export function IsaacSpotlight() {
               </div>
             </div>
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular-reverse">
-              <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">AUTHORS</p>
-              <p className="text-xl font-bold font-inter text-[var(--text-primary)]">24</p>
-              <p className="text-sm text-[var(--text-secondary)] mt-1">Student Contributors</p>
+              <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">COMMITTEE MEMBERS</p>
+              <p className="text-xl font-bold font-inter text-[var(--text-primary)]">29</p>
+              <p className="text-sm text-[var(--text-secondary)] mt-1">Students and Faculty.</p>
             </div>
           </div>
         </div>

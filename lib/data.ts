@@ -262,25 +262,30 @@ export const mockArticles: Article[] = [
   },
 ];
 
+// Unsplash is asked for display-sized renders, not native resolution. The grid
+// cells top out around 640px wide (the 2x2 hero) / 320px (the rest); w= here
+// targets ~2x DPR so the browser decodes a few hundred KB per image instead of
+// several MB. Without w=, Unsplash serves the full ~5000px source (the hero was
+// 8 MB), and decoding all four on the main thread stalls the entrance animation.
 export const GALLERY_IMAGES = [
   {
-    id: "img1",
-    url: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80",
+    id: "img1", // 2x2 hero — widest cell
+    url: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=75&w=1280",
     alt: "Automation Lab 1",
   },
   {
     id: "img2",
-    url: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80",
+    url: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=75&w=800",
     alt: "Robotics Workshop",
   },
   {
     id: "img3",
-    url: "https://images.unsplash.com/photo-1581092335397-9583eb92d232?auto=format&fit=crop&q=80",
+    url: "https://images.unsplash.com/photo-1581092335397-9583eb92d232?auto=format&fit=crop&q=75&w=800",
     alt: "Industrial Control Systems",
   },
   {
-    id: "img4",
-    url: "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?auto=format&fit=crop&q=80",
+    id: "img4", // spans 2 columns — wider than the single cells
+    url: "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?auto=format&fit=crop&q=75&w=1280",
     alt: "PCB Manufacturing",
   },
 ];
