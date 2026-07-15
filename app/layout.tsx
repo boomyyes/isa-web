@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ISA-RAIT",
+  title: "RAIT",
   description: "INTERNATIONAL SOCIETY OF AUTOMATION, RAIT.",
 };
 

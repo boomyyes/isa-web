@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/*
+ * Drive the `dark:` variant off the `.dark` class that next-themes sets on
+ * <html> (attribute="class"), instead of Tailwind v4's default
+ * prefers-color-scheme media query. Without this, every `dark:` utility follows
+ * the OS setting rather than the in-app theme toggle.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-dark-bg: #0D0D0D;
   --color-dark-grid: #1A1A1A;
