@@ -13,25 +13,35 @@ interface TerminalShellProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function TerminalShell({ title, envStatus = "OK", contentLines, className, ...props }: TerminalShellProps) {
-  const [displayedLines, setDisplayedLines] = useState<string[]>([]);
+  // Number of lines revealed so far. Derived from contentLines below rather
+  // than accumulated into state, so a re-render can't duplicate or lose lines.
+  const [revealed, setRevealed] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  // Guard so parent re-renders (theme hydration, StrictMode, etc.) can't
+  // restart the animation and reset progress.
+  const startedRef = useRef(false);
+
+  const total = contentLines.length;
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView || startedRef.current) return;
+    startedRef.current = true;
 
-    let currentLine = 0;
     const interval = setInterval(() => {
-      if (currentLine < contentLines.length) {
-        setDisplayedLines((prev) => [...prev, contentLines[currentLine]]);
-        currentLine++;
-      } else {
-        clearInterval(interval);
-      }
+      setRevealed((prev) => {
+        if (prev >= total) {
+          clearInterval(interval);
+          return prev;
+        }
+        return prev + 1;
+      });
     }, 400); // 400ms per line
 
     return () => clearInterval(interval);
-  }, [isInView, contentLines]);
+  }, [isInView, total]);
+
+  const displayedLines = contentLines.slice(0, revealed);
 
   return (
     <HolographicCard

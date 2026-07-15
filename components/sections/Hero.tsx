@@ -79,10 +79,13 @@ export function Hero() {
             transition={{ delay: 0.8, duration: 0.5 }}
             className="text-lg md:text-xl text-[var(--text-secondary)] max-w-xl mb-12 font-medium"
           >
-            The International Society of Automation (ISA) is a non-profit professional association of engineers,
-            technicians and management engaged in industrial automation.
-            As the globally trusted provider of foundational standards-based technical resources for the profession,
-            ISA strives to build a better world through automation.
+            ISA-RAIT is a student chapter of ISA international under the ISA Maharashtra section.
+            ISA-RAIT aims to bridge the gap between the students and the Industry by developing technical knowledge of the students.
+            We conduct workshops and arrange seminars to develop the technical and other required skills of the students
+            to make them industry-ready.
+            ISA was founded in 1945 and excels in technical competence.
+            The organization certifies Industry professionals; provides education and training; publishes books and technical articles;
+            hosts conferences and has 40,000 members around the world creating a better world through Automation.
           </motion.p>
 
           <motion.div
