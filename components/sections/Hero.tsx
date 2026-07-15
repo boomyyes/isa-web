@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { HeroOrb } from "../three/HeroOrb";
-import { AngularButton } from "../ui/AngularButton";
+import { HeroOrb } from "@/components/three/HeroOrb";
+import { AngularButton } from "@/components/ui/AngularButton";
 import { Terminal } from "lucide-react";
 
 export function Hero() {
@@ -20,12 +20,12 @@ export function Hero() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  const headline = "AUTOMATION FOR THE NEXT ERA";
+  const headline = "INTERNATIONAL SOCIETY OF AUTOMATION, RAIT.";
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background Layer */}
-      <div 
+      <div
         className="absolute inset-0 pointer-events-none z-10 opacity-10 dark:opacity-20"
         style={{
           backgroundSize: "40px 40px",
@@ -35,7 +35,7 @@ export function Hero() {
       />
 
       <div className="container relative z-20 mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-        
+
         {/* Left Column: Text */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -79,7 +79,10 @@ export function Hero() {
             transition={{ delay: 0.8, duration: 0.5 }}
             className="text-lg md:text-xl text-[var(--text-secondary)] max-w-xl mb-12 font-medium"
           >
-            Building the cyber-mechanical foundation for student-led industrial engineering and tomorrow&apos;s robotic enterprises.
+            The International Society of Automation (ISA) is a non-profit professional association of engineers,
+            technicians and management engaged in industrial automation.
+            As the globally trusted provider of foundational standards-based technical resources for the profession,
+            ISA strives to build a better world through automation.
           </motion.p>
 
           <motion.div
@@ -98,7 +101,7 @@ export function Hero() {
         </motion.div>
 
         {/* Right Column: 3D Orb */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -107,7 +110,7 @@ export function Hero() {
         >
           <HeroOrb mouseX={mousePos.x} mouseY={mousePos.y} />
         </motion.div>
-        
+
       </div>
     </section>
   );

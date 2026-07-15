@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { ThemeToggle } from "../ui/ThemeToggle";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -28,7 +28,7 @@ export function Navbar() {
             <div className="w-5 h-5 bg-[var(--text-primary)] clip-angular flex items-center justify-center">
               <span className="text-[var(--bg-color)] text-[10px]">ISA</span>
             </div>
-            <span className="hidden sm:block">STUDENT COM</span>
+            <span className="hidden sm:block">RAIT STUDENT CHAPTER</span>
           </Link>
 
           {/* Desktop Nav */}

@@ -14,9 +14,9 @@ export default function Home() {
       <main className="flex flex-col">
         <Hero />
         <VisionMission />
-        <SponsorTicker />
         <IsaacSpotlight />
         <PhotoGallery />
+        <SponsorTicker />
       </main>
       <footer className="py-8 bg-black text-[var(--text-secondary)] text-center font-jetbrains text-sm">
         <p>© 2026 ISA Student Committee. All rights reserved.</p>
