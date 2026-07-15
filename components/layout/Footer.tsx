@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Hexagon, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { GithubIcon, InstagramIcon, LinkedinIcon } from "@/components/ui/BrandIcons";
+import { Logo } from "@/components/ui/Logo";
 
 const QUICK_LINKS = [
   { href: "/", label: "Home" },
@@ -28,7 +29,7 @@ export function Footer() {
               href="/"
               className="flex items-center gap-2 font-jetbrains font-bold tracking-tight text-[var(--text-primary)]"
             >
-              <Hexagon className="h-5 w-5 text-[var(--accent-color)]" strokeWidth={2.5} />
+              <Logo className="h-7" />
               <span>[ISA Logo]</span>
             </Link>
             <p className="text-sm text-[var(--text-secondary)]">

@@ -1,12 +1,28 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
+import { useTheme } from "next-themes";
 import * as THREE from "three";
+
+// Wireframe colors, swapped between themes.
+//  - Dark (unchanged): blue gear, orange sweeping highlight.
+//  - Light: orange gear, blue highlight.
+const BLUE = "#00E5FF";
+const ORANGE = "#FF5A00";
+// Highlight colors as raw shader RGB (0-1). A Vector3 (not THREE.Color) keeps
+// these exact values — no color-management conversion — so dark mode looks
+// identical to before.
+const HIGHLIGHT_ORANGE: [number, number, number] = [1.0, 0.18, 0.0];
+const HIGHLIGHT_BLUE: [number, number, number] = [0.0, 0.898, 1.0];
 
 function OrbScene({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
   const gearRef = useRef<THREE.Group>(null!);
   const highlightRef = useRef<THREE.ShaderMaterial>(null!);
+
+  const { resolvedTheme } = useTheme();
+  const isLight = resolvedTheme === "light";
+  const gearColor = isLight ? ORANGE : BLUE;
 
   // Create a gear shape
   const gearShape = useMemo(() => {
@@ -51,9 +67,16 @@ function OrbScene({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
 
   const highlightUniforms = useMemo(() => ({
     uTime: { value: 0 },
+    uColor: { value: new THREE.Vector3(...HIGHLIGHT_ORANGE) },
   }), []);
 
-  useFrame((state, delta) => {
+  // Swap the highlight color with the theme (mutates the stable uniform; Three
+  // reads .value each frame, so no material recreation is needed).
+  useEffect(() => {
+    highlightUniforms.uColor.value.set(...(isLight ? HIGHLIGHT_BLUE : HIGHLIGHT_ORANGE));
+  }, [isLight, highlightUniforms]);
+
+  useFrame((state) => {
     // Slower base rotation
     const t = state.clock.getElapsedTime();
     gearRef.current.rotation.z = t * 0.15; // rotate around Z for the gear face
@@ -79,15 +102,15 @@ function OrbScene({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
         {/* The Gear Mesh */}
         <mesh>
           <extrudeGeometry args={[gearShape, extrudeSettings]} />
-          <meshBasicMaterial 
-            color="#00E5FF" 
-            wireframe={true} 
-            transparent 
-            opacity={0.8} 
+          <meshBasicMaterial
+            color={gearColor}
+            wireframe={true}
+            transparent
+            opacity={0.8}
           />
         </mesh>
 
-        {/* Moving orange highlight along the gear wireframe */}
+        {/* Moving highlight sweeping along the gear wireframe (orange in dark, blue in light) */}
         <mesh position-z={0.012}>
           <extrudeGeometry args={[gearShape, extrudeSettings]} />
           <shaderMaterial
@@ -107,6 +130,7 @@ function OrbScene({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
             `}
             fragmentShader={`
               uniform float uTime;
+              uniform vec3 uColor;
               varying vec3 vPosition;
 
               void main() {
@@ -119,7 +143,7 @@ function OrbScene({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
 
                 if (alpha < 0.02) discard;
 
-                gl_FragColor = vec4(1.0, 0.18, 0.0, alpha);
+                gl_FragColor = vec4(uColor, alpha);
               }
             `}
           />

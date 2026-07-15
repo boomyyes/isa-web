@@ -86,8 +86,12 @@ export function InitiativesHub() {
         </p>
       </header>
 
-      {/* Tabs */}
-      <div className="mt-12 inline-flex flex-wrap gap-1 rounded-xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 p-1 backdrop-blur-md">
+      {/* Tabs — `projects` is the default active tab, so #projects lands here
+          on the running-projects grid. scroll-mt offsets the fixed navbar. */}
+      <div
+        id="projects"
+        className="mt-12 scroll-mt-24 inline-flex flex-wrap gap-1 rounded-xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 p-1 backdrop-blur-md"
+      >
         {TABS.map((tab) => {
           const isActive = active === tab.id;
           return (

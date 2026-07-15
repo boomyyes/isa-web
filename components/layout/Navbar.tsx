@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Hexagon, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -29,13 +30,13 @@ export function Navbar() {
     <header className="fixed top-0 inset-x-0 z-50 bg-[var(--bg-color)]/70 backdrop-blur-xl border-b border-[var(--border-color)]/60 transition-colors duration-300">
       <div className="mx-auto max-w-7xl px-6">
         <div className="h-16 flex items-center justify-between">
-          {/* Logo — placeholder, swap for real ISA mark later */}
+          {/* Logo — theme-aware placeholder, swap slots for real PNGs in Logo.tsx */}
           <Link
             href="/"
             className="flex items-center gap-2 font-jetbrains font-bold tracking-tight text-[var(--text-primary)]"
           >
-            <Hexagon className="h-6 w-6 text-[var(--accent-color)]" strokeWidth={2.5} />
-            <span>ISA-RAIT</span>
+            <Logo className="h-8" />
+            <span>RAIT</span>
           </Link>
 
           {/* Desktop Nav */}

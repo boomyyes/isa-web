@@ -97,7 +97,7 @@ export function Hero() {
             <AngularButton variant="primary" className="w-full sm:w-48">
               Join the Committee
             </AngularButton>
-            <AngularButton variant="outline" className="w-full sm:w-48">
+            <AngularButton variant="outline" href="/initiatives#projects" className="w-full sm:w-48">
               Explore Projects
             </AngularButton>
           </motion.div>
