@@ -45,12 +45,12 @@ export function IsaacSpotlight() {
       >
         <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6">
           <h2 className="text-4xl md:text-5xl font-black font-inter tracking-tighter uppercase">
-            ISAAC Magazine
+            ISAAC Magazine (In Progress)
           </h2>
           <div className="flex flex-wrap gap-4">
             <StatusBlock value="ISSUE: #26" />
             <StatusBlock value="VOL: 2026" />
-            <StatusBlock value="ACTIVE" progress={100} label="SUBSCRIBERS" />
+            <StatusBlock value="INACTIVE" progress={0} label="SUBSCRIBERS" />
           </div>
         </div>
 
@@ -106,8 +106,8 @@ export function IsaacSpotlight() {
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular-reverse">
               <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">PRINT STATUS</p>
               <div className="flex items-center gap-4">
-                <div className="w-3 h-3 bg-green-500 animate-pulse" />
-                <p className="text-xl font-bold font-inter text-[var(--text-primary)]">AVAILABLE</p>
+                <div className="w-3 h-3 bg-red-500 animate-pulse" />
+                <p className="text-xl font-bold font-inter text-[var(--text-primary)]">UNAVAILABLE</p>
               </div>
             </div>
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular-reverse">
