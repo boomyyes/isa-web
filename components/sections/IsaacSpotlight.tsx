@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { StatusBlock } from "../ui/StatusBlock";
+import { StatusBlock } from "@/components/ui/StatusBlock";
 
 export function IsaacSpotlight() {
   const containerRef = useRef<HTMLDivElement>(null);

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { TerminalShell } from "../ui/TerminalShell";
+import { TerminalShell } from "@/components/ui/TerminalShell";
 
 export function VisionMission() {
   return (
@@ -27,9 +27,8 @@ export function VisionMission() {
             envStatus="OK"
             contentLines={[
               "Loading vision protocol...",
-              "> To be the premier student platform for industrial automation.",
-              "> Fostering innovation through robotics, PLC programming, and AI.",
-              "> Bridging the gap between academic theory and industry reality.",
+              "",
+              "> Create a better world through automation.",
               "",
               "Status: ALIGNED",
             ]}
@@ -40,12 +39,29 @@ export function VisionMission() {
             envStatus="OK"
             contentLines={[
               "Executing mission parameters...",
-              "1. Organize cutting-edge technical workshops.",
-              "2. Connect students with industry titans.",
-              "3. Build autonomous systems that solve real problems.",
-              "4. Publish Isaac magazine to share our findings.",
+              "",
+              "> Empowering the global automation community",
+              "> through standards and knowledge sharing.",
               "",
               "Status: ACTIVE",
+            ]}
+          />
+        </div>
+
+        <div className="mt-8 lg:mt-16">
+          <TerminalShell
+            title="bin/values.sh"
+            envStatus="OK"
+            contentLines={[
+              "Enumerating core values...",
+              "",
+              "[EXCELLENCE]    We provide industry-leading unbiased content developed and vetted by a community of experts.",
+              "[INTEGRITY]     We act with honesty, integrity, and trust — respecting others in all that we do.",
+              "[DIVERSITY]     We are committed to being a global, diverse, and inclusive organization.",
+              "[COLLABORATION] We seek out opportunities to work together for the benefit of the Society, its members and our profession.",
+              "[PROFESSIONAL]  We uphold the highest standards of competence and skill in everything we do.",
+              "",
+              "Status: LOADED // 5 values initialized",
             ]}
           />
         </div>

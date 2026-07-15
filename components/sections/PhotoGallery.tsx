@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { GALLERY_IMAGES } from "@/lib/data";
-import { HolographicCard } from "../ui/HolographicCard";
+import { HolographicCard } from "@/components/ui/HolographicCard";
 import { cn } from "@/lib/utils";
 
 export function PhotoGallery() {
