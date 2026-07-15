@@ -3,92 +3,114 @@
 import * as React from "react";
 import Link from "next/link";
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
-import { ThemeToggle } from "../ui/ThemeToggle";
+import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import { Hexagon, Menu, X } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "#vision", label: "Vision" },
-  { href: "#spotlight", label: "Magazine" },
-  { href: "#gallery", label: "Gallery" },
-  { href: "#sponsors", label: "Sponsors" },
+  { href: "/", label: "Home" },
+  { href: "/initiatives", label: "Initiatives" },
+  { href: "/community", label: "Community" },
+  { href: "/membership", label: "Membership" },
+  { href: "/help", label: "Support" },
 ];
+
+function isActive(pathname: string, href: string) {
+  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+}
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
+  const pathname = usePathname();
 
   return (
-    <div className="fixed top-6 inset-x-0 z-50 flex justify-center pointer-events-none">
-      <header className="pointer-events-auto bg-white/10 dark:bg-[#1A1A1A]/30 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-xl rounded-full transition-colors duration-300">
-        <div className="px-6 h-16 flex items-center justify-between gap-8 md:gap-16">
-          {/* Logo */}
-          <Link href="/" className="font-jetbrains font-bold text-lg tracking-tighter flex items-center gap-2">
-            <div className="w-5 h-5 bg-[var(--text-primary)] clip-angular flex items-center justify-center">
-              <span className="text-[var(--bg-color)] text-[10px]">ISA</span>
-            </div>
-            <span className="hidden sm:block">STUDENT COM</span>
+    <header className="fixed top-0 inset-x-0 z-50 bg-[var(--bg-color)]/70 backdrop-blur-xl border-b border-[var(--border-color)]/60 transition-colors duration-300">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="h-16 flex items-center justify-between">
+          {/* Logo — placeholder, swap for real ISA mark later */}
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-jetbrains font-bold tracking-tight text-[var(--text-primary)]"
+          >
+            <Hexagon className="h-6 w-6 text-[var(--accent-color)]" strokeWidth={2.5} />
+            <span>ISA-RAIT</span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="relative px-2 py-1 font-inter font-medium text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-                onMouseEnter={() => setHoveredPath(link.href)}
-                onMouseLeave={() => setHoveredPath(null)}
-              >
-                {link.label}
-                {link.href === hoveredPath && (
-                  <motion.div
-                    layoutId="navbar-indicator"
-                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--text-primary)]"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  />
-                )}
-              </Link>
-            ))}
-            <div className="w-px h-4 bg-[var(--border-color)] mx-1" />
+          <nav className="hidden md:flex items-center gap-1">
+            {NAV_LINKS.map((link) => {
+              const active = isActive(pathname, link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "px-3 py-2 rounded-md font-inter text-sm font-medium transition-colors",
+                    active
+                      ? "text-[var(--text-primary)]"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+            <div className="w-px h-4 bg-[var(--border-color)] mx-2" />
             <ThemeToggle />
           </nav>
 
           {/* Mobile Toggle */}
-          <div className="md:hidden flex items-center gap-4">
+          <div className="md:hidden flex items-center gap-2">
             <ThemeToggle />
             <button
+              type="button"
+              aria-label="Toggle navigation menu"
+              aria-expanded={isOpen}
               className="p-2 text-[var(--text-primary)] focus:outline-none"
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => setIsOpen((prev) => !prev)}
             >
               {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Drawer */}
-        <motion.div
-          initial={false}
-          animate={isOpen ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
-          className="md:hidden overflow-hidden bg-[var(--card-color)]/90 backdrop-blur-3xl rounded-b-3xl border-t border-[var(--border-color)]"
-        >
-          <nav className="flex flex-col p-6 gap-4 text-center">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="font-inter font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </motion.div>
-      </header>
-    </div>
+      {/* Mobile Drawer */}
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.nav
+            key="mobile-menu"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="md:hidden overflow-hidden border-t border-[var(--border-color)]/60 bg-[var(--bg-color)]/90 backdrop-blur-xl"
+          >
+            <div className="flex flex-col px-6 py-4 gap-1">
+              {NAV_LINKS.map((link) => {
+                const active = isActive(pathname, link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      "px-3 py-2 rounded-md font-inter text-sm font-medium transition-colors",
+                      active
+                        ? "text-[var(--text-primary)] bg-[var(--card-color)]"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+    </header>
   );
 }
