@@ -10,7 +10,7 @@ export function SvgPipelines() {
   const yPositionInverted = useTransform(scrollYProgress, [0, 1], ["100%", "0%"]);
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-40 overflow-hidden mix-blend-difference">
+    <div className="pointer-events-none fixed inset-0 z-40 hidden overflow-hidden mix-blend-difference sm:block">
       {/* Left Pipeline */}
       <svg className="absolute left-4 top-0 w-8 h-full" preserveAspectRatio="none">
         <path
@@ -22,7 +22,7 @@ export function SvgPipelines() {
         />
         <motion.circle
           cx="16"
-          cy={yPosition as any}
+          cy={yPosition as unknown as number}
           r="4"
           fill="var(--border-active)"
           className="shadow-[0_0_10px_var(--border-active)]"
@@ -39,7 +39,7 @@ export function SvgPipelines() {
         />
         <motion.circle
           cx="16"
-          cy={yPositionInverted as any}
+          cy={yPositionInverted as unknown as number}
           r="4"
           fill="var(--border-active)"
           className="shadow-[0_0_10px_var(--border-active)]"

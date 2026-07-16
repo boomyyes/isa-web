@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function MembershipPage() {
   return (
     <PageTransition>
-      <main className="mx-auto max-w-7xl px-6 pt-32 pb-24 min-h-screen">
+      <main className="mx-auto max-w-7xl px-6 pt-24 md:pt-32 pb-16 md:pb-24 min-h-screen">
         <p className="font-jetbrains text-xs uppercase tracking-widest text-[var(--accent-color)]">
           [ Section 03 ]
         </p>

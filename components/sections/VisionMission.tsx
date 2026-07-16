@@ -5,7 +5,7 @@ import { TerminalShell } from "@/components/ui/TerminalShell";
 
 export function VisionMission() {
   return (
-    <section id="vision" className="py-32 relative z-20 bg-[var(--bg-color)]">
+    <section id="vision" className="py-20 md:py-32 relative z-20 bg-[var(--bg-color)]">
       <motion.div 
         initial={{ opacity: 0, y: 100 }}
         whileInView={{ opacity: 1, y: 0 }}

@@ -62,7 +62,7 @@ export function InitiativesHub() {
   const [active, setActive] = useState<TabId>("projects");
 
   return (
-    <div className="mx-auto max-w-7xl px-6 pt-32 pb-24">
+    <div className="mx-auto max-w-7xl px-6 pt-24 md:pt-32 pb-16 md:pb-24">
       {/* Page Header */}
       <header className="relative">
         {/* ambient glow behind the title */}
@@ -74,7 +74,7 @@ export function InitiativesHub() {
         <p className="relative font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
           [ Initiatives ]
         </p>
-        <h1 className="relative mt-4 font-jetbrains text-5xl md:text-7xl font-bold tracking-tight text-[var(--text-primary)]">
+        <h1 className="relative mt-4 font-jetbrains text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-[var(--text-primary)]">
           Initiatives{" "}
           <span className="text-[var(--accent-color)] [text-shadow:0_0_30px_var(--accent-color)]">
             Hub
