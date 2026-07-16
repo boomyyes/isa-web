@@ -54,7 +54,7 @@ export function Hero() {
             <span>&gt; SYS.BOOT SEQUENCE INITIATED</span>
           </motion.div>
 
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-inter tracking-tighter leading-none mb-8 max-w-2xl">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black font-inter tracking-tighter leading-none mb-6 md:mb-8 max-w-2xl">
             {headline.split(" ").map((word, i) => (
               <span key={i} className="inline-block mr-[0.2em] overflow-hidden">
                 <motion.span
@@ -77,7 +77,7 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.5 }}
-            className="text-lg md:text-xl text-[var(--text-secondary)] max-w-xl mb-12 font-medium"
+            className="text-lg md:text-xl text-[var(--text-secondary)] max-w-xl mb-8 md:mb-12 font-medium"
           >
             ISA-RAIT is a student chapter of ISA international under the ISA Maharashtra section.
             ISA-RAIT aims to bridge the gap between the students and the Industry by developing technical knowledge of the students.
@@ -109,7 +109,7 @@ export function Hero() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
-          className="relative w-full h-[50vh] lg:h-[80vh] flex items-center justify-center pointer-events-none"
+          className="relative w-full h-[40vh] sm:h-[50vh] lg:h-[80vh] flex items-center justify-center pointer-events-none"
         >
           <HeroOrb mouseX={mousePos.x} mouseY={mousePos.y} />
         </motion.div>

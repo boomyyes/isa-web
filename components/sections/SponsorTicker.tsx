@@ -8,7 +8,7 @@ export function SponsorTicker() {
   const marqueeItems = [...SPONSORS, ...SPONSORS];
 
   return (
-    <section id="sponsors" className="py-24 relative z-20 bg-[var(--bg-color)] border-y border-[var(--border-color)] overflow-hidden">
+    <section id="sponsors" className="py-16 md:py-24 relative z-20 bg-[var(--bg-color)] border-y border-[var(--border-color)] overflow-hidden">
       <motion.div 
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}

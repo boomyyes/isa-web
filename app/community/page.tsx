@@ -55,7 +55,7 @@ function ProfileGrid({
 export default function CommunityPage() {
   return (
     <PageTransition>
-      <main className="mx-auto max-w-7xl px-6 pt-32 pb-24">
+      <main className="mx-auto max-w-7xl px-6 pt-24 md:pt-32 pb-16 md:pb-24">
         {/* Principal's Blog */}
         <section className="relative overflow-hidden rounded-3xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 p-8 backdrop-blur-md md:p-12">
           <div

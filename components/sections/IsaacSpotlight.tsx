@@ -35,7 +35,7 @@ export function IsaacSpotlight() {
   };
 
   return (
-    <section id="spotlight" className="py-32 relative z-20 bg-[var(--bg-color)]">
+    <section id="spotlight" className="py-20 md:py-32 relative z-20 bg-[var(--bg-color)]">
       <motion.div
         initial={{ opacity: 0, y: 100 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -56,7 +56,7 @@ export function IsaacSpotlight() {
 
         <div className="grid lg:grid-cols-3 gap-12 items-center">
           {/* Left Stats */}
-          <div className="space-y-6 hidden lg:block">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:block lg:space-y-6">
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular">
               <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">INDUSTRIES IN COLLABORATION</p>
               <p className="text-3xl font-bold font-inter text-[var(--text-primary)]">5</p>
@@ -74,7 +74,7 @@ export function IsaacSpotlight() {
             ref={containerRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="perspective-[1000px] flex items-center justify-center py-12"
+            className="order-first lg:order-none perspective-[1000px] flex items-center justify-center py-12"
           >
             <motion.div
               style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
@@ -102,7 +102,7 @@ export function IsaacSpotlight() {
           </div>
 
           {/* Right Stats */}
-          <div className="space-y-6 hidden lg:block">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:block lg:space-y-6">
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular-reverse">
               <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">PRINT STATUS</p>
               <div className="flex items-center gap-4">

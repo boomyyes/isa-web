@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 export function PhotoGallery() {
   return (
-    <section id="gallery" className="py-32 relative z-20 bg-[var(--bg-color)] border-t border-[var(--border-color)]">
+    <section id="gallery" className="py-20 md:py-32 relative z-20 bg-[var(--bg-color)] border-t border-[var(--border-color)]">
       <div className="container mx-auto px-6">
         <motion.h2 
           initial={{ opacity: 0, y: 50 }}
