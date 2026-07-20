@@ -1,29 +1,59 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { HeroOrb } from "@/components/three/HeroOrb";
+import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
 import { AngularButton } from "@/components/ui/AngularButton";
+import { AsciiBackground } from "@/components/ui/AsciiBackground";
 import { Terminal } from "lucide-react";
 
+// three.js pulls in WebGL/DOM APIs, so the globe is client-only (no SSR).
+const Globe = dynamic(() => import("@/components/ui/Globe"), { ssr: false });
+
+// Navi Mumbai, Maharashtra, India. Stable array identity so the marker prop
+// doesn't churn between renders (color/size are folded in per-theme below).
+const NAVI_MUMBAI = { lat: 19.033, lng: 73.0297 };
+const GLOBE_MARKER_POINTS = [NAVI_MUMBAI];
+
 export function Hero() {
-  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight,
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
   const headline = "INTERNATIONAL SOCIETY OF AUTOMATION, RAIT.";
+
+  // Theme-aware globe palette. The ocean matches the page background so it
+  // occludes the far hemisphere; the marker + glow use the site accent (cyan in
+  // dark, orange in light). Memoized per theme so the Globe effect only rebuilds
+  // on an actual toggle.
+  const { resolvedTheme } = useTheme();
+  const dark = resolvedTheme !== "light";
+
+  // Hold the globe back ~2s after mount. Keeps its heavy three.js build well off
+  // the critical path, and gives the hero a beat before the globe animates in.
+  const [showGlobe, setShowGlobe] = useState(false);
+  useEffect(() => {
+    const id = window.setTimeout(() => setShowGlobe(true), 2000);
+    return () => clearTimeout(id);
+  }, []);
+  const globe = useMemo(
+    () => ({
+      dots: { color: dark ? "#ffffff" : "#1A1A1A", size: 5, density: 8, allDots: false },
+      ocean: dark ? "#0D0D0D" : "#F4F7FA",
+      graticule: dark ? "rgba(255,255,255,0.12)" : "rgba(13,13,13,0.12)",
+      accent: dark ? "#00E5FF" : "#E65100",
+      marker: {
+        markers: GLOBE_MARKER_POINTS,
+        color: dark ? "#00E5FF" : "#E65100",
+        size: 60,
+      },
+    }),
+    [dark]
+  );
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+      {/* ASCII waves, scoped to this section. The site-wide backdrop in the root
+          layout opts out on "/" so the waves stop at the end of the hero. */}
+      <AsciiBackground contained />
+
       {/* Background Layer */}
       <div
         className="absolute inset-0 pointer-events-none z-10 opacity-10 dark:opacity-20"
@@ -103,15 +133,39 @@ export function Hero() {
           </motion.div>
         </motion.div>
 
-        {/* Right Column: 3D Orb */}
+        {/* Right Column: interactive, drag-to-rotate globe */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
-          className="relative w-full h-[40vh] sm:h-[50vh] lg:h-[80vh] flex items-center justify-center pointer-events-none"
+          className="relative w-full h-[40vh] sm:h-[50vh] lg:h-[80vh] flex items-center justify-center"
         >
-          <HeroOrb mouseX={mousePos.x} mouseY={mousePos.y} />
+          {/* Ambient accent glow bloom. Held back with the globe and eased in
+              alongside it, so the whole column arrives as one entrance. */}
+          <motion.div
+            aria-hidden
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: showGlobe ? 0.5 : 0, scale: showGlobe ? 1 : 0.8 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="pointer-events-none absolute aspect-square h-[70%] rounded-full blur-3xl"
+            style={{ background: `radial-gradient(circle, ${globe.accent} 0%, transparent 70%)` }}
+          />
+          {showGlobe && (
+            <Globe
+              initialLatitude={NAVI_MUMBAI.lat}
+              initialLongitude={-NAVI_MUMBAI.lng}
+              markerConfig={globe.marker}
+              dots={globe.dots}
+              oceanColor={globe.ocean}
+              graticuleColor={globe.graticule}
+              // Land is already drawn by the dots; skipping the continent
+              // outlines avoids building a TubeGeometry per coastline ring,
+              // which was the bulk of the mount-time main-thread stall.
+              showOutline={false}
+              style={{ filter: `drop-shadow(0 0 24px ${globe.accent})` }}
+            />
+          )}
         </motion.div>
 
       </div>

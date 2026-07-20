@@ -36,11 +36,14 @@ export function IsaacSpotlight() {
 
   return (
     <section id="spotlight" className="py-20 md:py-32 relative z-20 bg-[var(--bg-color)]">
+      {/* The whole section animates as one block, and it contains a blur-2xl
+          glow + a 3D-transformed cover — both of which repaint while it moves.
+          Shorter travel and duration keep that window small. */}
       <motion.div
-        initial={{ opacity: 0, y: 100 }}
+        initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.1 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.45 }}
         className="container mx-auto px-6"
       >
         <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6">

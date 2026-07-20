@@ -90,7 +90,7 @@ export function InitiativesHub() {
           on the running-projects grid. scroll-mt offsets the fixed navbar. */}
       <div
         id="projects"
-        className="mt-12 scroll-mt-24 inline-flex flex-wrap gap-1 rounded-xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 p-1 backdrop-blur-md"
+        className="mt-12 scroll-mt-24 inline-flex flex-wrap gap-1 rounded-xl border border-[var(--border-color)]/60 bg-[var(--card-color)] p-1"
       >
         {TABS.map((tab) => {
           const isActive = active === tab.id;
@@ -152,7 +152,7 @@ function ProjectsPanel() {
         return (
           <div
             key={project.id}
-            className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 p-6 backdrop-blur-md transition-colors duration-300 hover:border-[var(--border-active)]/50"
+            className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)] p-6 transition-colors duration-300 hover:border-[var(--border-active)]/50"
           >
             <div className="flex items-start justify-between gap-3">
               <span
@@ -210,7 +210,7 @@ function EventsPanel() {
               )}
             </span>
 
-            <div className="rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 p-5 backdrop-blur-md transition-colors duration-300 hover:border-[var(--border-active)]/50">
+            <div className="rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)] p-5 transition-colors duration-300 hover:border-[var(--border-active)]/50">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className="font-jetbrains text-xs text-[var(--accent-color)]">
                   {event.date}
@@ -249,7 +249,7 @@ function ArticlesPanel() {
           <article
             key={article.id}
             className={cn(
-              "group flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 backdrop-blur-md transition-colors duration-300 hover:border-[var(--border-active)]/50",
+              "group flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)] transition-colors duration-300 hover:border-[var(--border-active)]/50",
               featured && "sm:col-span-2 lg:row-span-2"
             )}
           >

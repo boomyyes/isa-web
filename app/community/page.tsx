@@ -57,7 +57,7 @@ export default function CommunityPage() {
     <PageTransition>
       <main className="mx-auto max-w-7xl px-6 pt-24 md:pt-32 pb-16 md:pb-24">
         {/* Principal's Blog */}
-        <section className="relative overflow-hidden rounded-3xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 p-8 backdrop-blur-md md:p-12">
+        <section className="relative overflow-hidden rounded-3xl border border-[var(--border-color)]/60 bg-[var(--card-color)] p-8 md:p-12">
           <div
             aria-hidden
             className="pointer-events-none absolute -top-16 -right-10 h-48 w-72 rounded-full opacity-20 blur-3xl"
