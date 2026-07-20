@@ -74,10 +74,10 @@ export function ProfileCard({ role, name, type, socials }: ProfileCardProps) {
             }
       }
       className={cn(
-        "flex flex-col overflow-hidden rounded-2xl border text-center backdrop-blur-md transition-colors duration-300",
+        "flex flex-col overflow-hidden rounded-2xl border text-center transition-colors duration-300",
         isFaculty
-          ? "border-[var(--border-active)]/50 bg-[var(--card-color)]/60 shadow-[0_0_24px_rgba(0,229,255,0.12)]"
-          : "cursor-pointer border-[var(--border-color)]/60 bg-[var(--card-color)]/40 hover:border-[var(--border-active)]/50"
+          ? "border-[var(--border-active)]/50 bg-[var(--card-color)] shadow-[0_0_24px_rgba(0,229,255,0.12)]"
+          : "cursor-pointer border-[var(--border-color)] bg-[var(--card-color)] hover:border-[var(--border-active)]/50"
       )}
     >
       {/* Full-bleed rectangular photo placeholder.

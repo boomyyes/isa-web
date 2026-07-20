@@ -15,15 +15,18 @@
   --color-dark-border: #333333;
   --color-dark-border-active: #00E5FF;
   --color-dark-accent: #FF5A00;
-  --color-dark-text-primary: #EDEDED;
-  --color-dark-text-secondary: #888888;
+  /* Text sits above the animated ASCII backdrop, so both tiers are pushed for
+     contrast: primary to full white, secondary well clear of the band the
+     backdrop composites into (~#626262 on the dark bg). */
+  --color-dark-text-primary: #FFFFFF;
+  --color-dark-text-secondary: #B3B3B3;
 
   --color-light-bg: #F4F7FA;
   --color-light-card: #FFFFFF;
   --color-light-border: #00A3C4;
   --color-light-border-active: #E65100;
-  --color-light-text-primary: #1E293B;
-  --color-light-text-secondary: #64748B;
+  --color-light-text-primary: #0B1220;
+  --color-light-text-secondary: #475569;
 
   --font-inter: var(--font-inter);
   --font-jetbrains: var(--font-jetbrains-mono);

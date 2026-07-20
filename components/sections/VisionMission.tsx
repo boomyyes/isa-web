@@ -6,11 +6,11 @@ import { TerminalShell } from "@/components/ui/TerminalShell";
 export function VisionMission() {
   return (
     <section id="vision" className="py-20 md:py-32 relative z-20 bg-[var(--bg-color)]">
-      <motion.div 
-        initial={{ opacity: 0, y: 100 }}
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.1 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.45 }}
         className="container mx-auto px-6"
       >
         <div className="mb-16 flex items-center gap-4">

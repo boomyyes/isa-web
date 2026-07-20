@@ -87,7 +87,10 @@ export function Navbar() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="md:hidden overflow-hidden border-t border-[var(--border-color)]/60 bg-[var(--bg-color)]/90 backdrop-blur-xl"
+            // No backdrop-blur here: the fill is 90% opaque so the blur is all
+            // but invisible, and this panel animates its height open/closed —
+            // which would force the filter to recompute every frame.
+            className="md:hidden overflow-hidden border-t border-[var(--border-color)]/60 bg-[var(--bg-color)]/90"
           >
             <div className="flex flex-col px-6 py-4 gap-1">
               {NAV_LINKS.map((link) => {

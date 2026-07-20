@@ -23,10 +23,13 @@ export function PhotoGallery() {
           {GALLERY_IMAGES.map((img, i) => (
             <motion.div
               key={img.id}
-              initial={{ opacity: 0, y: 100 }}
+              // Short travel + a tight stagger: every frame of this animation
+              // repaints a filtered, blended, image-backed card, so keeping the
+              // window brief matters more than the distance covered.
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.1 }}
-              transition={{ duration: 0.8, delay: i * 0.1 }}
+              transition={{ duration: 0.45, delay: Math.min(i, 3) * 0.06 }}
               className={cn(
                 i === 0 ? "md:col-span-2 md:row-span-2" : "",
                 i === 3 ? "lg:col-span-2" : "",
@@ -34,14 +37,18 @@ export function PhotoGallery() {
               )}
             >
               <HolographicCard
+                disableBackdropBlur
                 className={cn(
                   "group relative overflow-hidden w-full h-full",
                   i === 0 ? "clip-angular" : "clip-angular-reverse"
                 )}
               >
-                {/* Base image with grayscale and scanlines by default */}
-                <div 
-                  className="absolute inset-0 bg-cover bg-center transition-all duration-500 grayscale group-hover:grayscale-0 group-hover:scale-105"
+                {/* Base image with grayscale and scanlines by default.
+                    `transition-all` also animated the filter/blend on every
+                    property change; scoped to just what the hover actually
+                    changes. */}
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-[filter,transform] duration-500 grayscale group-hover:grayscale-0 group-hover:scale-105"
                   style={{ backgroundImage: `url(${img.url})` }}
                 />
                 

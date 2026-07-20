@@ -28,17 +28,27 @@ export function TerminalShell({ title, envStatus = "OK", contentLines, className
     if (!isInView || startedRef.current) return;
     startedRef.current = true;
 
-    const interval = setInterval(() => {
-      setRevealed((prev) => {
-        if (prev >= total) {
-          clearInterval(interval);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 400); // 400ms per line
+    let interval: ReturnType<typeof setInterval> | undefined;
 
-    return () => clearInterval(interval);
+    // Hold off until the section's entry animation has finished. Revealing a
+    // line grows the card, and reflowing while the container is still
+    // translating is what makes the pop-in stutter.
+    const kickoff = setTimeout(() => {
+      interval = setInterval(() => {
+        setRevealed((prev) => {
+          if (prev >= total) {
+            clearInterval(interval);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 400); // 400ms per line
+    }, 500);
+
+    return () => {
+      clearTimeout(kickoff);
+      clearInterval(interval);
+    };
   }, [isInView, total]);
 
   const displayedLines = contentLines.slice(0, revealed);
@@ -46,6 +56,9 @@ export function TerminalShell({ title, envStatus = "OK", contentLines, className
   return (
     <HolographicCard
       ref={ref}
+      // These panels sit on an opaque section background and animate in, so the
+      // backdrop blur would re-run every frame to produce identical pixels.
+      disableBackdropBlur
       className={cn("clip-angular-reverse flex flex-col font-jetbrains text-sm", className)}
       {...props}
     >

@@ -7,10 +7,17 @@ import { cn } from "@/lib/utils";
 
 interface HolographicCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
+  /**
+   * Drop `backdrop-blur` (the translucent fill is kept). Backdrop filters force
+   * the browser to re-blur everything behind the card on every frame it moves,
+   * so cards that animate in should opt out. It's visually free wherever the
+   * backdrop is a flat color — blurring a solid fill returns the same pixels.
+   */
+  disableBackdropBlur?: boolean;
 }
 
 export const HolographicCard = React.forwardRef<HTMLDivElement, HolographicCardProps>(
-  ({ children, className, ...props }, ref) => {
+  ({ children, className, disableBackdropBlur = false, ...props }, ref) => {
     // We need an internal ref for mouse glare if external ref isn't provided, 
     // but a combined ref is better. For simplicity, we just create our own internal ref
     // for the hook and merge it. Or just use a local ref and pass the external ref to the div.
@@ -36,7 +43,8 @@ export const HolographicCard = React.forwardRef<HTMLDivElement, HolographicCardP
       <div
         ref={mergedRef}
         className={cn(
-          "relative overflow-hidden bg-white/5 dark:bg-[#1A1A1A]/90 backdrop-blur-sm border border-[var(--border-color)] transition-colors duration-300",
+          "relative overflow-hidden bg-white/5 dark:bg-[#1A1A1A]/90 border border-[var(--border-color)] transition-colors duration-300",
+          !disableBackdropBlur && "backdrop-blur-sm",
           className
         )}
         {...props}
