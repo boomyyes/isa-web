@@ -32,7 +32,7 @@ export function Footer() {
               <span>International Society of Automation, RAIT</span>
             </Link>
             <p className="text-sm text-[var(--text-secondary)]">
-              Setting the Standard of Automation.
+              Setting the standard of Automation. For the students, by the students.
             </p>
           </div>
 
@@ -63,9 +63,9 @@ export function Footer() {
             <ul className="mt-4 space-y-2 text-sm text-[var(--text-secondary)]">
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0" />
-                <span>[ email@placeholder.com ]</span>
+                <span>isa.rait@rait.ac.in</span>
               </li>
-              <li>ISA Room, 1st floor, Ramrao Adik Insitute of Technology, DYPU.</li>
+              <li>ISA Room, 1st floor, Ramrao Adik Institute of Technology, DYPU.</li>
             </ul>
           </div>
 
