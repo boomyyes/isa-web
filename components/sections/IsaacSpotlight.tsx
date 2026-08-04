@@ -1,8 +1,14 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { StatusBlock } from "@/components/ui/StatusBlock";
+
+// ISAAC magazine first page. Served through our own server proxy so the real
+// Drive source stays hidden from viewers — the browser only ever sees this
+// same-origin path. Configure the actual Drive file ID in app/api/isaac-cover/route.ts.
+const MAGAZINE_COVER_URL = "/api/isaac-cover";
 
 export function IsaacSpotlight() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -78,25 +84,32 @@ export function IsaacSpotlight() {
           >
             <motion.div
               style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-              className="relative w-full max-w-sm aspect-[3/4] rounded-sm group cursor-pointer"
+              className="relative w-full max-w-sm aspect-[16/25] rounded-sm group cursor-pointer"
             >
               {/* Glowing ring under */}
               <div className="absolute inset-0 bg-[var(--border-active)] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-sm" />
 
-              <div className="absolute inset-0 bg-gradient-to-tr from-[var(--border-color)] to-[var(--bg-color)] border border-[var(--border-active)] shadow-2xl overflow-hidden flex flex-col justify-between p-8">
-                <div className="flex justify-between items-start">
-                  <h3 className="font-inter font-black text-4xl text-[var(--text-primary)] leading-none tracking-tighter">
-                    ISAAC<br />2026
-                  </h3>
-                  <div className="w-8 h-8 bg-[var(--border-active)] clip-angular" />
-                </div>
-
-                <div className="space-y-4">
-                  <div className="h-0.5 w-full bg-[var(--text-primary)] opacity-20" />
-                  <p className="font-jetbrains text-sm font-bold text-[var(--text-primary)] uppercase tracking-widest">
-                    The Automation<br />Singularity
-                  </p>
-                </div>
+              {/* Real first-page cover, hotlinked from Drive. */}
+              <div className="absolute inset-0 bg-[var(--card-color)] border border-[var(--border-active)] shadow-2xl overflow-hidden">
+                <Image
+                  src={MAGAZINE_COVER_URL}
+                  alt="ISAAC magazine — first page"
+                  fill
+                  draggable={false}
+                  sizes="(max-width: 1024px) 80vw, 24rem"
+                  className="pointer-events-none select-none object-cover"
+                />
+                {/* subtle inner sheen so the cover reads as a printed page */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/5" />
+                {/* transparent guard: sits above the image so right-click/drag
+                    targets this layer, not the <img>, making casual "save image"
+                    harder. Events still bubble to the parent tilt handler. */}
+                <div
+                  className="absolute inset-0 z-10"
+                  onContextMenu={(e) => e.preventDefault()}
+                  onDragStart={(e) => e.preventDefault()}
+                  aria-hidden
+                />
               </div>
             </motion.div>
           </div>

@@ -1,11 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowUpRight,
   Calendar,
+  CheckCircle2,
   Clock,
   ImageIcon,
   MapPin,
@@ -17,13 +19,14 @@ import {
   mockProjects,
   type ProjectStatus,
 } from "@/lib/data";
+import { formatEventDate, partitionEvents } from "@/lib/events";
 import { cn } from "@/lib/utils";
 
 type TabId = "projects" | "events" | "articles";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "projects", label: "Running Projects" },
-  { id: "events", label: "Upcoming Events" },
+  { id: "events", label: "Events" },
   { id: "articles", label: "ISA Articles" },
 ];
 
@@ -183,54 +186,184 @@ function ProjectsPanel() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Events — vertical timeline                                          */
+/* Events — Upcoming timeline + Finished card grid                     */
 /* ------------------------------------------------------------------ */
 
+// A finished thumbnail is "real" when it points at an actual asset; otherwise
+// the string is a "[placeholder]" label and we render the empty image box.
+function isRealImage(src: string | undefined): src is string {
+  return !!src && (src.startsWith("/") || src.startsWith("http"));
+}
+
 function EventsPanel() {
+  // Evaluated once per render on both server and client. Same calendar day →
+  // identical output, so no hydration mismatch and no post-mount flash. The
+  // partition therefore refreshes on every visit with no rebuild.
+  const [now] = useState(() => new Date());
+  const { upcoming, finished } = useMemo(
+    () => partitionEvents(mockEvents, now),
+    [now]
+  );
+
   return (
-    <div className="relative pl-6 sm:pl-8">
-      {/* vertical spine */}
-      <div className="absolute left-2 sm:left-3 top-2 bottom-2 w-px bg-gradient-to-b from-[var(--border-active)]/60 via-[var(--border-color)] to-transparent" />
+    <div className="space-y-16">
+      {/* ── Upcoming ─────────────────────────────────────────────────── */}
+      <section>
+        <SubHeading
+          eyebrow="Upcoming"
+          count={upcoming.length}
+          accent="var(--border-active)"
+        />
 
-      <ul className="space-y-8">
-        {mockEvents.map((event, i) => (
-          <motion.li
-            key={event.id}
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.06, duration: 0.3 }}
-            className="relative"
-          >
-            {/* node */}
-            <span className="absolute -left-[26px] sm:-left-[34px] flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-active)]/50 bg-[var(--card-color)] text-[var(--border-active)] shadow-[0_0_12px_rgba(0,229,255,0.25)]">
-              {i % 2 === 0 ? (
-                <Calendar className="h-4 w-4" />
-              ) : (
-                <Clock className="h-4 w-4" />
-              )}
-            </span>
+        {upcoming.length === 0 ? (
+          <p className="mt-6 font-jetbrains text-sm text-[var(--text-secondary)]">
+            No upcoming events scheduled — check back soon.
+          </p>
+        ) : (
+          <div className="relative mt-8 pl-6 sm:pl-8">
+            {/* vertical spine */}
+            <div className="absolute left-2 sm:left-3 top-2 bottom-2 w-px bg-gradient-to-b from-[var(--border-active)]/60 via-[var(--border-color)] to-transparent" />
 
-            <div className="rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 p-5 backdrop-blur-md transition-colors duration-300 hover:border-[var(--border-active)]/50">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <span className="font-jetbrains text-xs text-[var(--accent-color)]">
-                  {event.date}
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-color)]/60 px-2 py-0.5 font-jetbrains text-[11px] text-[var(--text-secondary)]">
-                  <Tag className="h-3 w-3" />
-                  {event.type}
-                </span>
-              </div>
-              <h3 className="mt-2 font-jetbrains text-base font-bold text-[var(--text-primary)]">
-                {event.title}
-              </h3>
-              <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
-                <MapPin className="h-3.5 w-3.5" />
-                [Venue placeholder]
-              </p>
-            </div>
-          </motion.li>
-        ))}
-      </ul>
+            <ul className="space-y-8">
+              {upcoming.map((event, i) => (
+                <motion.li
+                  key={event.id}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.06, duration: 0.3 }}
+                  className="relative"
+                >
+                  {/* node */}
+                  <span className="absolute -left-[26px] sm:-left-[34px] flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-active)]/50 bg-[var(--card-color)] text-[var(--border-active)] shadow-[0_0_12px_rgba(0,229,255,0.25)]">
+                    {i % 2 === 0 ? (
+                      <Calendar className="h-4 w-4" />
+                    ) : (
+                      <Clock className="h-4 w-4" />
+                    )}
+                  </span>
+
+                  <div className="rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 p-5 backdrop-blur-md transition-colors duration-300 hover:border-[var(--border-active)]/50">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span className="font-jetbrains text-xs text-[var(--accent-color)]">
+                        {formatEventDate(event.date)}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-color)]/60 px-2 py-0.5 font-jetbrains text-[11px] text-[var(--text-secondary)]">
+                        <Tag className="h-3 w-3" />
+                        {event.type}
+                      </span>
+                    </div>
+                    <h3 className="mt-2 font-jetbrains text-base font-bold text-[var(--text-primary)]">
+                      {event.title}
+                    </h3>
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {event.venue}
+                    </p>
+                  </div>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
+
+      {/* ── Finished — 2025-26 tenure ────────────────────────────────── */}
+      {finished.length > 0 && (
+        <section>
+          <SubHeading
+            eyebrow="Finished — 2025-26 Tenure"
+            count={finished.length}
+            accent="var(--accent-color)"
+          />
+
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {finished.map((event, i) => (
+              <motion.article
+                key={event.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05, duration: 0.3 }}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 backdrop-blur-md transition-colors duration-300 hover:border-[var(--border-active)]/50"
+              >
+                {/* thumbnail */}
+                <div className="relative aspect-[16/9] border-b border-[var(--border-color)]/60 bg-[var(--bg-color)]/60">
+                  {isRealImage(event.image) ? (
+                    <Image
+                      src={event.image}
+                      alt={event.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-2 text-[var(--text-secondary)]">
+                      <ImageIcon className="h-8 w-8" />
+                      <span className="font-jetbrains text-[11px]">
+                        [{event.image ?? "photo"}]
+                      </span>
+                    </div>
+                  )}
+                  {/* finished badge */}
+                  <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-400/10 px-2 py-0.5 font-jetbrains text-[10px] font-medium text-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.4)] backdrop-blur-sm">
+                    <CheckCircle2 className="h-3 w-3" />
+                    FINISHED
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-2 p-5">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span className="font-jetbrains text-xs text-[var(--accent-color)]">
+                      {formatEventDate(event.date)}
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-color)]/60 px-2 py-0.5 font-jetbrains text-[11px] text-[var(--text-secondary)]">
+                      <Tag className="h-3 w-3" />
+                      {event.type}
+                    </span>
+                  </div>
+                  <h3 className="font-jetbrains text-base font-bold text-[var(--text-primary)]">
+                    {event.title}
+                  </h3>
+                  <p className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+                    <MapPin className="h-3.5 w-3.5" />
+                    {event.venue}
+                  </p>
+                  {event.description && (
+                    <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">
+                      {event.description}
+                    </p>
+                  )}
+                </div>
+              </motion.article>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+// Small labeled divider heading used by the Events sub-sections.
+function SubHeading({
+  eyebrow,
+  count,
+  accent,
+}: {
+  eyebrow: string;
+  count: number;
+  accent: string;
+}) {
+  return (
+    <div className="flex items-center gap-4">
+      <h2 className="font-jetbrains text-sm font-bold uppercase tracking-widest text-[var(--text-primary)]">
+        {eyebrow}
+      </h2>
+      <span
+        className="font-jetbrains text-xs"
+        style={{ color: accent }}
+      >
+        [{count.toString().padStart(2, "0")}]
+      </span>
+      <div className="h-px flex-1 bg-[var(--border-color)]" />
     </div>
   );
 }

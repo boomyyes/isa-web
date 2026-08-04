@@ -102,5 +102,32 @@
   .animate-marquee {
     animation: marquee 25s linear infinite;
   }
+
+  /* Neon "breathing" pulse for the gradient outline (see NeonFrame). Two ranges:
+     a crisp ring that stays legible, and a softer halo that fades further out. */
+  @keyframes neon-breathe {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes neon-breathe-glow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.75; }
+  }
+
+  .animate-neon-breathe {
+    animation: neon-breathe 3.8s ease-in-out infinite;
+  }
+
+  .animate-neon-breathe-glow {
+    animation: neon-breathe-glow 3.8s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-neon-breathe,
+    .animate-neon-breathe-glow {
+      animation: none;
+    }
+  }
 }
 
