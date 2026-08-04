@@ -65,10 +65,10 @@ export const jointCore: JointCoreDomain[] = [
   {
     domain: "Technical",
     members: [
-      member("jc-tech-1", "Technical Co-head"),
-      member("jc-tech-2", "Technical Co-head"),
-      member("jc-tech-3", "Technical Co-head"),
-      member("jc-tech-4", "Technical Co-head"),
+      member("jc-tech-1", "Technical Member"),
+      member("jc-tech-2", "Technical Member"),
+      member("jc-tech-3", "Technical Member"),
+      member("jc-tech-4", "Technical Member"),
     ],
   },
   {
@@ -81,9 +81,9 @@ export const jointCore: JointCoreDomain[] = [
   {
     domain: "Publicity",
     members: [
-      member("jc-pub-1", "Publicity Co-head"),
-      member("jc-pub-2", "Publicity Co-head"),
-      member("jc-pub-3", "Publicity Co-head"),
+      member("jc-pub-1", "Publicity Member"),
+      member("jc-pub-2", "Publicity Member"),
+      member("jc-pub-3", "Publicity Member"),
     ],
   },
   {
@@ -183,41 +183,86 @@ export const mockProjects: Project[] = [
 
 export interface EventItem {
   id: string;
+  /**
+   * ISO calendar date, "YYYY-MM-DD". Machine-comparable — this is what drives the
+   * automatic Upcoming → Finished split (see lib/events.ts). Render it for humans
+   * with formatEventDate(); never show this raw string.
+   */
   date: string;
   title: string;
+  /** Workshop | Industrial Visit | Guest Lecture | Competition | Hackathon | … */
   type: string;
+  /** Where it happened / will happen — replaces the old "[Venue placeholder]". */
+  venue: string;
+  /** Short recap; shown on Finished cards. Optional. */
+  description?: string;
+  /**
+   * Thumbnail for Finished cards. Either a real image path served locally, e.g.
+   * "/events/ros-workshop.jpg" (drop files in public/events/ — no config needed),
+   * or a "[placeholder]" label to render the empty image box. External URLs would
+   * need images.remotePatterns in next.config.ts, so prefer local paths.
+   */
+  image?: string;
 }
 
+// Events auto-partition by date: anything dated in the future shows under
+// "Upcoming"; once its day has passed it moves to "Finished" on the next visit
+// (no rebuild). Scaffold below mixes both — swap the [placeholders] for real data.
+// Past dates here represent the 2025-26 committee tenure.
 export const mockEvents: EventItem[] = [
+  // ── Upcoming (future-dated) ────────────────────────────────────────────────
   {
-    id: "evt-1",
-    date: "[Aug 12, 2026]",
-    title: "[Event Title 01]",
+    id: "evt-up-1",
+    date: "2026-09-14",
+    title: "[Upcoming Event 01]",
     type: "Workshop",
+    venue: "[Venue placeholder]",
   },
   {
-    id: "evt-2",
-    date: "[Sep 03, 2026]",
-    title: "[Event Title 02]",
+    id: "evt-up-2",
+    date: "2026-10-08",
+    title: "[Upcoming Event 02]",
     type: "Guest Lecture",
+    venue: "[Venue placeholder]",
   },
   {
-    id: "evt-3",
-    date: "[Oct 21, 2026]",
-    title: "[Event Title 03]",
+    id: "evt-up-3",
+    date: "2026-11-21",
+    title: "[Upcoming Event 03]",
     type: "Competition",
+    venue: "[Venue placeholder]",
   },
+
+  // ── Finished — 2025-26 tenure (past-dated) ─────────────────────────────────
   {
-    id: "evt-4",
-    date: "[Nov 15, 2026]",
-    title: "[Event Title 04]",
-    type: "Industrial Visit",
-  },
-  {
-    id: "evt-5",
-    date: "[Dec 09, 2026]",
-    title: "[Event Title 05]",
+    id: "evt-fin-1",
+    date: "2026-05-17",
+    title: "[Finished Event 01]",
     type: "Hackathon",
+    venue: "[Venue placeholder]",
+    description:
+      "[Short recap placeholder — what happened, turnout, and the highlight.]",
+    image: "[workshop-photo-01]",
+  },
+  {
+    id: "evt-fin-2",
+    date: "2026-02-28",
+    title: "[Finished Event 02]",
+    type: "Industrial Visit",
+    venue: "[Venue placeholder]",
+    description:
+      "[Short recap placeholder — what happened, turnout, and the highlight.]",
+    image: "[visit-photo-02]",
+  },
+  {
+    id: "evt-fin-3",
+    date: "2025-10-11",
+    title: "[Finished Event 03]",
+    type: "Workshop",
+    venue: "[Venue placeholder]",
+    description:
+      "[Short recap placeholder — what happened, turnout, and the highlight.]",
+    image: "[workshop-photo-03]",
   },
 ];
 
