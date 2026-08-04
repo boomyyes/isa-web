@@ -94,7 +94,7 @@ export function Hero() {
             transition={{ delay: 1, duration: 0.5 }}
             className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto"
           >
-            <AngularButton variant="primary" className="w-full sm:w-48">
+            <AngularButton variant="primary" href="https://www.isa.org/membership" target="_blank" className="w-full sm:w-48">
               Join the Committee
             </AngularButton>
             <AngularButton variant="outline" href="/initiatives#projects" className="w-full sm:w-48">

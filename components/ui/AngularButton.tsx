@@ -30,13 +30,17 @@ export interface AngularButtonProps
   variant?: Variant;
   /** When set, the control renders as a Next.js Link for navigation. */
   href?: string;
+  /** Passed to the underlying anchor when `href` is set. */
+  target?: React.HTMLAttributeAnchorTarget;
+  /** Passed to the underlying anchor when `href` is set. */
+  rel?: string;
 }
 
 export const AngularButton = React.forwardRef<HTMLButtonElement, AngularButtonProps>(
-  ({ className, variant = "primary", children, href, ...props }, ref) => {
+  ({ className, variant = "primary", children, href, target, rel, ...props }, ref) => {
     if (href) {
       return (
-        <Link href={href} className={buttonClasses(variant, className)}>
+        <Link href={href} target={target} rel={rel} className={buttonClasses(variant, className)}>
           <ButtonInner variant={variant}>{children}</ButtonInner>
         </Link>
       );
