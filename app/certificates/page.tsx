@@ -1,18 +1,48 @@
 import type { Metadata } from "next";
-import { Construction } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { PageTransition } from "@/components/layout/PageTransition";
-import { TerminalShell } from "@/components/ui/TerminalShell";
+import { CertificateLookup } from "@/components/sections/CertificateLookup";
+import { Accordion, type FAQItem } from "@/components/ui/Accordion";
 
 export const metadata: Metadata = {
   title: "Certificates | ISA RAIT",
   description:
-    "Verify and download ISA RAIT participation and achievement certificates. This section is under construction.",
+    "Look up and download your ISA RAIT workshop participation certificates, or request a printed copy.",
 };
+
+const CERTIFICATE_FAQS: FAQItem[] = [
+  {
+    question: "Where do I find my UID and access code?",
+    answer:
+      "They were emailed to you when you were registered onto the roster, in a message titled \"Your ISA-RAIT certificate access code\". Check your spam folder before anything else. The code isn't case-sensitive and the dash is optional — K7P2-9XQM and k7p29xqm both work.",
+  },
+  {
+    question: "I've lost the email. Can you resend it?",
+    answer:
+      "The access code is stored scrambled, so nobody — including us — can look up what yours was. We can issue you a new one instead. Raise a query on the Support page with your name and UID, and we'll reissue and email it.",
+  },
+  {
+    question: "I attended, but a workshop shows as not attended. What now?",
+    answer:
+      "Attendance is entered by the event team after each session, so a recent workshop may not be on the roster yet. If it's been a while, raise a query on the Support page with your name, UID and the workshop you attended, and we'll check the register.",
+  },
+  {
+    question: "How do I get a printed certificate?",
+    answer:
+      "Anyone who attended can request one from the Support page. Your first physical copy is free of cost. If you've already collected one, additional copies are chargeable.",
+  },
+  {
+    question: "Can I download my certificate more than once?",
+    answer:
+      "Yes — the digital copy is always available once your attendance is recorded. Download links expire after a couple of minutes for security, so just sign in again to get a fresh one.",
+  },
+];
 
 export default function CertificatesPage() {
   return (
     <PageTransition>
-      <main className="mx-auto flex min-h-screen max-w-4xl flex-col px-6 pt-28 pb-16 md:pt-36 md:pb-24">
+      <main className="mx-auto flex min-h-screen max-w-5xl flex-col px-6 pt-28 pb-16 md:pt-36 md:pb-24">
         {/* Header */}
         <header className="relative">
           {/* ambient glow behind the title */}
@@ -31,33 +61,35 @@ export default function CertificatesPage() {
             </span>
           </h1>
 
-          {/* WIP badge */}
-          <div className="relative mt-6 inline-flex items-center gap-2 rounded-full border border-[var(--border-active)]/40 bg-[var(--border-active)]/10 px-3 py-1.5 font-jetbrains text-xs font-medium uppercase tracking-widest text-[var(--border-active)] shadow-[0_0_18px_rgba(0,229,255,0.25)]">
-            <Construction className="h-4 w-4 animate-pulse" />
-            Work in Progress
-          </div>
-
           <p className="relative mt-5 max-w-2xl text-lg leading-relaxed text-[var(--text-secondary)]">
-            A home for issuing, verifying, and downloading your ISA-RAIT
-            participation and achievement certificates is being built. Check back
-            soon — it&apos;s coming with the next release.
+            Sign in with the UID and access code we emailed you to download your
+            participation certificates, or request a printed copy.
           </p>
         </header>
 
-        {/* On-brand terminal status readout */}
-        <div className="mt-12">
-          <TerminalShell
-            title="bin/certificates.sh"
-            envStatus="BUILD"
-            contentLines={[
-              "Initializing certificates module...",
-              "Mounting verification pipeline... [pending]",
-              "Wiring download + lookup endpoints... [pending]",
-              "> This feature is under active development.",
-              "Status: UNDER CONSTRUCTION // ETA: soon",
-            ]}
-          />
+        {/* Lookup */}
+        <div className="mt-10">
+          <CertificateLookup />
         </div>
+
+        {/* FAQs */}
+        <section className="mt-16">
+          <h2 className="font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
+            [ Common Questions ]
+          </h2>
+          <Accordion items={CERTIFICATE_FAQS} defaultOpen={null} className="mt-6" />
+
+          <p className="mt-6 text-sm text-[var(--text-secondary)]">
+            Something else on your mind?{" "}
+            <Link
+              href="/help"
+              className="inline-flex items-center gap-1 text-[var(--accent-color)] transition-opacity hover:opacity-80"
+            >
+              Head to Support
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </p>
+        </section>
       </main>
     </PageTransition>
   );
