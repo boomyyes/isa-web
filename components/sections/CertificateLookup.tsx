@@ -8,6 +8,7 @@ import {
   CircleAlert,
   CircleSlash,
   Download,
+  FileWarning,
   Loader2,
   Printer,
   Search,
@@ -28,6 +29,45 @@ const TOKEN_STALE_MS = 9 * 60 * 1000;
 type LookupResult =
   | { ok: true; view: PublicCertView }
   | { ok: false; error: string; status: number };
+
+type ProbeResult =
+  | { ok: true; url: string }
+  | { ok: false; reason: string; error: string };
+
+/**
+ * Resolves the download without leaving the page, so a certificate that was
+ * never uploaded surfaces as a card state instead of an error page.
+ */
+async function probeDownload(token: string): Promise<ProbeResult> {
+  try {
+    const res = await fetch(
+      `/api/certificates/download?probe=1&t=${encodeURIComponent(token)}`
+    );
+    const body = (await res.json().catch(() => null)) as {
+      url?: unknown;
+      reason?: unknown;
+      error?: unknown;
+    } | null;
+
+    if (res.ok && typeof body?.url === "string") {
+      return { ok: true, url: body.url };
+    }
+    return {
+      ok: false,
+      reason: typeof body?.reason === "string" ? body.reason : "unavailable",
+      error:
+        typeof body?.error === "string"
+          ? body.error
+          : "That certificate couldn't be fetched. Please try again.",
+    };
+  } catch {
+    return {
+      ok: false,
+      reason: "unavailable",
+      error: "Couldn't reach the server. Check your connection and try again.",
+    };
+  }
+}
 
 async function lookup(uid: string, password: string): Promise<LookupResult> {
   try {
@@ -70,6 +110,8 @@ export function CertificateLookup() {
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fetchedAt, setFetchedAt] = useState(0);
+  /** Workshops whose image turned out to be missing when we went to fetch it. */
+  const [missing, setMissing] = useState<Set<string>>(() => new Set());
 
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
@@ -78,6 +120,7 @@ export function CertificateLookup() {
       setError(null);
       setNotFound(false);
       setResult(null);
+      setMissing(new Set());
 
       const res = await lookup(uid, password);
       setSearching(false);
@@ -94,19 +137,23 @@ export function CertificateLookup() {
     [uid, password]
   );
 
+  const markMissing = useCallback((workshopId: string) => {
+    setMissing((current) => new Set(current).add(workshopId));
+  }, []);
+
   const handleDownload = useCallback(
     async (workshopId: string) => {
       if (!result) return;
 
       let token = result.workshops.find((w) => w.id === workshopId)?.downloadToken ?? null;
+      setDownloading(workshopId);
+      setError(null);
 
       // Token is close to expiry — quietly re-run the lookup for a fresh one.
       if (token && Date.now() - fetchedAt > TOKEN_STALE_MS) {
-        setDownloading(workshopId);
         const res = await lookup(uid, password);
-        setDownloading(null);
-
         if (!res.ok) {
+          setDownloading(null);
           setError("Your session expired. Please search again.");
           return;
         }
@@ -116,14 +163,25 @@ export function CertificateLookup() {
       }
 
       if (!token) {
-        setError("That certificate isn't available right now. Please search again.");
+        setDownloading(null);
+        markMissing(workshopId);
         return;
       }
 
-      // Content-Disposition: attachment, so this downloads instead of navigating.
-      window.location.href = `/api/certificates/download?t=${encodeURIComponent(token)}`;
+      const probe = await probeDownload(token);
+      setDownloading(null);
+
+      if (probe.ok) {
+        // Presigned with Content-Disposition: attachment, so this downloads
+        // rather than navigating away.
+        window.location.href = probe.url;
+      } else if (probe.reason === "missing") {
+        markMissing(workshopId);
+      } else {
+        setError(probe.error);
+      }
     },
-    [result, fetchedAt, uid, password]
+    [result, fetchedAt, uid, password, markMissing]
   );
 
   return (
@@ -273,6 +331,7 @@ export function CertificateLookup() {
                 key={workshop.id}
                 workshop={workshop}
                 busy={downloading === workshop.id}
+                missing={missing.has(workshop.id)}
                 onDownload={handleDownload}
               />
             ))}
@@ -286,13 +345,16 @@ export function CertificateLookup() {
 function WorkshopCard({
   workshop,
   busy,
+  missing,
   onDownload,
 }: {
   workshop: PublicWorkshopView;
   busy: boolean;
+  missing: boolean;
   onDownload: (workshopId: string) => void;
 }) {
   const { attended, physical } = workshop;
+  const downloadable = Boolean(workshop.downloadToken) && !missing;
 
   return (
     <HolographicCard className="clip-angular-reverse flex flex-col p-5">
@@ -322,7 +384,7 @@ function WorkshopCard({
 
       {attended ? (
         <div className="mt-5 flex flex-1 flex-col justify-end gap-4">
-          {workshop.downloadToken ? (
+          {downloadable ? (
             <AngularButton
               type="button"
               variant="primary"
@@ -338,10 +400,20 @@ function WorkshopCard({
               Digital Copy
             </AngularButton>
           ) : (
-            <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
-              Your digital certificate hasn&apos;t been uploaded yet — it&apos;s on
-              the way.
-            </p>
+            <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+              <FileWarning className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+              <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
+                Your digital certificate hasn&apos;t been uploaded yet — your
+                attendance is recorded, so it&apos;s on the way.{" "}
+                <Link
+                  href={SUPPORT_HREF}
+                  className="inline-flex items-center gap-1 text-[var(--accent-color)] transition-opacity hover:opacity-80"
+                >
+                  Chase it up
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </p>
+            </div>
           )}
 
           <p className="flex items-start gap-2 border-t border-[var(--border-color)]/60 pt-4 text-xs leading-relaxed text-[var(--text-secondary)]">
