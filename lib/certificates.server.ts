@@ -5,6 +5,7 @@
 // reads a server-only secret.
 
 import {
+  createHash,
   createHmac,
   randomBytes,
   randomInt,
@@ -175,6 +176,73 @@ export function verifyDownloadToken(
   return { uid, workshopId };
 }
 
+// --------------------------------------------------------------- reset tokens
+
+/** How long a password-reset link stays usable. */
+export const RESET_TTL_SECONDS = 1800;
+
+/**
+ * A short fingerprint of the student's current password hash.
+ *
+ * Baking this into a reset token makes the token single-use for free: the moment
+ * the code is changed the fingerprint no longer matches, so any outstanding link
+ * — including a replay of the one just used — stops verifying. No extra storage,
+ * no cleanup job.
+ */
+function passwordFingerprint(passwordHash: string): string {
+  return createHash("sha256").update(passwordHash).digest("hex").slice(0, 16);
+}
+
+export function signResetToken(
+  uid: string,
+  passwordHash: string,
+  ttlSeconds: number = RESET_TTL_SECONDS
+): string {
+  const exp = Math.floor(Date.now() / 1000) + ttlSeconds;
+  const encoded = Buffer.from(
+    [
+      Buffer.from(uid, "utf8").toString("base64url"),
+      passwordFingerprint(passwordHash),
+      exp,
+    ].join(":"),
+    "utf8"
+  ).toString("base64url");
+  return `${encoded}.${sign(encoded)}`;
+}
+
+/**
+ * Verify a reset link. `currentPasswordHash` comes from the record being reset —
+ * a mismatch means the code has already been changed since the link was issued.
+ */
+export function verifyResetToken(
+  token: string,
+  currentPasswordHash: string
+): { uid: string } | null {
+  const dot = token.indexOf(".");
+  if (dot < 1 || dot === token.length - 1) return null;
+
+  const encoded = token.slice(0, dot);
+  const provided = Buffer.from(token.slice(dot + 1));
+  const expected = Buffer.from(sign(encoded));
+  if (provided.length !== expected.length) return null;
+  if (!timingSafeEqual(provided, expected)) return null;
+
+  const parts = Buffer.from(encoded, "base64url").toString("utf8").split(":");
+  if (parts.length !== 3) return null;
+  const [encodedUid, fingerprint, expStr] = parts;
+
+  const exp = Number(expStr);
+  if (!Number.isFinite(exp) || exp * 1000 < Date.now()) return null;
+
+  const expectedFingerprint = Buffer.from(passwordFingerprint(currentPasswordHash));
+  const providedFingerprint = Buffer.from(fingerprint);
+  if (providedFingerprint.length !== expectedFingerprint.length) return null;
+  if (!timingSafeEqual(providedFingerprint, expectedFingerprint)) return null;
+
+  const uid = Buffer.from(encodedUid, "base64url").toString("utf8");
+  return uid ? { uid } : null;
+}
+
 // ---------------------------------------------------------------- public view
 
 /**
@@ -203,5 +271,5 @@ export function toPublicView(record: CertRecord): PublicCertView {
     };
   });
 
-  return { name: record.name, workshops };
+  return { uid: record.uid, name: record.name, workshops };
 }

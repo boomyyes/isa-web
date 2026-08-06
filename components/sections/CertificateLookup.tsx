@@ -198,8 +198,13 @@ export function CertificateLookup() {
           </AngularButton>
 
           <p className="mt-4 text-center text-xs leading-relaxed text-[var(--text-secondary)]">
-            Your UID and access code were emailed to you when you registered. We
-            only ever show your name and attendance — never your contact details.
+            Your UID and access code were emailed to you when you registered.{" "}
+            <Link
+              href="/certificates/reset"
+              className="text-[var(--accent-color)] transition-opacity hover:opacity-80"
+            >
+              Lost your code?
+            </Link>
           </p>
         </form>
       </div>
@@ -229,13 +234,19 @@ export function CertificateLookup() {
               "Lost the email? Raise a query on the Support page.",
             ]}
           />
-          <div className="mt-5 text-center">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center">
             <Link
-              href={SUPPORT_HREF}
+              href="/certificates/reset"
               className="inline-flex items-center gap-1.5 font-jetbrains text-sm text-[var(--accent-color)] transition-opacity hover:opacity-80"
             >
-              Contact Support
+              Get a new access code
               <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href={SUPPORT_HREF}
+              className="inline-flex items-center gap-1.5 font-jetbrains text-sm text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+            >
+              Contact Support
             </Link>
           </div>
         </div>
@@ -248,9 +259,15 @@ export function CertificateLookup() {
             <p className="font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
               [ Record matched ]
             </p>
-            <h2 className="mt-2 font-jetbrains text-2xl font-bold tracking-tight text-[var(--text-primary)] md:text-3xl">
-              {result.name}
-            </h2>
+            {/* Name left, UID right. Wraps rather than squashing on narrow screens. */}
+            <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+              <h2 className="font-jetbrains text-2xl font-bold tracking-tight text-[var(--text-primary)] md:text-3xl">
+                {result.name}
+              </h2>
+              <span className="shrink-0 rounded-full border border-[var(--border-active)]/40 bg-[var(--border-active)]/10 px-3 py-1 font-jetbrains text-xs font-medium uppercase tracking-widest text-[var(--border-active)]">
+                UID {result.uid}
+              </span>
+            </div>
           </header>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">

@@ -72,6 +72,40 @@ export function lookupUidLimiter(): Ratelimit {
   return uidLimiter;
 }
 
+let resetIp: Ratelimit | null = null;
+let resetUid: Ratelimit | null = null;
+
+/**
+ * Reset requests, per IP — 5 per hour.
+ *
+ * Much tighter than sign-in because this endpoint *sends email*. Loose limits
+ * here would turn the site into an open relay for spamming students' inboxes.
+ */
+export function resetIpLimiter(): Ratelimit {
+  if (resetIp) return resetIp;
+  resetIp = new Ratelimit({
+    redis: redis(),
+    limiter: Ratelimit.slidingWindow(5, "1 h"),
+    prefix: "rl:reset-ip",
+    ephemeralCache: new Map(),
+    analytics: false,
+  });
+  return resetIp;
+}
+
+/** Reset requests, per UID — 3 per hour, so one student can't be mail-bombed. */
+export function resetUidLimiter(): Ratelimit {
+  if (resetUid) return resetUid;
+  resetUid = new Ratelimit({
+    redis: redis(),
+    limiter: Ratelimit.slidingWindow(3, "1 h"),
+    prefix: "rl:reset-uid",
+    ephemeralCache: new Map(),
+    analytics: false,
+  });
+  return resetUid;
+}
+
 /**
  * Best-effort client IP. `NextRequest.ip` was removed in Next 15, and every
  * host we might deploy to (Vercel, Cloudflare, Netlify) sets one of these.

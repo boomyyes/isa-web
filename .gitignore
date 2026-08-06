@@ -40,6 +40,11 @@ yarn-error.log*
 # generated sample certificates (see scripts/make-sample-data.ts)
 /sample-certificates/
 
+# internal operator documentation — kept out of the public repo
+/SETUP.md
+/CERTIFICATES.md
+/ADD-WORKSHOP.md
+
 # vercel
 .vercel
 
