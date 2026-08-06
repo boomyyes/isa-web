@@ -15,6 +15,10 @@ interface LogoProps {
  * client ones (the Navbar). width/height are the PNGs' intrinsic sizes — they set
  * the aspect ratio and avoid layout shift; `w-auto` keeps the ratio while the
  * caller's className controls the rendered height.
+ *
+ * IMPORTANT: if you replace either PNG, update its width/height here to match the
+ * new file. The rendered width is derived from this ratio, so a stale value
+ * silently stretches or squashes the mark rather than erroring.
  */
 export function Logo({ className }: LogoProps) {
   return (
@@ -23,7 +27,7 @@ export function Logo({ className }: LogoProps) {
       <Image
         src="/isa-logo-black.png"
         alt="ISA-RAIT"
-        width={245}
+        width={205}
         height={211}
         priority
         className={cn("w-auto dark:hidden", className)}
@@ -33,7 +37,7 @@ export function Logo({ className }: LogoProps) {
         src="/isa-logo-white.png"
         alt=""
         aria-hidden
-        width={254}
+        width={215}
         height={209}
         priority
         className={cn("hidden w-auto dark:block", className)}
