@@ -1,22 +1,15 @@
 /**
  * Issue and email access codes to everyone still waiting for one.
  *
- *   npx tsx scripts/send-passwords.ts           # preview — sends NOTHING
- *   npx tsx scripts/send-passwords.ts --send    # actually sends
+ *   npx tsx scripts/send-passwords.ts           # preview — sends nothing
+ *   npx tsx scripts/send-passwords.ts --send
  *
- * MANUAL FALLBACK. Normally the sheet's Apps Script triggers
- * /api/certificates/sync every few minutes, which drains this same queue on its
- * own. Use this when SMTP was down during a sync, when you've just added a
- * missing email address, or when you want to watch it happen.
+ * Manual fallback; the sheet's sync drains the same queue on its own. Use it when
+ * SMTP was down during a sync or you've just filled in a missing address.
  *
- * NO DOUBLE-SENDING, by construction. The queue (`roster:pending` in Redis) only
- * holds students with no access code at all. A code is generated, hashed,
- * emailed and removed from the queue in one step, so anyone already served is
- * simply not in the list — no matter how often this runs, or from which machine.
- * An interrupted run resumes exactly where it stopped.
- *
- * Sending is opt-in via --send because it is irreversible and goes to real
- * people. The default run reports who is waiting.
+ * Can't double-send: the queue only holds students with no code at all, and a
+ * code is generated, emailed and dequeued in one step. Sending is opt-in because
+ * it's irreversible and goes to real people.
  */
 
 import { readFileSync, existsSync } from "node:fs";
@@ -108,7 +101,7 @@ async function main() {
     console.log(
       `  batch: sent ${result.sent}, failed ${result.failed}, remaining ${result.remaining}`
     );
-    // Stop when the queue stops shrinking, so a persistent failure can't spin.
+    // Stop if the queue stops shrinking, so a persistent failure can't spin.
     if (result.remaining === 0 || result.sent === 0 || ++guard > 40) break;
   }
 

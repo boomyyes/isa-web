@@ -3,13 +3,11 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Site-wide animated backdrop: a drifting starfield under a soft nebula wash.
+ * Drifting starfield under a nebula wash, at z-0.
  *
- * Sits at z-0, directly on top of the body's grid pattern. Everything else is
- * lifted above it in app/layout.tsx — page content and the footer get `relative
- * z-10`, and the navbar island is already z-50. That ordering is load-bearing:
- * a `fixed` element with z-index 0 paints ABOVE non-positioned in-flow content,
- * so without it this canvas would cover the footer and every page body.
+ * The z-10 wrappers in app/layout.tsx are load-bearing: a fixed z-0 element
+ * paints above non-positioned in-flow content, so without them this would cover
+ * the footer and every page body.
  */
 
 type Star = {
@@ -56,18 +54,16 @@ function Starfield() {
       const nextWidth = window.innerWidth;
       const nextHeight = window.innerHeight;
 
-      // Size the backing store in device pixels so the stars stay crisp on
-      // high-DPI screens, then scale the context back to CSS pixels so all the
-      // star coordinates below can stay in CSS units.
+      // Backing store in device pixels for crispness, context scaled back so the
+      // star coordinates stay in CSS units.
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.floor(nextWidth * dpr);
       canvas.height = Math.floor(nextHeight * dpr);
-      // Setting canvas.width resets the transform, so re-apply it every resize.
+      // Setting canvas.width resets the transform.
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      // Only reseed on a width change. On mobile the address bar showing and
-      // hiding fires resize constantly with a new height, and regenerating the
-      // field each time makes the stars visibly jump.
+      // Width only: on mobile the address bar fires resize constantly with a new
+      // height, and reseeding each time makes the stars jump.
       if (nextWidth !== width) {
         stars = createStars(nextWidth, nextHeight);
       }
@@ -110,8 +106,7 @@ function Starfield() {
 
     resizeCanvas();
 
-    // Matches the reduced-motion handling already in globals.css: hold a single
-    // static frame rather than running an animation loop forever.
+    // Hold one static frame instead of looping forever, as globals.css does.
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const start = () => {

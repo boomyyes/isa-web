@@ -37,10 +37,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* Fixed backdrop at z-0. Everything after it is explicitly lifted
-              above — a fixed z-0 element paints over non-positioned in-flow
-              content, so without the z-10 wrappers this would cover the pages
-              and the footer. The navbar island is already z-50. */}
+          {/* z-0 backdrop. The z-10 below is required — a fixed z-0 element
+              paints over non-positioned in-flow content. Navbar is already z-50. */}
           <GlobalBackground />
           <Navbar />
           <div className="relative z-10">{children}</div>

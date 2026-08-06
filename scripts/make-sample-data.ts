@@ -1,21 +1,13 @@
 /**
- * Generate a sample roster + matching sample certificates, for testing the
- * certificates page end to end before real student data exists.
+ * Sample roster + certificates, for testing before real data exists.
  *
  *   npx tsx scripts/make-sample-data.ts
  *
- * Writes:
- *   sample-roster.csv              — same shape as the real sheet's CSV export
- *   sample-certificates/{wks}/{uid}.svg
+ * Writes sample-roster.csv and sample-certificates/{wks}/{uid}.svg, both
+ * gitignored. SVG so they can be produced with no image library and still carry
+ * real text — import with `--ext svg`.
  *
- * Both are gitignored. SVG is used rather than PNG so the files can be produced
- * with no image library and still carry real text — import with `--ext svg`.
- *
- * Access codes are NOT generated here — the import script issues them and writes
- * new-access-codes.csv. Run the import, then read that file for the codes.
- *
- * The roster deliberately covers every UI state. UID 1 alone exercises all
- * three: a free physical copy, a chargeable one, and a not-attended workshop.
+ * Codes are issued by the import, not here. UID 1 covers all three card states.
  */
 
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -44,8 +36,7 @@ const STUDENTS: SampleStudent[] = [
   { uid: "4", name: "Ishita Rao",   college: "RAIT", phone: "9820000124", email: "ishita@example.com", marks: [[A, N], [N, N], [A, N]] },
   { uid: "5", name: "Vivaan Joshi", college: "RAIT", phone: "9820000125", email: "vivaan@example.com", marks: [[N, N], [A, N], [A, A]] },
   { uid: "6", name: "Ananya Iyer",  college: "RAIT", phone: "9820000126", email: "ananya@example.com", marks: [[A, N], [A, N], [A, N]] },
-  // Real deliverable address, for testing the mailer end to end. Covers all
-  // three card states: free physical, chargeable physical, and not attended.
+  // Real address, for testing the mailer end to end.
   { uid: "7", name: "Avanish Wankhede", college: "RAIT", phone: "9820000127", email: "avanishwankhede@gmail.com", marks: [[A, N], [A, A], [N, N]] },
 ];
 

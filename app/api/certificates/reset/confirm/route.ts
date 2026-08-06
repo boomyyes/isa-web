@@ -1,14 +1,8 @@
-// Complete a password reset.
+// POST { token } -> issues a new access code and returns it once, on screen.
 //
-// POST { token } -> issues a brand-new access code and returns it ONCE.
-//
-// The code is shown on screen rather than emailed, so the student has it
-// immediately and we don't spend a second delivery on it.
-//
-// Single-use falls out of the token design: the signed payload carries a
-// fingerprint of the password hash that was current when the link was minted, so
-// the moment this route changes the code, that token — and every older one —
-// stops verifying. No used-token table, no cleanup job.
+// Single-use falls out of the token design: the payload carries a fingerprint of
+// the password hash current when the link was minted, so changing the code
+// invalidates every outstanding token. No used-token table needed.
 
 import type { CertRecord } from "@/lib/certificates";
 import {
@@ -55,9 +49,8 @@ export async function POST(request: Request) {
     );
   }
 
-  // The token is signed but its payload isn't trusted for lookup until verified.
-  // Peek at the UID, load the record, then verify against that record's current
-  // hash — which is what makes a replayed link fail.
+  // Peek at the UID to load the record, then verify against that record's
+  // current hash — which is what makes a replayed link fail.
   let uid: string;
   try {
     const encoded = token.slice(0, token.indexOf("."));

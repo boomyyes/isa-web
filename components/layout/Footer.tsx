@@ -20,9 +20,7 @@ const SOCIALS = [
 
 export function Footer() {
   return (
-    // relative z-10 keeps the fixed z-0 backdrop (GlobalBackground) from
-    // painting over the footer — without it, a static element loses to a
-    // positioned one regardless of document order.
+    // relative z-10 keeps GlobalBackground from painting over the footer.
     <footer className="relative z-10 border-t border-[var(--border-color)]/60 bg-[var(--bg-color)]/80 backdrop-blur-sm">
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4">

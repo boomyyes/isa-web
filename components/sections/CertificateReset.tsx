@@ -9,12 +9,7 @@ import { fieldClass, labelClass } from "@/components/ui/formStyles";
 
 const SUPPORT_HREF = "/help";
 
-/**
- * Two screens in one component, chosen by whether the URL carries a token:
- *
- *   /certificates/reset          -> ask for a UID, email a link
- *   /certificates/reset?t=<tok>  -> redeem that link, show the new code once
- */
+/** Two screens: ask for a UID, or redeem the link if the URL carries a token. */
 export function CertificateReset() {
   const params = useSearchParams();
   const token = params.get("t");

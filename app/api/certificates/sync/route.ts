@@ -1,15 +1,9 @@
-// Roster sync — called by the Apps Script inside the attendance sheet.
+// Called by the Apps Script in the attendance sheet.
 //
-// POST { rows: string[][], force?: boolean, dryRun?: boolean }
-//   Authorization: Bearer <ROSTER_SYNC_SECRET>
+// POST { rows: string[][], force?, dryRun? }, Authorization: Bearer <secret>
 //
-// Does what the CLI importer does — reconcile the sheet into Redis, delete
-// anyone removed, honour the 20% delete brake — and then issues + emails access
-// codes to whoever was newly registered.
-//
-// Delivery is capped per invocation so a large intake can't blow the function
-// timeout. The response reports `remaining`; the caller simply posts again until
-// it reaches zero (the Apps Script does this on its next trigger).
+// Reconciles the sheet, then issues and emails codes to new students. Delivery is
+// capped per invocation; the response reports `remaining` and the caller re-posts.
 
 import { timingSafeEqual } from "node:crypto";
 import { redis } from "@/lib/redis";
@@ -63,8 +57,8 @@ export async function POST(request: Request) {
     );
   }
 
-  // Apps Script sends numbers and booleans through as-is; normalise to strings
-  // so the shared parser sees exactly what the CSV path would give it.
+  // Apps Script sends numbers and booleans as-is; normalise so the parser sees
+  // what the CSV path would give it.
   const grid: string[][] = (rows as unknown[][]).map((row) =>
     row.map((cell) => (cell === null || cell === undefined ? "" : String(cell)))
   );
@@ -92,8 +86,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // The brake tripped — report it as a conflict so the Apps Script can surface
-  // it rather than treating a refusal as success.
+  // 409 so the Apps Script surfaces it rather than treating it as success.
   if (result.refused) {
     return Response.json(
       {
@@ -113,8 +106,8 @@ export async function POST(request: Request) {
     try {
       delivery = await deliverPendingCodes(redis(), { limit: DELIVER_LIMIT });
     } catch (error) {
-      // The roster is already reconciled and the queue is durable, so a mail
-      // outage costs nothing but a delay — report it without failing the sync.
+      // The queue is durable, so a mail outage is only a delay — report it
+      // without failing the sync.
       deliveryError = (error as Error).message;
     }
   }

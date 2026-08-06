@@ -1,21 +1,12 @@
 /**
- * Set a specific access code for one student.
+ * Set a specific access code for one student, and email it to them.
  *
- *   npx tsx scripts/set-password.ts 7 "12345678"
- *   npx tsx scripts/set-password.ts 7 "12345678" --no-email
+ *   npx tsx scripts/set-password.ts 7 "12345678" [--no-email]
  *
- * Normally you never need this — the import issues random codes, and
- * `--regenerate-uid=<uid>` reissues one. Use this when the code has to be a
- * particular value: testing the mailer, or reading a replacement out to a
- * student over the phone.
+ * Only for when the code has to be a particular value — testing the mailer, or
+ * reading a replacement out over the phone. Normally students reset their own.
  *
- * By default it emails the student the code straight away — this script holds the
- * plaintext, so it can deliver it directly rather than queueing anything. Pass
- * --no-email to set the code silently and hand it over some other way.
- *
- * A chosen code is only as strong as you make it. Generated codes carry ~40 bits
- * of entropy; a short numeric one is guessable in far fewer tries, so keep those
- * to testing or to accounts you re-secure afterwards.
+ * A chosen code is only as strong as you make it; generated ones carry ~40 bits.
  */
 
 import { readFileSync, existsSync } from "node:fs";
@@ -80,8 +71,7 @@ async function main() {
     passwordEmailedAt: new Date().toISOString(),
   } satisfies CertRecord);
 
-  // They now have a code, so they must not stay in the auto-issue queue —
-  // otherwise the next sync would overwrite this with a generated one.
+  // Out of the queue, or the next sync overwrites this with a generated code.
   await redis.srem(PENDING_KEY, uid);
 
   console.log(`Set access code for UID ${uid} (${record.name}).`);

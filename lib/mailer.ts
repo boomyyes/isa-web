@@ -1,16 +1,10 @@
-// Outbound email: transport + templates.
-//
-// Shared by the API routes (automatic registration mail, password resets) and by
-// the CLI scripts, so there is exactly one place where message wording lives.
-//
-// Node runtime only — nodemailer opens a TCP socket, so any route importing this
-// must not run on the edge.
+// Transport + templates, shared by the API routes and the CLI scripts so message
+// wording lives in one place. Node runtime only — nodemailer needs a TCP socket.
 
 import nodemailer, { type Transporter } from "nodemailer";
 
 let transport: Transporter | null = null;
 
-/** True when enough SMTP settings exist to attempt a send. */
 export function mailerConfigured(): boolean {
   return Boolean(
     process.env.SMTP_HOST &&
@@ -20,10 +14,6 @@ export function mailerConfigured(): boolean {
   );
 }
 
-/**
- * Lazily-built transport singleton. Reused across warm invocations so a batch of
- * sends shares one authenticated connection instead of reconnecting per message.
- */
 export function mailer(): Transporter {
   if (transport) return transport;
 
@@ -40,8 +30,7 @@ export function mailer(): Transporter {
     port,
     secure: port === 465, // 465 is implicit TLS; 587 upgrades via STARTTLS
     auth: { user, pass },
-    // Keep the connection open across a batch, but cap concurrency — consumer
-    // SMTP relays throttle or blacklist on parallel bursts.
+    // Pooled but single-connection — consumer relays throttle parallel bursts.
     pool: true,
     maxConnections: 1,
     maxMessages: 50,
@@ -82,7 +71,7 @@ function button(href: string, label: string) {
   return `  <p><a href="${escapeHtml(href)}" style="display:inline-block;background:#00A3C4;color:#fff;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:600">${escapeHtml(label)}</a></p>`;
 }
 
-/** Sent once, when a student is first registered onto the roster. */
+/** Sent once, when a student is first registered. */
 export async function sendAccessCodeEmail(opts: {
   to: string;
   name: string;
@@ -130,9 +119,8 @@ ${button(`${url}/certificates`, "Collect your certificates")}
 }
 
 /**
- * Sent when someone requests a reset. Carries a link, not a new code — the
- * existing code keeps working until the link is actually opened, so a stranger
- * spamming this endpoint can't lock a student out of their own certificates.
+ * Carries a link, not a new code: the existing code keeps working until the link
+ * is opened, so a stranger spamming resets can't lock a student out.
  */
 export async function sendResetEmail(opts: {
   to: string;
