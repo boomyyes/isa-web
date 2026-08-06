@@ -98,8 +98,16 @@ export interface PublicWorkshopView {
   downloadToken: string | null;
 }
 
-/** The full lookup response. Name is the only personal field that leaves the server. */
+/**
+ * The full lookup response.
+ *
+ * Name and UID are the only personal fields that leave the server — and the UID
+ * is something the student just typed in to get here, so echoing it back reveals
+ * nothing. It's returned rather than reused from the form so the display shows
+ * the canonical stored value.
+ */
 export interface PublicCertView {
+  uid: string;
   name: string;
   workshops: PublicWorkshopView[];
 }

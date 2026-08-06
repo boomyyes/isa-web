@@ -9,24 +9,22 @@
  * particular value: testing the mailer, or reading a replacement out to a
  * student over the phone.
  *
- * By default it also:
- *   - clears the student's "already emailed" stamp, and
- *   - writes the code into new-access-codes.csv,
- * so `npx tsx scripts/send-passwords.ts --send` will deliver this exact code.
- * Pass --no-email to set the code silently without queueing a message.
+ * By default it emails the student the code straight away — this script holds the
+ * plaintext, so it can deliver it directly rather than queueing anything. Pass
+ * --no-email to set the code silently and hand it over some other way.
  *
  * A chosen code is only as strong as you make it. Generated codes carry ~40 bits
  * of entropy; a short numeric one is guessable in far fewer tries, so keep those
  * to testing or to accounts you re-secure afterwards.
  */
 
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { Redis } from "@upstash/redis";
 import { normalizePassword, type CertRecord } from "../lib/certificates";
 import { hashPassword, redisKey } from "../lib/certificates.server";
-
-const HANDOUT_FILE = "new-access-codes.csv";
+import { mailerConfigured, sendAccessCodeEmail } from "../lib/mailer";
+import { PENDING_KEY } from "../lib/roster";
 
 function loadEnv(file: string) {
   if (!existsSync(file)) return;
@@ -37,29 +35,6 @@ function loadEnv(file: string) {
     if (process.env[key]) continue;
     process.env[key] = rawValue.trim().replace(/^(['"])(.*)\1$/, "$2");
   }
-}
-
-const csvCell = (value: string) => `"${value.replace(/"/g, '""')}"`;
-
-/**
- * Add or replace this student's row in the handout, leaving other rows intact —
- * the file may already hold codes for students who haven't been mailed yet.
- */
-function upsertHandout(path: string, uid: string, name: string, email: string, password: string) {
-  const header = "UID,Name,Email,Password";
-  const row = [uid, name, email, password].map(csvCell).join(",");
-
-  if (!existsSync(path)) {
-    writeFileSync(path, `${header}\n${row}\n`, "utf8");
-    return;
-  }
-
-  const lines = readFileSync(path, "utf8").split(/\r?\n/).filter((l) => l.trim() !== "");
-  const kept = lines
-    .slice(1)
-    .filter((line) => !new RegExp(`^"?${uid.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"?,`).test(line));
-
-  writeFileSync(path, [header, ...kept, row].join("\n") + "\n", "utf8");
 }
 
 async function main() {
@@ -102,28 +77,42 @@ async function main() {
   await redis.set(redisKey(uid), {
     ...record,
     passwordHash: await hashPassword(password),
-    // Clearing the stamp is what re-arms the mailer for this student.
-    passwordEmailedAt: noEmail ? record.passwordEmailedAt : null,
+    passwordEmailedAt: new Date().toISOString(),
   } satisfies CertRecord);
+
+  // They now have a code, so they must not stay in the auto-issue queue —
+  // otherwise the next sync would overwrite this with a generated one.
+  await redis.srem(PENDING_KEY, uid);
 
   console.log(`Set access code for UID ${uid} (${record.name}).`);
   console.log(`  Sign in with: ${uid} / ${password}`);
   console.log(`  Stored normalised as: ${canonical}  (case-insensitive, punctuation ignored)`);
 
   if (noEmail) {
-    console.log("\n--no-email: the emailed stamp was left as-is and the handout not touched.");
+    console.log("\n--no-email: nothing was sent. Hand the code over yourself.");
     return;
   }
 
   if (!record.email) {
-    console.log("\nThis student has no email address, so nothing was queued to send.");
+    console.log("\nThis student has no email address, so nothing was sent.");
     return;
   }
 
-  upsertHandout(resolve(process.cwd(), HANDOUT_FILE), uid, record.name, record.email, password);
-  console.log(`\nQueued in ${HANDOUT_FILE} for ${record.email}.`);
-  console.log("  npx tsx scripts/send-passwords.ts          (preview)");
-  console.log("  npx tsx scripts/send-passwords.ts --send   (deliver)");
+  if (!mailerConfigured()) {
+    console.log(
+      "\nSMTP is not configured, so no email was sent — the code above is set and working.\n" +
+        "Fill in SMTP_* and MAIL_FROM in .env.local to have this delivered automatically."
+    );
+    return;
+  }
+
+  try {
+    await sendAccessCodeEmail({ to: record.email, name: record.name, uid, password });
+    console.log(`\nEmailed it to ${record.email}.`);
+  } catch (error) {
+    console.error(`\nThe code is set, but the email failed — ${(error as Error).message}`);
+    console.error("Pass it on by hand, or fix SMTP and re-run.");
+  }
 }
 
 main().catch((error) => {
