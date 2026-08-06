@@ -1,18 +1,7 @@
-// Certificate lookup — UID + access code.
+// POST { uid, password } -> name + per-workshop eligibility.
 //
-// POST { uid, password } -> the student's name plus their per-workshop eligibility.
-//
-// This is a credential check, not a convenience lookup, so three things matter:
-//
-//  1. It never returns email, college, the password hash, or R2 object keys.
-//     Only the name and the eligibility flags leave the server (see toPublicView).
-//
-//  2. "No such UID" and "wrong code" return a byte-identical response. UIDs are
-//     sequential and therefore enumerable; distinguishing the two would confirm
-//     which UIDs exist and turn guessing into a two-stage problem.
-//
-//  3. Attempts are capped per UID as well as per IP — see lib/redis.ts for why
-//     the per-IP cap alone is not enough (and why it is deliberately loose).
+// A credential check, not a convenience lookup: "no such UID" and "wrong code"
+// return byte-identical responses, since UIDs are sequential and enumerable.
 
 import { normalizeUid, type CertRecord } from "@/lib/certificates";
 import { redisKey, toPublicView, verifyPassword } from "@/lib/certificates.server";

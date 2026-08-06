@@ -1,25 +1,15 @@
 /**
- * Import the attendance sheet into Upstash Redis, from a CSV export.
+ * Import the roster from a CSV export.
  *
- *   npx tsx scripts/import-roster.ts roster.csv
- *   npx tsx scripts/import-roster.ts roster.csv --dry-run
- *   npx tsx scripts/import-roster.ts roster.csv --ext jpg
- *   npx tsx scripts/import-roster.ts roster.csv --force
- *   npx tsx scripts/import-roster.ts roster.csv --send      (also email new codes)
+ *   npx tsx scripts/import-roster.ts roster.csv [--dry-run] [--ext jpg]
+ *                                               [--force] [--send]
  *
- * MANUAL FALLBACK. The normal path is automatic: the Apps Script in the sheet
- * posts to /api/certificates/sync every few minutes, which runs this exact logic
- * (see lib/roster.ts) and mails new students their access codes. Reach for this
- * when you want a dry run first, when the sheet integration is down, or when
- * restoring from a CSV backup.
+ * Manual fallback — normally the sheet's Apps Script posts to
+ * /api/certificates/sync, which runs the same logic from lib/roster.ts. Use this
+ * for a dry run, a CSV backup, or when the sheet integration is down.
  *
- * The CSV is treated as the whole truth: records are added, updated, AND anyone
- * missing from the file is deleted. An import that would remove more than 20% of
- * the stored roster refuses to run — pass --force when that is intended.
- *
- * Access codes are NOT issued here by default. A new student is stored with an
- * empty hash, which queues them; the next sync (or --send) issues and emails the
- * code in one step, so the plaintext never touches disk.
+ * The CSV is the whole truth: anyone missing from it is deleted, unless that
+ * would remove more than 20% of the roster (then --force).
  */
 
 import { readFileSync, existsSync } from "node:fs";

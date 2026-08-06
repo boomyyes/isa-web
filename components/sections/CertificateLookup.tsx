@@ -19,11 +19,10 @@ import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import { formatEventDate } from "@/lib/events";
 import type { PublicCertView, PublicWorkshopView } from "@/lib/certificates";
 
-/** The support page lives at /help — the directory is `help`, the UI calls it "Support". */
+/** The directory is `help`; the UI calls it "Support". */
 const SUPPORT_HREF = "/help";
 
-// Download tokens are valid for 10 minutes. Refresh a little before that, so a
-// result left open in a background tab never drops the student on a bare 403.
+/** Tokens last 10 min — refresh early so a tab left open doesn't hit a bare 403. */
 const TOKEN_STALE_MS = 9 * 60 * 1000;
 
 type LookupResult =
@@ -61,8 +60,7 @@ async function lookup(uid: string, password: string): Promise<LookupResult> {
 }
 
 export function CertificateLookup() {
-  // The access code stays in component state only — never in the URL, never in
-  // localStorage, never logged.
+  // Component state only — never the URL, never localStorage.
   const [uid, setUid] = useState("");
   const [password, setPassword] = useState("");
 
@@ -122,8 +120,7 @@ export function CertificateLookup() {
         return;
       }
 
-      // The endpoint responds with Content-Disposition: attachment, so this
-      // starts a download rather than navigating the page away.
+      // Content-Disposition: attachment, so this downloads instead of navigating.
       window.location.href = `/api/certificates/download?t=${encodeURIComponent(token)}`;
     },
     [result, fetchedAt, uid, password]
@@ -259,7 +256,7 @@ export function CertificateLookup() {
             <p className="font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
               [ Record matched ]
             </p>
-            {/* Name left, UID right. Wraps rather than squashing on narrow screens. */}
+            {/* Wraps rather than squashing a long name on narrow screens. */}
             <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
               <h2 className="font-jetbrains text-2xl font-bold tracking-tight text-[var(--text-primary)] md:text-3xl">
                 {result.name}

@@ -1,13 +1,6 @@
-// Presigned reads for the private Cloudflare R2 certificate bucket.
-//
-// The bucket has no public access. Every object read goes through a presigned
-// URL minted here *after* an eligibility check, and that URL expires in a couple
-// of minutes. Redirecting the browser straight to R2 (rather than proxying the
-// bytes the way /api/isaac-cover does) keeps the download off the Next host
-// entirely — no serverless bandwidth burned, and R2 egress is free.
-//
-// aws4fetch is used instead of @aws-sdk/client-s3: it is a few KB, has no
-// dependencies, and SigV4 query signing is all we need here.
+// Presigned reads for the private R2 bucket. The browser is redirected straight
+// to R2 rather than proxied, so downloads cost no serverless bandwidth.
+// aws4fetch over the AWS SDK: a few KB, and query signing is all we need.
 
 import { AwsClient } from "aws4fetch";
 
@@ -39,14 +32,7 @@ function objectUrl(key: string): string {
   return `https://${accountId}.r2.cloudflarestorage.com/${bucket}/${path}`;
 }
 
-/**
- * A time-limited GET URL for one object.
- *
- * @param key           R2 object key, e.g. "wks-1/121.png"
- * @param ttlSeconds    How long the URL stays valid
- * @param downloadName  Filename the browser should save as. Signed into the
- *                      request, so it cannot be tampered with after the fact.
- */
+/** `downloadName` is signed in, so it can't be tampered with afterwards. */
 export async function presignGet(
   key: string,
   ttlSeconds: number,

@@ -1,8 +1,5 @@
-// Server-only certificate helpers: access-code hashing, download-token signing,
-// and the record -> public view projection that strips PII.
-//
-// Never import this from a "use client" component — it pulls in node:crypto and
-// reads a server-only secret.
+// Server-only: hashing, token signing, and the projection that strips PII.
+// Never import from a "use client" component.
 
 import {
   createHash,
@@ -29,54 +26,39 @@ const scrypt = promisify(scryptCallback) as (
   options: { N: number; r: number; p: number }
 ) => Promise<Buffer>;
 
-/** How long a download token stays valid. Long enough to click, short enough to not be a share link. */
 const TOKEN_TTL_SECONDS = 600;
 
-// scrypt cost. N=16384 lands around 50-100ms per verification — slow enough to
-// make offline cracking expensive, fast enough for a serverless request.
+/** N=16384 is ~50-100ms per verification: costly to crack, fine for a request. */
 const SCRYPT = { N: 16384, r: 8, p: 1 } as const;
 const KEY_LENGTH = 32;
 
 function secret(): string {
   const value = process.env.CERT_TOKEN_SECRET;
-  // Read lazily rather than at module load, so a missing secret surfaces as a
-  // runtime 500 on the endpoint instead of breaking `next build`.
   if (!value) throw new Error("CERT_TOKEN_SECRET is not set");
   return value;
 }
 
-/** Redis key for a student. The UID is the primary key. */
 export function redisKey(uid: string): string {
   return `cert:${uid}`;
 }
 
 // ------------------------------------------------------------------ passwords
 
-/**
- * Alphabet with no O/0 or I/1/L — students read these codes off a screen or a
- * printout and type them back, so ambiguous glyphs cause avoidable failures.
- */
+/** No O/0 or I/1/L — students read these off a screen and type them back. */
 const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const CODE_LENGTH = 8;
 
-/**
- * A fresh access code, e.g. "K7P2-9XQM".
- *
- * 31^8 ≈ 8.5e11 (~40 bits). Combined with the per-UID rate limit that is far
- * out of brute-force reach, while staying short enough to type.
- *
- * Returns the display form; hash the normalised form (see normalizePassword).
- */
+/** e.g. "K7P2-9XQM". 31^8 ≈ 40 bits, well out of brute-force reach. */
 export function generatePassword(): string {
   let code = "";
   for (let i = 0; i < CODE_LENGTH; i++) {
-    // randomInt is rejection-sampled, so no modulo bias across the alphabet.
+    // randomInt is rejection-sampled, so no modulo bias.
     code += CODE_ALPHABET[randomInt(CODE_ALPHABET.length)];
   }
   return `${code.slice(0, 4)}-${code.slice(4)}`;
 }
 
-/** Hash an access code for storage. Format: scrypt$N$r$p$salt$hash (all base64). */
+/** Format: scrypt$N$r$p$salt$hash */
 export async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16);
   const derived = await scrypt(normalizePassword(password), salt, KEY_LENGTH, SCRYPT);
@@ -90,12 +72,7 @@ export async function hashPassword(password: string): Promise<string> {
   ].join("$");
 }
 
-/**
- * Check an access code against a stored hash.
- *
- * Returns false rather than throwing on a malformed stored value, so a corrupt
- * record fails closed instead of 500-ing the endpoint.
- */
+/** Returns false rather than throwing, so a corrupt record fails closed. */
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   if (!stored) return false;
 
@@ -127,11 +104,8 @@ function sign(encodedPayload: string): string {
 }
 
 /**
- * Mint a download token for one student + one workshop.
- *
- * The token asserts *identity* only. Eligibility is re-checked against Redis at
- * download time, so revoking someone's attendance takes effect immediately even
- * if they are holding an unexpired token.
+ * Asserts identity only — eligibility is re-checked against Redis at download
+ * time, so revoking attendance takes effect even on an unexpired token.
  */
 export function signDownloadToken(
   uid: string,
@@ -139,8 +113,7 @@ export function signDownloadToken(
   ttlSeconds: number = TOKEN_TTL_SECONDS
 ): string {
   const exp = Math.floor(Date.now() / 1000) + ttlSeconds;
-  // UID is base64url'd as part of the payload, so a UID containing ":" can't
-  // forge extra fields.
+  // UID is base64url'd so one containing ":" can't forge extra fields.
   const encoded = Buffer.from(
     `${Buffer.from(uid, "utf8").toString("base64url")}:${workshopId}:${exp}`,
     "utf8"
@@ -158,8 +131,7 @@ export function verifyDownloadToken(
   const encoded = token.slice(0, dot);
   const provided = Buffer.from(token.slice(dot + 1));
   const expected = Buffer.from(sign(encoded));
-  // timingSafeEqual throws on length mismatch, so check that first. The length
-  // itself is not a secret — the signature is fixed-width.
+  // timingSafeEqual throws on length mismatch, and the length isn't secret.
   if (provided.length !== expected.length) return null;
   if (!timingSafeEqual(provided, expected)) return null;
 
@@ -178,16 +150,11 @@ export function verifyDownloadToken(
 
 // --------------------------------------------------------------- reset tokens
 
-/** How long a password-reset link stays usable. */
 export const RESET_TTL_SECONDS = 1800;
 
 /**
- * A short fingerprint of the student's current password hash.
- *
- * Baking this into a reset token makes the token single-use for free: the moment
- * the code is changed the fingerprint no longer matches, so any outstanding link
- * — including a replay of the one just used — stops verifying. No extra storage,
- * no cleanup job.
+ * Baked into reset tokens to make them single-use for free: changing the code
+ * changes the fingerprint, so every outstanding link stops verifying.
  */
 function passwordFingerprint(passwordHash: string): string {
   return createHash("sha256").update(passwordHash).digest("hex").slice(0, 16);
@@ -210,10 +177,7 @@ export function signResetToken(
   return `${encoded}.${sign(encoded)}`;
 }
 
-/**
- * Verify a reset link. `currentPasswordHash` comes from the record being reset —
- * a mismatch means the code has already been changed since the link was issued.
- */
+/** `currentPasswordHash` comes from the record being reset. */
 export function verifyResetToken(
   token: string,
   currentPasswordHash: string
@@ -245,12 +209,7 @@ export function verifyResetToken(
 
 // ---------------------------------------------------------------- public view
 
-/**
- * Project a stored record into what the browser is allowed to see.
- *
- * Drops `email`, `college`, `passwordHash` and the R2 object keys entirely —
- * the response carries the student's name and their eligibility, nothing else.
- */
+/** Drops email, college, the hash and the R2 keys. */
 export function toPublicView(record: CertRecord): PublicCertView {
   const workshops: PublicWorkshopView[] = WORKSHOPS.map((meta) => {
     const entry = record.workshops?.[meta.id];
@@ -261,11 +220,8 @@ export function toPublicView(record: CertRecord): PublicCertView {
       title: meta.title,
       date: meta.date,
       attended,
-      // Not attended -> no physical copy is offered at all. Otherwise the first
-      // copy is free and any copy after the one already collected is chargeable.
       physical: attended ? (entry?.received ? "chargeable" : "free") : null,
-      // No token when there is nothing to download — an attended student whose
-      // image hasn't been uploaded yet gets the physical route only.
+      // An attended student whose image isn't uploaded yet gets the physical route only.
       downloadToken:
         attended && entry?.cert ? signDownloadToken(record.uid, meta.id) : null,
     };

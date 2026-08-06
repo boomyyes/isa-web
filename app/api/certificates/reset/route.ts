@@ -1,17 +1,8 @@
-// Request a new access code.
+// POST { uid } -> emails a reset link to the address on file.
 //
-// POST { uid } -> emails a reset LINK to the address on file.
-//
-// Two properties matter here:
-//
-//  1. The response is identical whether or not the UID exists. UIDs are
-//     sequential, so anything else would confirm which ones are real.
-//
-//  2. It sends a link, not a new code. The student's existing code keeps working
-//     until the link is actually opened from their inbox — so a stranger walking
-//     UIDs can't lock people out of their own certificates, only send them an
-//     email they can ignore. That is also why this is rate-limited far harder
-//     than sign-in: it sends mail, so it is a spam vector.
+// Sends a link rather than a new code, so a stranger walking UIDs can't lock
+// anyone out — only send them an email they can ignore. The response is identical
+// whether or not the UID exists.
 
 import { normalizeUid, type CertRecord } from "@/lib/certificates";
 import { redisKey, signResetToken, RESET_TTL_SECONDS } from "@/lib/certificates.server";
@@ -22,7 +13,7 @@ export const runtime = "nodejs";
 
 const PRIVATE_HEADERS = { "Cache-Control": "no-store" };
 
-/** Deliberately says nothing about whether the UID exists. */
+/** Says nothing about whether the UID exists. */
 const ACCEPTED = {
   ok: true,
   message: "If that UID is on our roster, we've emailed a reset link to the address on file.",
@@ -77,8 +68,8 @@ export async function POST(request: Request) {
     );
   }
 
-  // From here on, every path returns ACCEPTED — no UID exists, no email on file,
-  // and a successful send must all look the same from outside.
+  // Every path below returns ACCEPTED: no such UID, no email on file, and a
+  // successful send must look identical from outside.
   if (record?.email) {
     const token = signResetToken(uid, record.passwordHash);
     const link = `${siteUrl()}/certificates/reset?t=${encodeURIComponent(token)}`;
@@ -91,8 +82,7 @@ export async function POST(request: Request) {
         expiresMinutes: Math.round(RESET_TTL_SECONDS / 60),
       });
     } catch {
-      // Swallowed on purpose: surfacing a send failure here would reveal that
-      // the UID exists. The student can simply try again.
+      // Swallowed: surfacing a send failure would reveal the UID exists.
     }
   }
 

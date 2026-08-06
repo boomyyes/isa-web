@@ -1,14 +1,4 @@
-// Certificate download.
-//
 // GET ?t={token} -> 302 to a short-lived presigned R2 URL.
-//
-// The token (minted by /api/certificates/lookup) asserts *identity* only —
-// which student, which workshop. Eligibility is re-checked against Redis on
-// every download, so correcting someone's attendance takes effect immediately
-// even if they are still holding an unexpired token.
-//
-// Plain GET + 302 keeps the client side a normal <a href download> — no blob
-// juggling — and the redirect target dies within a couple of minutes.
 
 import { type CertRecord } from "@/lib/certificates";
 import { redisKey, verifyDownloadToken } from "@/lib/certificates.server";
@@ -29,7 +19,7 @@ export async function GET(request: Request) {
   const token = new URL(request.url).searchParams.get("t");
   if (!token) return fail("Missing download token.", 400);
 
-  // A throw here means CERT_TOKEN_SECRET is unset — a config fault, not a bad token.
+  // A throw means CERT_TOKEN_SECRET is unset — config fault, not a bad token.
   let claim: ReturnType<typeof verifyDownloadToken>;
   try {
     claim = verifyDownloadToken(token);
@@ -46,13 +36,11 @@ export async function GET(request: Request) {
   }
 
   const entry = record?.workshops?.[claim.workshopId];
-  // Redis stays the authority: a valid token for a revoked attendance gets nothing.
+  // Redis stays the authority, so a revoked attendance gets nothing.
   if (!record || !entry?.attended || !entry.cert) {
     return fail("No certificate is available for this workshop.", 404);
   }
 
-  // Name the saved file after the workshop and UID — never the student's email,
-  // which would otherwise end up in their downloads folder.
   const extension = entry.cert.includes(".") ? entry.cert.split(".").pop() : "png";
   const filename = `ISA-RAIT-${claim.workshopId}-${record.uid}.${extension}`;
 

@@ -1,10 +1,5 @@
-// Roster reconciliation — shared by the sync endpoint and the CLI importer.
-//
-// Both paths take the same thing (the sheet as a grid of strings) and must
-// behave identically, so the header resolution, the record building, the delete
-// reconciliation and the safety brake all live here rather than in either caller.
-//
-// Node runtime only (pulls in node:crypto via certificates.server).
+// Roster reconciliation, shared by the sync endpoint and the CLI importer so the
+// two can't drift. Node runtime only.
 
 import type { Redis } from "@upstash/redis";
 import {
@@ -15,20 +10,16 @@ import {
 import { generatePassword, hashPassword, redisKey } from "./certificates.server";
 import { mailerConfigured, sendAccessCodeEmail } from "./mailer";
 
-/** Set of every `cert:*` key the last sync wrote. Lets a re-sync delete removals. */
+/** Every `cert:*` key the last sync wrote, so a re-sync can delete removals. */
 export const INDEX_KEY = "roster:index";
 
 /**
- * UIDs still waiting for an access code to be issued and emailed.
- *
- * A work queue rather than a scan: the sync runs every few minutes and almost
- * always has nothing to do, so checking it must cost one command, not one per
- * student. Scanning the whole roster each time would blow through the 500k
- * commands/month free tier within a couple of weeks.
+ * UIDs waiting for an access code. A queue rather than a scan — the sync runs
+ * every few minutes with nothing to do, and scanning would eat the 500k
+ * commands/month budget in weeks.
  */
 export const PENDING_KEY = "roster:pending";
 
-/** Refuse a sync that would delete more than this share of the stored roster. */
 export const MAX_DELETE_FRACTION = 0.2;
 
 const TRUTHY = new Set(["true", "1", "yes", "y", "x", "✓"]);
@@ -38,11 +29,9 @@ export const isChecked = (value: string | undefined) =>
 // ------------------------------------------------------------- header parsing
 
 /**
- * Collapse the header into one label per column.
- *
- * With a merged two-row header, the group label ("WKS 1") only appears above the
- * first of its two columns, so it is forward-filled across the group before
- * being joined with the second row ("Attended?" / "Received?").
+ * One label per column. With a merged two-row header the group label ("WKS 1")
+ * only sits above the first of its pair, so it's forward-filled before joining
+ * with row two.
  */
 export function resolveHeader(rows: string[][]): { header: string[]; dataStart: number } {
   const [first, second] = rows;
@@ -79,8 +68,8 @@ export function findWorkshopColumns(header: string[], warn: (message: string) =>
   for (const { id, sheetLabel } of WORKSHOPS) {
     const group = groupPattern(id, sheetLabel);
 
-    // Never fall through silently: an unmatched workshop would mark the whole
-    // roster absent for it, which looks identical to nobody having attended.
+    // Never fall through silently — an unmatched workshop looks identical to
+    // nobody having attended.
     if (!group) {
       warn(`"${id}" has no number to match on — add sheetLabel to its entry in lib/certificates.ts`);
       continue;
@@ -123,7 +112,7 @@ export interface ParseResult {
   skipped: number;
 }
 
-/** Turn the raw sheet grid into roster rows. Throws only on an unusable header. */
+/** Throws only on an unusable header; everything else is a warning. */
 export function parseSheet(grid: string[][], extension = "png"): ParseResult {
   const rows = grid.filter((r) => r.some((cell) => (cell ?? "").trim() !== ""));
   if (rows.length < 2) throw new Error("Sheet has no data rows.");
@@ -198,19 +187,16 @@ export function parseSheet(grid: string[][], extension = "png"): ParseResult {
 export interface ReconcileResult {
   written: number;
   deleted: number;
-  /** Students created by this run — they have no access code yet. */
+  /** Created by this run, so they have no access code yet. */
   registered: number;
   stored: number;
   refused?: string;
 }
 
 /**
- * Make Redis match the sheet: write everyone present, delete everyone absent.
- *
- * Existing students keep their `passwordHash` and `passwordEmailedAt` untouched —
- * codes are hashed and unrecoverable, so reissuing on every sync would silently
- * lock the whole roster out. A brand-new student is stored with an EMPTY hash,
- * which is what puts them in the queue for `deliverPendingCodes` to pick up.
+ * Make Redis match the sheet. Existing students keep their hash untouched —
+ * codes are unrecoverable, so reissuing on every sync would lock the roster out.
+ * New students get an empty hash, which is what queues them.
  */
 export async function reconcile(
   redis: Redis,
@@ -246,24 +232,23 @@ export async function reconcile(
     };
   });
 
-  // No stored hash yet == never been issued a code == belongs in the work queue.
+  // No hash == never issued a code == belongs in the queue.
   const pendingUids = records.filter((r) => !r.record.passwordHash).map((r) => r.record.uid);
   const registered = pendingUids.length;
 
   const newKeys = records.map((r) => r.key);
   const newKeySet = new Set(newKeys);
 
-  // See deliverPendingCodes for why these are coerced back to strings.
+  // String(): Upstash JSON-parses set members, so "8" returns as the number 8.
   let knownKeys = (await redis.smembers(INDEX_KEY)).map(String);
   if (knownKeys.length === 0) {
-    // No index yet — first run, or data written before the index existed. Fall
-    // back to a scan so pre-existing records get reconciled, not orphaned.
+    // First run, or data written before the index existed — scan so those
+    // records get reconciled rather than orphaned.
     knownKeys = await redis.keys("cert:*");
   }
   const stale = knownKeys.filter((key) => !newKeySet.has(key));
 
   // A truncated export or an accidental block-delete shows up as a large drop.
-  // Refuse rather than quietly stripping people of their certificates.
   const allowed = Math.max(1, Math.floor(knownKeys.length * MAX_DELETE_FRACTION));
   if (stale.length > allowed && !opts.force) {
     return {
@@ -292,22 +277,21 @@ export async function reconcile(
     await redis.del(...chunk);
   }
 
-  // Queue the new arrivals for a code. Done before the index rebuild so a crash
-  // in between leaves them queued rather than silently code-less.
+  // Before the index rebuild, so a crash in between leaves them queued rather
+  // than silently code-less.
   for (let i = 0; i < pendingUids.length; i += BATCH) {
     const chunk = pendingUids.slice(i, i + BATCH) as [string, ...string[]];
     await redis.sadd(PENDING_KEY, ...chunk);
   }
 
-  // Anyone removed from the sheet shouldn't linger in the queue.
   const staleUids = stale.map((key) => key.replace(/^cert:/, ""));
   for (let i = 0; i < staleUids.length; i += BATCH) {
     const chunk = staleUids.slice(i, i + BATCH) as [string, ...string[]];
     await redis.srem(PENDING_KEY, ...chunk);
   }
 
-  // Rebuild the index last, so a crash mid-write leaves the old index in place
-  // and the next run re-reconciles rather than losing track of existing keys.
+  // Index last: a crash mid-write leaves the old one in place and the next run
+  // re-reconciles instead of losing track.
   await redis.del(INDEX_KEY);
   for (let i = 0; i < newKeys.length; i += BATCH) {
     const chunk = newKeys.slice(i, i + BATCH) as [string, ...string[]];
@@ -327,16 +311,10 @@ export interface DeliveryResult {
 }
 
 /**
- * Issue and email access codes to everyone who doesn't have one yet.
- *
- * Generation is deferred to this point on purpose. A code is created, hashed,
- * emailed and stamped inside one iteration, so the plaintext never outlives the
- * send and never touches disk. That also makes the whole thing resumable: an
- * invocation that dies halfway leaves the rest with empty hashes, and the next
- * run picks up exactly where it stopped.
- *
- * `limit` keeps a large intake inside a serverless timeout — the caller re-runs
- * until `remaining` is 0.
+ * Generation is deferred to here on purpose: a code is created, hashed, emailed
+ * and dequeued in one iteration, so the plaintext never outlives the send and
+ * the whole thing is resumable. `limit` keeps a big intake inside a serverless
+ * timeout — callers re-run until `remaining` is 0.
  */
 export async function deliverPendingCodes(
   redis: Redis,
@@ -349,11 +327,8 @@ export async function deliverPendingCodes(
     throw new Error("SMTP is not configured — cannot deliver access codes");
   }
 
-  // One command in the common case, where nobody is waiting.
-  //
-  // String() is load-bearing: Upstash JSON-parses set members on the way out, so
-  // a numeric UID like "8" comes back as the number 8. Left alone that breaks
-  // string handling downstream and makes srem miss.
+  // One command in the common case, where nobody is waiting. String() because
+  // Upstash JSON-parses set members, so "8" returns as the number 8 and srem misses.
   const queued = (await redis.smembers(PENDING_KEY)).map(String);
   if (queued.length === 0) return result;
 
@@ -363,19 +338,18 @@ export async function deliverPendingCodes(
   for (const uid of batch) {
     const record = await redis.get<CertRecord>(redisKey(uid));
 
-    // Dropped from the roster between sync and delivery — clear the queue entry.
+    // Dropped from the roster between sync and delivery.
     if (!record) {
       await redis.srem(PENDING_KEY, uid);
       continue;
     }
-    // Already has a code (a manual set-password, say). Nothing to deliver.
+    // Already has a code — a manual set-password, say.
     if (record.passwordHash) {
       await redis.srem(PENDING_KEY, uid);
       continue;
     }
     if (!record.email) {
-      // Stays queued: adding their address to the sheet is all it takes to fix,
-      // and the next sync will pick them up without any other intervention.
+      // Stays queued; adding their address to the sheet is all it takes.
       result.skippedNoEmail++;
       continue;
     }
@@ -383,9 +357,8 @@ export async function deliverPendingCodes(
     const password = generatePassword();
     try {
       const passwordHash = await hashPassword(password);
-      // Send before storing. If the send fails, the record keeps its empty hash
-      // and the student stays queued for a clean retry with a fresh code. The
-      // reverse order would leave them holding a code the database rejected.
+      // Send before storing, so a failed send leaves them queued for a clean
+      // retry rather than holding a code the database rejects.
       await sendAccessCodeEmail({
         to: record.email,
         name: record.name,

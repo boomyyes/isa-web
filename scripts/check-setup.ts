@@ -1,10 +1,10 @@
 /**
- * Verify the certificate stack is wired up correctly.
+ * Verify the certificate stack is wired up.
  *
  *   npx tsx scripts/check-setup.ts
  *
- * Read-only — touches nothing. Run it after filling .env.local, and any time
- * the certificates page misbehaves, to tell a config problem from a data one.
+ * Read-only. Run after filling .env.local, or whenever the page misbehaves, to
+ * tell a config problem from a data one.
  */
 
 import { readFileSync, existsSync } from "node:fs";
@@ -83,8 +83,7 @@ async function main() {
     });
     const base = `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${process.env.R2_BUCKET}`;
 
-    // Probe a key that shouldn't exist. 404 => credentials good, bucket found.
-    // 403 => bad keys or the token isn't scoped to this bucket.
+    // 404 => credentials good. 403 => bad keys, or not scoped to this bucket.
     const probe = await aws.fetch(`${base}/__setup_probe__`, { method: "GET" });
 
     if (probe.status === 404 || probe.status === 200) {
@@ -97,8 +96,7 @@ async function main() {
       bad(`unexpected status ${probe.status} — ${(await probe.text()).slice(0, 200)}`);
     }
 
-    // Can this token write? The app only ever reads, so read-only is correct
-    // and expected here — this just tells you which upload route you have.
+    // Read-only is correct for the app; this just says which upload route you have.
     const write = await aws.fetch(`${base}/__setup_probe__`, {
       method: "PUT",
       body: "probe",
