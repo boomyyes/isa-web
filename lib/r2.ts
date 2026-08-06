@@ -32,6 +32,17 @@ function objectUrl(key: string): string {
   return `https://${accountId}.r2.cloudflarestorage.com/${bucket}/${path}`;
 }
 
+/**
+ * Roster rows claim a `cert` key as soon as attendance is marked, so the image
+ * may not be uploaded yet. HEAD is a cheap Class-B op; check before redirecting.
+ */
+export async function objectExists(key: string): Promise<boolean> {
+  const response = await aws().fetch(objectUrl(key), { method: "HEAD" });
+  if (response.status === 404) return false;
+  if (!response.ok) throw new Error(`R2 HEAD ${key} -> ${response.status}`);
+  return true;
+}
+
 /** `downloadName` is signed in, so it can't be tampered with afterwards. */
 export async function presignGet(
   key: string,
