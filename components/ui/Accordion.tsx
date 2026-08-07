@@ -40,6 +40,11 @@ export const DEFAULT_FAQS: FAQItem[] = [
     answer:
       "[Placeholder answer — events run through the academic year on the RAIT campus; the schedule lives on the Initiatives page.]",
   },
+  {
+    question: "How do I get my workshop certificate?",
+    answer:
+      "Head to the Certificates page and sign in with the UID and access code we emailed you when you were registered. If your attendance is recorded, you can download the digital copy straight away. Printed copies are requested through the form on this page — your first one is free of cost, and additional copies are chargeable. Lost your code? Ask here and we'll reissue it.",
+  },
 ];
 
 interface AccordionProps {

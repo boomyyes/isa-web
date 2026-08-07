@@ -23,10 +23,10 @@ const placeholderSocials: SocialLink[] = [
 ];
 
 // Small helper to keep the member list declarations terse.
-const member = (id: string, role: string): TeamMember => ({
+const member = (id: string, role: string, name: string): TeamMember => ({
   id,
   role,
-  name: "[Name]",
+  name,
   socials: placeholderSocials,
 });
 
@@ -38,22 +38,22 @@ export const principal = {
 };
 
 export const faculty: TeamMember[] = [
-  member("fac-advisor", "Faculty Advisor"),
-  member("fac-coordinator", "Faculty Coordinator"),
+  member("fac-advisor", "Faculty Advisor", "[Name]"),
+  member("fac-coordinator", "Faculty Coordinator", "[Name]"),
 ];
 
 export const core: TeamMember[] = [
-  member("core-president", "President"),
-  member("core-vp", "Vice President"),
-  member("core-treasurer", "Treasurer"),
-  member("core-gen-sec", "General Secretary"),
-  member("core-ceo", "Chief Event Organizer"),
+  member("core-president", "President", "Yash Patil"),
+  member("core-vp", "Vice President", "Jyotiraditya Patil"),
+  member("core-treasurer", "Treasurer", "Arya Bhagwat"),
+  member("core-gen-sec", "General Secretary", "Harsh Watkar"),
+  member("core-ceo", "Chief Event Organizer", "Janhavi Patankar"),
 ];
 
 export const subCore: TeamMember[] = [
-  member("sub-pro", "Public Relations Officer"),
-  member("sub-sponsorship", "Sponsorship Officer"),
-  member("sub-cto", "Chief Technical Officer"),
+  member("sub-pro", "Public Relations Officer", "Suhani Guralwar"),
+  member("sub-sponsorship", "Sponsorship Officer", "Suhas Dongre"),
+  member("sub-cto", "Chief Technical Officer", "Chris Misquitta"),
 ];
 
 export interface JointCoreDomain {
@@ -65,50 +65,50 @@ export const jointCore: JointCoreDomain[] = [
   {
     domain: "Technical",
     members: [
-      member("jc-tech-1", "Technical Member"),
-      member("jc-tech-2", "Technical Member"),
-      member("jc-tech-3", "Technical Member"),
-      member("jc-tech-4", "Technical Member"),
+      member("jc-tech-1", "Technical Member", "Ujjwal Prajapati"),
+      member("jc-tech-2", "Technical Member", "Aryesh Deshmukh"),
+      member("jc-tech-3", "Technical Member", "Avanish Wankhede"),
     ],
   },
   {
     domain: "Editorial",
     members: [
-      member("jc-edit-1", "Historian"),
-      member("jc-edit-2", "Historian"),
+      member("jc-edit-1", "Historian", "Keyur Kulkarni"),
+      member("jc-edit-2", "Historian", "Aadya Bharde"),
     ],
   },
   {
     domain: "Publicity",
     members: [
-      member("jc-pub-1", "Publicity Member"),
-      member("jc-pub-2", "Publicity Member"),
-      member("jc-pub-3", "Publicity Member"),
+      member("jc-pub-1", "Publicity Member", "Eshan Aryaa"),
+      member("jc-pub-2", "Publicity Member", "Ansh Bhoir"),
+      member("jc-pub-3", "Publicity Member", "Anjali Karpe"),
     ],
   },
   {
     domain: "Administration",
     members: [
-      member("jc-admin-1", "Administration Head"),
-      member("jc-admin-2", "Administration Co-head"),
-      member("jc-admin-3", "Administration Co-head"),
+      member("jc-admin-1", "Administration Head", "Ayan Varekar"),
+      member("jc-admin-2", "Administration Co-head", "Atharv Gharat"),
+      member("jc-admin-3", "Administration Co-head", "Atharv Bhoir"),
     ],
   },
   {
     domain: "Creativity",
     members: [
-      member("jc-create-1", "Creativity Head"),
-      member("jc-create-2", "Creativity Co-head"),
-      member("jc-create-3", "Creativity Co-head"),
+      member("jc-create-1", "Creativity Head", "Yahya Dongarkar"),
+      member("jc-create-2", "Creativity Co-head", "Vaibhavi Patil"),
+      member("jc-create-3", "Creativity Co-head", "Shriya Dalvi"),
+      member("jc-create-4", "Creativity Member", "Angel Bari"),
     ],
   },
   {
     domain: "Media",
     members: [
-      member("jc-media-1", "Media Head"),
-      member("jc-media-2", "Media Co-head"),
-      member("jc-media-3", "Media Co-head"),
-      member("jc-media-4", "Media Co-head"),
+      member("jc-media-1", "Media Head", "Mazen Zari"),
+      member("jc-media-2", "Media Co-head", "Sayan Dutta"),
+      member("jc-media-3", "Media Co-head", "Vishesh Karot"),
+      member("jc-media-4", "Media Co-head", "Mayuri Varti"),
     ],
   },
 ];
@@ -233,36 +233,76 @@ export const mockEvents: EventItem[] = [
     venue: "[Venue placeholder]",
   },
 
-  // ── Finished — 2025-26 tenure (past-dated) ─────────────────────────────────
+  // ── Finished — 2025-26 tenure (past-dated), newest first ───────────────────
   {
     id: "evt-fin-1",
-    date: "2026-05-17",
-    title: "[Finished Event 01]",
-    type: "Hackathon",
-    venue: "[Venue placeholder]",
+    date: "2025-08-23",
+    title: "AR/VR Game Development",
+    type: "Workshop",
+    venue: "AR/VR Lab",
     description:
-      "[Short recap placeholder — what happened, turnout, and the highlight.]",
-    image: "[workshop-photo-01]",
+      "ISA RAIT organized an AR/VR Game Development workshop on 23 August 2025 at the RAIT AR/VR Lab to introduce students to the rapidly growing field of immersive technologies and bridge academic learning with practical exposure. The workshop was attended by enthusiastic participants from multiple departments and included lectures, live demonstrations, and hands-on practice to provide a comprehensive learning experience. The session aimed to introduce beginners to Augmented Reality (AR) and Virtual Reality (VR), offer hands-on training in Unity for AR/VR development, demonstrate the design and coding of interactive VR objects and virtual environments, provide direct VR experience through live demonstrations, and encourage students to explore creative applications of AR/VR in game development and beyond.",
+    image: "[hackathon-photo-01]",
   },
   {
     id: "evt-fin-2",
-    date: "2026-02-28",
-    title: "[Finished Event 02]",
-    type: "Industrial Visit",
-    venue: "[Venue placeholder]",
+    date: "2025-08-25",
+    title: "FE Induction 2025",
+    type: "Induction",
+    venue: "RAIT",
     description:
-      "[Short recap placeholder — what happened, turnout, and the highlight.]",
-    image: "[visit-photo-02]",
+      "ISA-RAIT conducted a three-day induction program for first-year students on 25th, 28th, and 29th August 2025. The sessions were held in multiple rooms and time slots to accommodate all participants and ensure maximum engagement. The objective of the induction was to introduce new students to the ISA community, explain its activities and benefits, and encourage them to actively join and contribute to the committee. The program focused on building awareness about ISA’s role in promoting technical skills, leadership development, and community participation.",
+    image: "[workshop-photo-02]",
   },
   {
     id: "evt-fin-3",
-    date: "2025-10-11",
-    title: "[Finished Event 03]",
+    date: "2025-10-04",
+    title: "IoT Workshop",
     type: "Workshop",
-    venue: "[Venue placeholder]",
+    venue: "IoT Lab",
     description:
-      "[Short recap placeholder — what happened, turnout, and the highlight.]",
-    image: "[workshop-photo-03]",
+      "ISA-RAIT hosted a two-day IoT Innovation Workshop on 4th and 5th October 2025 to provide hands-on exposure to Internet of Things (IoT) technologies. The workshop covered key IoT concepts and practical applications, focusing on microcontrollers, sensors, and cloud integration. Participants learned how to connect sensors, collect data, and transmit it online, while also being encouraged to design and experiment with their own IoT ideas. The workshop aimed to introduce foundational and intermediate IoT concepts, provide practical experience with platforms such as Arduino, Raspberry Pi, and ESP32, demonstrate sensor interfacing and cloud data transmission, and empower participants to conceptualize their own IoT projects. Overall, the session enhanced technical skills and fostered interest in the IoT domain.",
+    image: "[visit-photo-03]",
+  },
+  {
+    id: "evt-fin-4",
+    date: "2025-10-10",
+    title: "PLC Workshop",
+    type: "Workshop",
+    venue: "011 IA Lab",
+    description:
+      "ISA RAIT organized a 2-day Hands-On PLC Programming Workshop on 10th and 11th October 2025 at the Industrial Automation Lab (011). The workshop began at 10:30 AM and saw enthusiastic participation from students across various engineering branches. The event was inaugurated by Prof. Sharad Jadhav, Head of the Department of Instrumentation Engineering, who highlighted the importance of skill development in industrial automation and encouraged students to explore PLC technology for their professional growth. The workshop aimed to provide hands-on training in PLC programming and automation systems, familiarize students with real-time industrial applications, and develop an understanding of automation logic, sensors, and control mechanisms. The session focused on enhancing technical and practical skills aligned with industry requirements and motivating students to pursue careers in the industrial automation sector.",
+    image: "[lecture-photo-04]",
+  },
+  {
+    id: "evt-fin-5",
+    date: "2025-10-11",
+    title: "3D Printing Workshop",
+    type: "Workshop",
+    venue: "Fab Lab",
+    description:
+      "ISA-RAIT organized a Hands-On 3D Printing Workshop on 11th and 12th October 2025 at the Fab Lab, RAIT. The event was open to all students for a minimal fee of ₹80, with limited seats to ensure personalized attention and practical experience. The workshop provided participants with direct interaction with 3D printing machines and design tools through informative sessions, handson activities, and a design competition. The workshop aimed to introduce participants to the fundamentals of 3D printing, familiarize them with different types of printers and printing techniques, and demonstrate the full process from design to the final printed product. Students gained practical experience using beginner-friendly design tools such as Tinkercad, and were encouraged to explore creativity and innovation through a design contest where they printed their own models.",
+    image: "[competition-photo-05]",
+  },
+  {
+    id: "evt-fin-6",
+    date: "2025-11-01",
+    title: "Fundamentals of Electrical and Electronics Engineering",
+    type: "Workshop",
+    venue: "IoT Lab",
+    description:
+      "The ISA-RAIT Student Chapter successfully conducted an insightful Workshop on Foundations and Fundamentals of Electrical and Electronics Engineering under the theme “Bridging Theory and Practice.” The two-day workshop was held on 1st and 2nd November at Room 108, IoT Lab, from 10:00 AM to 5:00 PM. The workshop was designed to strengthen students’ understanding of the core concepts of electrical and electronics engineering, helping them connect theoretical knowledge with real-world applications. It focused on building a solid technical base while encouraging practical thinking — a crucial requirement in today’s rapidly evolving, technology-driven world.",
+    image: "[workshop-photo-06]",
+  },
+  {
+    id: "evt-fin-7",
+    date: "2026-02-24",
+    title: "Industrial Visit to Tarapur Atomic Power Station",
+    type: "Industrial Visit",
+    venue: "Tarapur Atomic Power unit",
+    description:
+      "On February 24, 2026, ISA-RAIT and the Department of Electrical & Instrumentation Engineering organized a visit for 45+ students to the Tarapur Atomic Power Station (NPCIL-TAPS). The session began with a PPT explaining atomic energy generation and the critical role of process control and system engineering in monitoring production. Students then saw the live control room, observing real-time panels that manage reactor operations. The tour concluded with a close-up view of the generator rooms and turbines, demonstrating the complete, live working of the power plant. Guided by Dr. Sharad P. Jadhav, Dr. Supriya Bhuran, Dr. Ramakant Patil, and Mr. Prashant Raut (TAPS), the visit successfully connected classroom theory to real-world industrial application.",
+    image: "[seminar-photo-07]",
   },
 ];
 
