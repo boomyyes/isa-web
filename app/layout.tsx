@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { GlobalBackground } from "@/components/layout/GlobalBackground";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -36,8 +37,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          {/* z-0 backdrop. The z-10 below is required — a fixed z-0 element
+              paints over non-positioned in-flow content. Navbar is already z-50. */}
+          <GlobalBackground />
           <Navbar />
-          {children}
+          <div className="relative z-10">{children}</div>
           <Footer />
         </ThemeProvider>
       </body>
