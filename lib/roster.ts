@@ -7,7 +7,7 @@ import {
   type CertRecord,
   type WorkshopRecord,
 } from "./certificates";
-import { generatePassword, hashPassword, redisKey } from "./certificates.server";
+import { DEFAULT_ACCESS_CODE, hashPassword, redisKey } from "./certificates.server";
 import { mailerConfigured, sendAccessCodeEmail } from "./mailer";
 
 /** Every `cert:*` key the last sync wrote, so a re-sync can delete removals. */
@@ -354,7 +354,7 @@ export async function deliverPendingCodes(
       continue;
     }
 
-    const password = generatePassword();
+    const password = DEFAULT_ACCESS_CODE;
     try {
       const passwordHash = await hashPassword(password);
       // Send before storing, so a failed send leaves them queued for a clean

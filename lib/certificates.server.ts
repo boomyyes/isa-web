@@ -44,6 +44,13 @@ export function redisKey(uid: string): string {
 
 // ------------------------------------------------------------------ passwords
 
+/**
+ * Issued to every new student. Shared, so treat it as public: a UID plus this
+ * code is all anyone needs. Resets hand out a random code instead.
+ * Normalisation drops the "@", so students may type it any way they like.
+ */
+export const DEFAULT_ACCESS_CODE = process.env.DEFAULT_ACCESS_CODE || "isa@rait1234";
+
 /** No O/0 or I/1/L — students read these off a screen and type them back. */
 const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const CODE_LENGTH = 8;

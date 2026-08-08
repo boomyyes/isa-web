@@ -5,7 +5,7 @@
 import { type CertRecord } from "@/lib/certificates";
 import { redisKey, verifyDownloadToken } from "@/lib/certificates.server";
 import { redis } from "@/lib/redis";
-import { objectExists, presignGet } from "@/lib/r2";
+import { presignGet, resolveObjectKey } from "@/lib/r2";
 
 /** Long enough to follow the redirect, short enough that a copied URL is useless. */
 const PRESIGN_TTL_SECONDS = 120;
@@ -44,13 +44,15 @@ async function resolve(token: string | null): Promise<Outcome> {
   // Redis stays the authority, so a revoked attendance gets nothing.
   if (!record || !entry?.attended || !entry.cert) return { ok: false, reason: "missing" };
 
-  const extension = entry.cert.includes(".") ? entry.cert.split(".").pop() : "png";
-  const filename = `ISA-RAIT-${claim.workshopId}-${record.uid}.${extension}`;
-
   try {
     // Without this the redirect hands the student R2's raw XML "NoSuchKey" page.
-    if (!(await objectExists(entry.cert))) return { ok: false, reason: "missing" };
-    return { ok: true, url: await presignGet(entry.cert, PRESIGN_TTL_SECONDS, filename) };
+    const key = await resolveObjectKey(entry.cert);
+    if (!key) return { ok: false, reason: "missing" };
+
+    // From the resolved key, so the saved file gets the extension it really is.
+    const extension = key.slice(key.lastIndexOf(".") + 1);
+    const filename = `ISA-RAIT-${claim.workshopId}-${record.uid}.${extension}`;
+    return { ok: true, url: await presignGet(key, PRESIGN_TTL_SECONDS, filename) };
   } catch {
     return { ok: false, reason: "unavailable" };
   }

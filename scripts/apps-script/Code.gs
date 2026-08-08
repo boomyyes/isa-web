@@ -31,6 +31,10 @@
 
 var SHEET_NAME = ''; // '' = the first sheet. Set a name if the roster moves tabs.
 
+// File extension of the certificates in R2. A mismatch still works — the site
+// falls back to trying the other formats — but matching saves it the lookup.
+var CERT_EXTENSION = 'jpg';
+
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('ISA Certificates')
@@ -107,7 +111,8 @@ function postSync(options) {
     payload: JSON.stringify({
       rows: rows,
       dryRun: !!options.dryRun,
-      force: !!options.force
+      force: !!options.force,
+      extension: CERT_EXTENSION
     }),
     muteHttpExceptions: true
   });
