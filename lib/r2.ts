@@ -32,15 +32,34 @@ function objectUrl(key: string): string {
   return `https://${accountId}.r2.cloudflarestorage.com/${bucket}/${path}`;
 }
 
-/**
- * Roster rows claim a `cert` key as soon as attendance is marked, so the image
- * may not be uploaded yet. HEAD is a cheap Class-B op; check before redirecting.
- */
-export async function objectExists(key: string): Promise<boolean> {
+/** Tried in order when the stored key misses. First hit wins. */
+const CERT_EXTENSIONS = ["pdf", "png", "jpg", "jpeg", "webp", "svg"];
+
+async function exists(key: string): Promise<boolean> {
   const response = await aws().fetch(objectUrl(key), { method: "HEAD" });
   if (response.status === 404) return false;
   if (!response.ok) throw new Error(`R2 HEAD ${key} -> ${response.status}`);
   return true;
+}
+
+/**
+ * Roster rows guess the extension when attendance is marked, so the stored key
+ * can be wrong even though the file is there. Returns the key that actually
+ * exists — the stored one if possible — or null if nothing is uploaded yet.
+ */
+export async function resolveObjectKey(key: string): Promise<string | null> {
+  if (await exists(key)) return key;
+
+  const dot = key.lastIndexOf(".");
+  if (dot <= key.lastIndexOf("/")) return null;
+
+  const stem = key.slice(0, dot);
+  const stored = key.slice(dot + 1).toLowerCase();
+  for (const extension of CERT_EXTENSIONS) {
+    if (extension === stored) continue;
+    if (await exists(`${stem}.${extension}`)) return `${stem}.${extension}`;
+  }
+  return null;
 }
 
 /** `downloadName` is signed in, so it can't be tampered with afterwards. */
