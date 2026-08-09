@@ -25,13 +25,11 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4">
           {/* Brand */}
-          <div className="space-y-3">
-            <Link
-              href="/"
-              className="flex items-center gap-2 font-jetbrains font-bold tracking-tight text-[var(--text-primary)]"
-            >
-              <Logo className="h-7" />
-              <span>International Society of Automation, RAIT</span>
+          <div className="space-y-4">
+            <Link href="/" className="inline-block" aria-label="ISA RAIT — home">
+              {/* The lockup already reads "International Society of Automation,
+                  Ramrao Adik Institute of Technology", so no text label beside it. */}
+              <Logo className="h-16 lg:h-20" sizes="204px" />
             </Link>
             <p className="text-sm text-[var(--text-secondary)]">
               Setting the standard of Automation. For the students, by the students.
