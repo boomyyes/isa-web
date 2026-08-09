@@ -85,12 +85,15 @@ function RequestLink() {
       <label htmlFor="reset-uid" className={labelClass}>
         Your UID
       </label>
+      {/* No inputMode — see the matching note in CertificateLookup. */}
       <input
         id="reset-uid"
         name="uid"
         type="text"
         required
-        inputMode="numeric"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
         value={uid}
         onChange={(e) => setUid(e.target.value)}
         placeholder="1042"

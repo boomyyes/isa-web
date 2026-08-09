@@ -19,8 +19,6 @@ export interface WorkshopMeta {
  */
 export const WORKSHOPS: WorkshopMeta[] = [
   { id: "iaw", title: "Industrial Automation Workshop", date: "2026-08-01" }
-  // { id: "wks-2", title: "[Workshop 2 — Title]", date: "2026-03-14" },
-  // { id: "wks-3", title: "[Workshop 3 — Title]", date: "2026-05-17" },
 ];
 
 export interface WorkshopRecord {

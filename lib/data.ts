@@ -306,7 +306,20 @@ export interface UpcomingEvent {
  * Shape:
  *   { id: "evt-up-plc", title: "PLC Bootcamp", when: "Mid-September 2026" },
  */
-export const upcomingEvents: UpcomingEvent[] = [];
+export const upcomingEvents: UpcomingEvent[] = [
+  { id: "evt-up-ros", title: "ROS Bootcamp", when: "21 August 2026" },
+  {
+    id: "evt-up-3d-printing",
+    title: "3D Printing Workshop",
+    when: "5 September 2026",
+  },
+  { id: "evt-up-arvr", title: "AR/VR Workshop", when: "25 September 2026" },
+  {
+    id: "evt-up-artemis",
+    title: "Artemis Hackathon",
+    when: "26 September 2026",
+  },
+];
 
 // The archive: events that have already happened. Grouped into per-tenure
 // sections by their `tenure` field, NOT by date — see groupFinishedByTenure in

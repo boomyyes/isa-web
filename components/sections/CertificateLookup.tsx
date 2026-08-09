@@ -210,12 +210,18 @@ export function CertificateLookup() {
               <label htmlFor="cert-uid" className={labelClass}>
                 UID
               </label>
+              {/* No inputMode: UIDs come from the roster sheet verbatim and are
+                  not guaranteed numeric — normalizeUid preserves leading zeros,
+                  so "01" is a real UID. A numeric inputMode gives iOS a keypad
+                  with no letters, making an alphanumeric UID untypeable. */}
               <input
                 id="cert-uid"
                 name="uid"
                 type="text"
                 required
-                inputMode="numeric"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 autoComplete="username"
                 value={uid}
                 onChange={(e) => setUid(e.target.value)}
