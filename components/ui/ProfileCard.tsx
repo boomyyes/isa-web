@@ -2,11 +2,12 @@
 
 import * as React from "react";
 import { useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { UserRound } from "lucide-react";
 import type { SocialLink, SocialPlatform } from "@/lib/data";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/BrandIcons";
-import { cn } from "@/lib/utils";
+import { cn, isRealImage } from "@/lib/utils";
 
 const SOCIAL_META: Record<
   SocialPlatform,
@@ -27,6 +28,8 @@ interface ProfileCardProps {
   role: string;
   name: string;
   type: "faculty" | "student";
+  /** Real path like "/team/name.jpg", or a "[placeholder]" label. */
+  photo: string;
   socials: SocialLink[];
 }
 
@@ -42,7 +45,7 @@ function Socials({ socials }: { socials: SocialLink[] }) {
           <a
             key={platform}
             href={href}
-            aria-label={`[${label} Placeholder]`}
+            aria-label={`${label} profile`}
             className="rounded-md border border-[var(--border-color)]/60 p-1.5 text-[var(--text-secondary)] transition-colors hover:border-[var(--border-active)] hover:text-[var(--text-primary)]"
           >
             <Icon className="h-3.5 w-3.5" />
@@ -53,7 +56,7 @@ function Socials({ socials }: { socials: SocialLink[] }) {
   );
 }
 
-export function ProfileCard({ role, name, type, socials }: ProfileCardProps) {
+export function ProfileCard({ role, name, type, photo, socials }: ProfileCardProps) {
   const isFaculty = type === "faculty";
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -80,19 +83,35 @@ export function ProfileCard({ role, name, type, socials }: ProfileCardProps) {
           : "cursor-pointer border-[var(--border-color)]/60 bg-[var(--card-color)]/40 hover:border-[var(--border-active)]/50"
       )}
     >
-      {/* Full-bleed rectangular photo placeholder.
-          Swap the icon block for:
-          <img src="..." alt="[Name]" className="absolute inset-0 h-full w-full object-cover" /> */}
+      {/* Full-bleed photo. Drop a file in public/team/ and point the member's
+          `photo` at it; anything still holding a "[placeholder]" label falls
+          through to the empty box, which names the slot it is waiting for. */}
       <div
         className={cn(
-          "relative w-full shrink-0 border-b border-[var(--border-color)]/60 bg-[var(--bg-color)]/60",
+          "relative w-full shrink-0 overflow-hidden border-b border-[var(--border-color)]/60 bg-[var(--bg-color)]/60",
           isFaculty ? "aspect-[4/5]" : "aspect-square"
         )}
       >
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-[var(--text-secondary)]">
-          <UserRound className={isFaculty ? "h-12 w-12" : "h-8 w-8"} />
-          <span className="font-jetbrains text-[10px] opacity-70">[Photo]</span>
-        </div>
+        {isRealImage(photo) ? (
+          <Image
+            src={photo}
+            alt={name}
+            fill
+            sizes={
+              isFaculty
+                ? "(max-width: 640px) 100vw, 320px"
+                : "(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
+            }
+            className="object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-2 text-center text-[var(--text-secondary)]">
+            <UserRound className={isFaculty ? "h-12 w-12" : "h-8 w-8"} />
+            <span className="font-jetbrains text-[10px] opacity-70 break-all">
+              {photo}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Text area */}

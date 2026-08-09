@@ -77,7 +77,7 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.5 }}
-            className="text-lg md:text-xl text-[var(--text-secondary)] max-w-xl mb-8 md:mb-12 font-medium"
+            className="text-lg md:text-xl text-[var(--text-secondary)] max-w-xl mb-6 md:mb-8 font-medium"
           >
             ISA-RAIT is a student chapter of ISA international under the ISA Maharashtra section.
             ISA-RAIT aims to bridge the gap between the students and the Industry by developing technical knowledge of the students.

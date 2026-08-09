@@ -45,6 +45,7 @@ function ProfileGrid({
           role={m.role}
           name={m.name}
           type={type}
+          photo={m.photo}
           socials={m.socials}
         />
       ))}
@@ -111,6 +112,7 @@ export default function CommunityPage() {
                   role={m.role}
                   name={m.name}
                   type="faculty"
+                  photo={m.photo}
                   socials={m.socials}
                 />
               ))}
