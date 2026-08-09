@@ -22,35 +22,72 @@ export interface TeamMember {
   socials: SocialLink[];
 }
 
-// Shared, read-only link sets. Hrefs are "#" until the real profiles land.
-// Everyone gets LinkedIn; only technical roles also get GitHub, since it is the
-// only place a code link is meaningful.
-const LINKEDIN_ONLY: SocialLink[] = [{ platform: "linkedin", href: "#" }];
-
-const LINKEDIN_AND_GITHUB: SocialLink[] = [
-  { platform: "linkedin", href: "#" },
-  { platform: "github", href: "#" },
-];
+/** Stand-in href for a profile whose real URL we do not have yet. */
+interface MemberOptions {
+  /**
+   * Headshot path under public/team/. Omit and the card falls back to the
+   * "[photo-<id>]" placeholder box naming the slot it is waiting for.
+   */
+  photo?: string;
+  /**
+   * LinkedIn profile URL. Omit it and no LinkedIn icon renders at all — an icon
+   * that goes nowhere is worse than no icon.
+   */
+  linkedin?: string;
+  /**
+   * GitHub profile URL. Needs `technical` as well; either one missing means no
+   * GitHub icon.
+   */
+  github?: string;
+  /**
+   * Adds the GitHub link. Opt-in per member rather than inferred from the domain
+   * heading, because the CTO sits under Sub-Core rather than the Technical
+   * domain but is just as much a code role.
+   */
+  technical?: boolean;
+}
 
 /**
- * Small helper to keep the member list declarations terse.
+ * Normalise a hand-pasted profile URL, returning undefined when there is nothing
+ * real to link to. These are filled in by hand, one member at a time, so it
+ * absorbs the two ways that goes wrong:
  *
- * `technical` adds the GitHub link. It is opt-in per member rather than inferred
- * from the domain heading, because the CTO sits under Sub-Core rather than the
- * Technical domain but is just as much a code role.
+ *   - "" or "#" — a slot someone started but has not filled. Treated as absent,
+ *     which is what keeps the icon off the card entirely.
+ *   - "www.linkedin.com/in/x" — pasted without a scheme. A bare host in an href
+ *     is a RELATIVE path, so it would resolve to /community/www.linkedin.com/...
+ *     and 404 rather than leaving the site.
+ */
+const profileUrl = (url?: string): string | undefined => {
+  const trimmed = url?.trim();
+  if (!trimmed || trimmed === "#") return undefined;
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+};
+
+/**
+ * Small helper to keep the member list declarations terse. Each member owns its
+ * own socials array, and an entry only exists once its URL does — so icons
+ * appear one at a time as real profiles get filled in, with no dead "#" state.
  */
 const member = (
   id: string,
   role: string,
   name: string,
-  { technical = false }: { technical?: boolean } = {}
-): TeamMember => ({
-  id,
-  role,
-  name,
-  photo: `[photo-${id}]`,
-  socials: technical ? LINKEDIN_AND_GITHUB : LINKEDIN_ONLY,
-});
+  { photo, linkedin, github, technical = false }: MemberOptions = {}
+): TeamMember => {
+  // profileUrl() decides both whether an icon exists and where it points, so a
+  // half-filled entry can never render a link that goes nowhere.
+  const linkedinHref = profileUrl(linkedin);
+  const githubHref = profileUrl(github);
+
+  const socials: SocialLink[] = [];
+  if (linkedinHref) socials.push({ platform: "linkedin", href: linkedinHref });
+  if (technical && githubHref) {
+    socials.push({ platform: "github", href: githubHref });
+  }
+
+  return { id, role, name, photo: photo || `[photo-${id}]`, socials };
+};
 
 export const principal = {
   name: "Dr. Mukesh D. Patil",
@@ -68,23 +105,51 @@ export const principal = {
   ],
 };
 
+/**
+ * The mentor is deliberately NOT in the `faculty` roster below — he already has
+ * his own note at the top of the community page, and a second card further down
+ * would just repeat him. Still built with member() so the note gets the same
+ * photo/socials shape every other member has.
+ */
+const facultyMentorEntry = member(
+  "fac-mentor",
+  "Faculty Mentor",
+  "Dr. Sharad P Jadhav",
+  {
+    photo: "/team/sharad-jadhav.jpg",
+    linkedin: "https://www.linkedin.com/in/dr-sharad-p-jadhav-b884b939/",
+  }
+);
+
 export const faculty: TeamMember[] = [
-  member("fac-advisor", "Faculty Advisor", "Dr. Sharad P Jadhav"),
-  member("fac-coordinator", "Faculty Coordinator", "Dr. Supriya Bhuran"),
+  member("fac-coordinator", "Faculty Coordinator", "Dr. Supriya Bhuran", { linkedin: "https://www.linkedin.com/in/dr-supriya-bhuran-yadav-2899211a/" }),
 ];
 
+/** The mentor's note, shown beside the principal's. Same shape as `principal`. */
+export const facultyMentor = {
+  ...facultyMentorEntry,
+  title: "Faculty Mentor, ISA-RAIT",
+  /** One entry per rendered paragraph — same contract as principal.message. */
+  message: [
+    "The ISA-RAIT Student Chapter gives students an opportunity to explore automation, technology and practical engineering beyond the classroom. During the year, the chapter has conducted technical workshops, industrial visits, expert sessions, competitions and student projects, giving students the chance to learn through practical experience.",
+    "It has been encouraging to see students take an active role in planning and conducting these activities. Organising a workshop, arranging an industrial visit, preparing a competition or working on a project helps students learn teamwork, planning and responsibility while dealing with real situations. It also gives them the confidence to take decisions, solve problems and handle responsibilities on their own.",
+    "At ISA-RAIT, we have always tried to keep the focus on practical learning. A workshop should give students something useful to take forward, an industrial visit should show them how technology is used in industry, and a project or competition should give them a chance to apply what they have learned. The efforts of the student committee and faculty team have helped make these activities possible, and I appreciate the students who have taken responsibility and worked together to make them successful.",
+    "I congratulate the entire ISA-RAIT team for their work during the year. I hope the chapter continues to give students opportunities to learn, experiment, work together and take on new responsibilities in the years ahead.",
+  ],
+};
+
 export const core: TeamMember[] = [
-  member("core-president", "President", "Yash Patil"),
-  member("core-vp", "Vice President", "Jyotiraditya Patil"),
-  member("core-treasurer", "Treasurer", "Arya Bhagwat"),
-  member("core-gen-sec", "General Secretary", "Harsh Watkar"),
-  member("core-ceo", "Chief Event Organizer", "Janhavi Patankar"),
+  member("core-president", "President", "Yash Patil", { linkedin: "https://www.linkedin.com/in/yash-v-patil/" }),
+  member("core-vp", "Vice President", "Jyotiraditya Patil", { linkedin: "https://www.linkedin.com/in/jyotiraditya-patil-73b394274/" }),
+  member("core-treasurer", "Treasurer", "Arya Bhagwat", { linkedin: "https://www.linkedin.com/in/arya-bhagwat-08653334b/" }),
+  member("core-gen-sec", "General Secretary", "Harsh Watkar", { linkedin: "https://www.linkedin.com/in/harsh-watkar-00105a346/" }),
+  member("core-ceo", "Chief Event Organizer", "Janhavi Patankar", { linkedin: "https://www.linkedin.com/in/janhavi-patankar-264292397/" }),
 ];
 
 export const subCore: TeamMember[] = [
-  member("sub-pro", "Public Relations Officer", "Suhani Guralwar"),
-  member("sub-sponsorship", "Sponsorship Officer", "Suhas Dongre"),
-  member("sub-cto", "Chief Technical Officer", "Chris Misquitta", { technical: true }),
+  member("sub-pro", "Public Relations Officer", "Suhani Guralwar", { linkedin: "https://www.linkedin.com/in/suhani-guralwar-b43807421/" }),
+  member("sub-sponsorship", "Sponsorship Officer", "Suhas Dongre", { linkedin: "https://www.linkedin.com/in/suhasdongre/" }),
+  member("sub-cto", "Chief Technical Officer", "Chris Misquitta", { technical: true, linkedin: "https://www.linkedin.com/in/chrismm31313/", github: "https://github.com/CMM31313" }),
 ];
 
 export interface JointCoreDomain {
@@ -96,49 +161,49 @@ export const jointCore: JointCoreDomain[] = [
   {
     domain: "Technical",
     members: [
-      member("jc-tech-1", "Technical Member", "Ujjwal Prajapati", { technical: true }),
-      member("jc-tech-2", "Technical Member", "Aryesh Deshmukh", { technical: true }),
-      member("jc-tech-3", "Technical Member", "Avanish Wankhede", { technical: true }),
+      member("jc-tech-1", "Technical Member", "Ujjwal Prajapati", { technical: true, photo: "/team/ujjwal-prajapati.jpg", linkedin: "www.linkedin.com/in/ujjwalprajapati915/", github: "https://github.com/minoubs" }),
+      member("jc-tech-2", "Technical Member", "Aryesh Deshmukh", { technical: true, photo: "/team/aryesh-deshmukh.jpg", linkedin: "https://www.linkedin.com/in/aryesh-deshmukh-9373693b7/", github: "https://github.com/Aryesh0/" }),
+      member("jc-tech-3", "Technical Member", "Avanish Wankhede", { technical: true, photo: "/team/avanish-wankhede.jpg", linkedin: "https://www.linkedin.com/in/avanishwankhede/", github: "https://github.com/boomyyes/" }),
     ],
   },
   {
     domain: "Editorial",
     members: [
-      member("jc-edit-1", "Historian", "Keyur Kulkarni"),
+      member("jc-edit-1", "Historian", "Keyur Kulkarni", { photo: "/team/keyur-kulkarni.jpg", linkedin: "https://www.linkedin.com/in/keyur-anand-kulkarni-b89508333/" }),
       member("jc-edit-2", "Historian", "Aadya Bharde"),
     ],
   },
   {
     domain: "Publicity",
     members: [
-      member("jc-pub-1", "Publicity Member", "Eshan Aryaa"),
-      member("jc-pub-2", "Publicity Member", "Ansh Bhoir"),
-      member("jc-pub-3", "Publicity Member", "Anjali Karpe"),
+      member("jc-pub-1", "Publicity Member", "Eshan Aryaa", { photo: "/team/eshan-aryaa.jpg", linkedin: "https://www.linkedin.com/in/eshan-arya-696848312/" }),
+      member("jc-pub-2", "Publicity Member", "Ansh Bhoir", { photo: "/team/ansh-bhoir.jpg", linkedin: "https://www.linkedin.com/in/ansh-bhoir-5238b2329/" }),
+      member("jc-pub-3", "Publicity Member", "Anjali Karpe", { photo: "/team/anjali-karpe.jpg" }),
     ],
   },
   {
     domain: "Administration",
     members: [
-      member("jc-admin-1", "Administration Head", "Ayan Varekar"),
-      member("jc-admin-2", "Administration Co-head", "Atharv Gharat"),
-      member("jc-admin-3", "Administration Co-head", "Atharv Bhoir"),
+      member("jc-admin-1", "Administration Head", "Ayan Varekar", { linkedin: "https://www.linkedin.com/in/ayanvarekar/" }),
+      member("jc-admin-2", "Administration Co-head", "Atharv Gharat", { linkedin: "https://www.linkedin.com/in/atharva-gharat-b12a6b306/" }),
+      member("jc-admin-3", "Administration Co-head", "Atharv Bhoir", { technical: true, photo: "/team/atharv-bhoir.jpg", linkedin: "https://www.linkedin.com/in/atharv-bhoir-800352388", github: "https://github.com/AtharvKB" }),
     ],
   },
   {
     domain: "Creativity",
     members: [
       member("jc-create-1", "Creativity Head", "Yahya Dongarkar"),
-      member("jc-create-2", "Creativity Co-head", "Vaibhavi Patil"),
-      member("jc-create-3", "Creativity Co-head", "Shriya Dalvi"),
-      member("jc-create-4", "Creativity Co-head", "Angel Bari"),
+      member("jc-create-2", "Creativity Co-head", "Vaibhavi Patil", { photo: "/team/vaibhavi-patil.jpg", linkedin: "https://www.linkedin.com/in/vaibhavi-patil-836b1a382" }),
+      member("jc-create-3", "Creativity Co-head", "Shriya Dalvi", { photo: "/team/shriya-dalvi.jpg" }),
+      member("jc-create-4", "Creativity Co-head", "Angel Bari", { linkedin: "https://www.linkedin.com/in/angel-bari-75441b300/" }),
     ],
   },
   {
     domain: "Media",
     members: [
-      member("jc-media-1", "Media Head", "Mazen Zari"),
-      member("jc-media-2", "Media Co-head", "Sayan Dutta"),
-      member("jc-media-3", "Media Co-head", "Vishesh Karot"),
+      member("jc-media-1", "Media Head", "Mazen Zari", { linkedin: "https://www.linkedin.com/in/mazen-ejaj-zari-63968b243" }),
+      member("jc-media-2", "Media Co-head", "Sayan Dutta", { photo: "/team/sayan-dutta.jpg" }),
+      member("jc-media-3", "Media Co-head", "Vishesh Karot", { linkedin: "https://www.linkedin.com/in/vishesh-karoth-0061273aa/" }),
       member("jc-media-4", "Media Co-head", "Mayuri Varti"),
     ],
   },
@@ -164,50 +229,7 @@ export interface Project {
   status: ProjectStatus;
 }
 
-export const mockProjects: Project[] = [
-  {
-    id: "proj-1",
-    title: "[Project Name 01]",
-    description:
-      "[Short project description placeholder — what it does, the tech, and the impact.]",
-    status: "Live",
-  },
-  {
-    id: "proj-2",
-    title: "[Project Name 02]",
-    description:
-      "[Short project description placeholder — what it does, the tech, and the impact.]",
-    status: "In Progress",
-  },
-  {
-    id: "proj-3",
-    title: "[Project Name 03]",
-    description:
-      "[Short project description placeholder — what it does, the tech, and the impact.]",
-    status: "In Progress",
-  },
-  {
-    id: "proj-4",
-    title: "[Project Name 04]",
-    description:
-      "[Short project description placeholder — what it does, the tech, and the impact.]",
-    status: "Completed",
-  },
-  {
-    id: "proj-5",
-    title: "[Project Name 05]",
-    description:
-      "[Short project description placeholder — what it does, the tech, and the impact.]",
-    status: "Live",
-  },
-  {
-    id: "proj-6",
-    title: "[Project Name 06]",
-    description:
-      "[Short project description placeholder — what it does, the tech, and the impact.]",
-    status: "Completed",
-  },
-];
+export const mockProjects: Project[] = [];
 
 /**
  * A committee tenure (academic year). Add the next one here and to TENURES when
@@ -235,15 +257,15 @@ export interface EventItem {
   title: string;
   /** Workshop | Industrial Visit | Guest Lecture | Competition | Hackathon | … */
   type: string;
-  /** Where it happened / will happen — replaces the old "[Venue placeholder]". */
+  /** Where it happened / will happen. */
   venue: string;
   /** Short recap; shown on Finished cards. Optional. */
   description?: string;
   /**
-   * Thumbnail for Finished cards. Either a real image path served locally, e.g.
-   * "/events/ros-workshop.jpg" (drop files in public/events/ — no config needed),
-   * or a "[placeholder]" label to render the empty image box. External URLs would
-   * need images.remotePatterns in next.config.ts, so prefer local paths.
+   * Thumbnail for Finished cards, e.g. "/events/ros-workshop.jpg" (drop files in
+   * public/events/ — no config needed). Omit it and the card renders as a text
+   * card with no image box. External URLs would need images.remotePatterns in
+   * next.config.ts, so prefer local paths.
    */
   image?: string;
   /**
@@ -257,35 +279,61 @@ export interface EventItem {
   tenure: TenureId;
 }
 
-// Events auto-partition by date: anything dated in the future shows under
-// "Upcoming"; once its day has passed it moves to "Finished" on the next visit
-// (no rebuild). Finished events are then grouped into per-tenure sections by
-// their `tenure` field, NOT by date — see groupFinishedByTenure in lib/events.ts.
-// Swap the [placeholders] for real data.
+/**
+ * An event that has been announced but not held yet. Deliberately thinner than
+ * EventItem: before an event runs, the name and a rough sense of when are
+ * usually all that is settled, so that is all this asks for.
+ *
+ * Once it has actually happened, move it into `mockEvents` below as a full
+ * EventItem — with the real date, venue, and a recap — and delete it from here.
+ */
+export interface UpcomingEvent {
+  id: string;
+  title: string;
+  /**
+   * Free text, shown exactly as written — no parsing, no formatting. Whatever
+   * precision you actually have is fine: "September 2026", "Mid-October",
+   * "Late Nov 2026", "Q1 2027", "TBA".
+   */
+  when: string;
+}
+
+/**
+ * The upcoming list, rendered top to bottom in the order written here — rough
+ * dates cannot be sorted reliably, so ordering is yours to decide. Empty is a
+ * valid state; the panel shows a "nothing scheduled" line.
+ *
+ * Shape:
+ *   { id: "evt-up-plc", title: "PLC Bootcamp", when: "Mid-September 2026" },
+ */
+export const upcomingEvents: UpcomingEvent[] = [];
+
+// The archive: events that have already happened. Grouped into per-tenure
+// sections by their `tenure` field, NOT by date — see groupFinishedByTenure in
+// lib/events.ts — and sorted newest first within each section.
 export const mockEvents: EventItem[] = [
-  // ── Upcoming (future-dated) — 2026-27 tenure ───────────────────────────────
+
+  // ── 2026-27 tenure, newest first ───────────────────────────────────────────
   {
-    id: "evt-up-1",
-    date: "2026-09-14",
-    title: "[Upcoming Event 01]",
+    id: "evt-cvml-2026",
+    date: "2026-08-14",
+    title: "Computer Vision & Machine Learning: From Data to Intelligence",
     type: "Workshop",
-    venue: "[Venue placeholder]",
+    venue: "RAIT",
+    description:
+      "ISA-RAIT organised a hands-on workshop on Computer Vision and Machine Learning on 14th August 2026, introducing participants to real-world AI workflows and practical implementation. The session focused on building end-to-end AI pipelines while bridging the gap between theoretical understanding and applied intelligence. Participants worked through the Titanic Survival Prediction dataset from Kaggle, covering data preprocessing, feature engineering and model building with Logistic Regression and Decision Trees, alongside an introduction to the core concepts of supervised learning and model evaluation. The workshop also featured a live demonstration of moon crater detection using computer vision techniques with OpenCV, and exposure to real-time vision system concepts using Python libraries including Pandas, NumPy, Scikit-learn and OpenCV. It was conducted by Yash Patil, an ISA-RAIT Joint Core Member, who guided participants through each stage of the AI pipeline with practical insights and interactive learning. ISA-RAIT extends its gratitude to Dr. Sharad P. Jadhav, Head of the Department, the organising team and all participants for making the event a success.",
     tenure: "2026-27",
   },
   {
-    id: "evt-up-2",
-    date: "2026-10-08",
-    title: "[Upcoming Event 02]",
-    type: "Guest Lecture",
-    venue: "[Venue placeholder]",
-    tenure: "2026-27",
-  },
-  {
-    id: "evt-up-3",
-    date: "2026-11-21",
-    title: "[Upcoming Event 03]",
-    type: "Competition",
-    venue: "[Venue placeholder]",
+    id: "evt-automationx-2026",
+    // Ran 1-2 August 2026; `date` holds the opening day and the span is spelled
+    // out in the description, as with the other multi-day workshops below.
+    date: "2026-08-01",
+    title: "AutomationX 2026",
+    type: "Workshop",
+    venue: "011 Lab",
+    description:
+      "ISA-RAIT organised AutomationX 2026, a two-day hands-on workshop on industrial automation, on 1st and 2nd August 2026. The workshop gave participants practical exposure to PLC programming and control, SCADA systems, Cyber-Physical Systems (CPS), IT-OT convergence and core industrial automation concepts through interactive sessions and laboratory-based learning, enabling students to gain valuable hands-on experience with industrial automation technologies. Guest speakers Mr. Lalit Bangera and Ms. Deepti Chacko Bangera shared their industry expertise and real-world insights into industrial automation, digital transformation, Industry 4.0 and manufacturing excellence. Dr. Supriya Bhuran, Dr. Vivek Kadam, Dr. Ramakant Patil and Mr. Abhay Pakhare conducted technical sessions, provided hands-on guidance and mentored participants throughout, making it a truly enriching learning experience. ISA-RAIT extends its gratitude to all participants for their enthusiasm and active involvement, and to the entire ISA-RAIT team for their dedication in organising the workshop.",
     tenure: "2026-27",
   },
 
@@ -299,7 +347,6 @@ export const mockEvents: EventItem[] = [
     venue: "AR/VR Lab",
     description:
       "ISA RAIT organized an AR/VR Game Development workshop on 23 August 2025 at the RAIT AR/VR Lab to introduce students to the rapidly growing field of immersive technologies and bridge academic learning with practical exposure. The workshop was attended by enthusiastic participants from multiple departments and included lectures, live demonstrations, and hands-on practice to provide a comprehensive learning experience. The session aimed to introduce beginners to Augmented Reality (AR) and Virtual Reality (VR), offer hands-on training in Unity for AR/VR development, demonstrate the design and coding of interactive VR objects and virtual environments, provide direct VR experience through live demonstrations, and encourage students to explore creative applications of AR/VR in game development and beyond.",
-    image: "[hackathon-photo-01]",
     tenure: "2025-26",
   },
   {
@@ -310,7 +357,6 @@ export const mockEvents: EventItem[] = [
     venue: "RAIT",
     description:
       "ISA-RAIT conducted a three-day induction program for first-year students on 25th, 28th, and 29th August 2025. The sessions were held in multiple rooms and time slots to accommodate all participants and ensure maximum engagement. The objective of the induction was to introduce new students to the ISA community, explain its activities and benefits, and encourage them to actively join and contribute to the committee. The program focused on building awareness about ISA’s role in promoting technical skills, leadership development, and community participation.",
-    image: "[workshop-photo-02]",
     tenure: "2025-26",
   },
   {
@@ -321,7 +367,6 @@ export const mockEvents: EventItem[] = [
     venue: "IoT Lab",
     description:
       "ISA-RAIT hosted a two-day IoT Innovation Workshop on 4th and 5th October 2025 to provide hands-on exposure to Internet of Things (IoT) technologies. The workshop covered key IoT concepts and practical applications, focusing on microcontrollers, sensors, and cloud integration. Participants learned how to connect sensors, collect data, and transmit it online, while also being encouraged to design and experiment with their own IoT ideas. The workshop aimed to introduce foundational and intermediate IoT concepts, provide practical experience with platforms such as Arduino, Raspberry Pi, and ESP32, demonstrate sensor interfacing and cloud data transmission, and empower participants to conceptualize their own IoT projects. Overall, the session enhanced technical skills and fostered interest in the IoT domain.",
-    image: "[visit-photo-03]",
     tenure: "2025-26",
   },
   {
@@ -332,7 +377,6 @@ export const mockEvents: EventItem[] = [
     venue: "011 IA Lab",
     description:
       "ISA RAIT organized a 2-day Hands-On PLC Programming Workshop on 10th and 11th October 2025 at the Industrial Automation Lab (011). The workshop began at 10:30 AM and saw enthusiastic participation from students across various engineering branches. The event was inaugurated by Prof. Sharad Jadhav, Head of the Department of Instrumentation Engineering, who highlighted the importance of skill development in industrial automation and encouraged students to explore PLC technology for their professional growth. The workshop aimed to provide hands-on training in PLC programming and automation systems, familiarize students with real-time industrial applications, and develop an understanding of automation logic, sensors, and control mechanisms. The session focused on enhancing technical and practical skills aligned with industry requirements and motivating students to pursue careers in the industrial automation sector.",
-    image: "[lecture-photo-04]",
     tenure: "2025-26",
   },
   {
@@ -343,7 +387,6 @@ export const mockEvents: EventItem[] = [
     venue: "Fab Lab",
     description:
       "ISA-RAIT organized a Hands-On 3D Printing Workshop on 11th and 12th October 2025 at the Fab Lab, RAIT. The event was open to all students for a minimal fee of ₹80, with limited seats to ensure personalized attention and practical experience. The workshop provided participants with direct interaction with 3D printing machines and design tools through informative sessions, handson activities, and a design competition. The workshop aimed to introduce participants to the fundamentals of 3D printing, familiarize them with different types of printers and printing techniques, and demonstrate the full process from design to the final printed product. Students gained practical experience using beginner-friendly design tools such as Tinkercad, and were encouraged to explore creativity and innovation through a design contest where they printed their own models.",
-    image: "[competition-photo-05]",
     tenure: "2025-26",
   },
   {
@@ -354,7 +397,6 @@ export const mockEvents: EventItem[] = [
     venue: "IoT Lab",
     description:
       "The ISA-RAIT Student Chapter successfully conducted an insightful Workshop on Foundations and Fundamentals of Electrical and Electronics Engineering under the theme “Bridging Theory and Practice.” The two-day workshop was held on 1st and 2nd November at Room 108, IoT Lab, from 10:00 AM to 5:00 PM. The workshop was designed to strengthen students’ understanding of the core concepts of electrical and electronics engineering, helping them connect theoretical knowledge with real-world applications. It focused on building a solid technical base while encouraging practical thinking — a crucial requirement in today’s rapidly evolving, technology-driven world.",
-    image: "[workshop-photo-06]",
     tenure: "2025-26",
   },
   {
@@ -365,7 +407,6 @@ export const mockEvents: EventItem[] = [
     venue: "Tarapur Atomic Power unit",
     description:
       "On February 24, 2026, ISA-RAIT and the Department of Electrical & Instrumentation Engineering organized a visit for 45+ students to the Tarapur Atomic Power Station (NPCIL-TAPS). The session began with a PPT explaining atomic energy generation and the critical role of process control and system engineering in monitoring production. Students then saw the live control room, observing real-time panels that manage reactor operations. The tour concluded with a close-up view of the generator rooms and turbines, demonstrating the complete, live working of the power plant. Guided by Dr. Sharad P. Jadhav, Dr. Supriya Bhuran, Dr. Ramakant Patil, and Mr. Prashant Raut (TAPS), the visit successfully connected classroom theory to real-world industrial application.",
-    image: "[seminar-photo-07]",
     tenure: "2025-26",
   },
 ];
@@ -396,113 +437,35 @@ export interface Achievement {
   scope: AchievementScope;
   /** Optional context line shown under the card's metadata. */
   description?: string;
+  /**
+   * Optional photo, e.g. "/achievements/solaris.jpg" (drop files in
+   * public/achievements/). Same convention as EventItem.image — omit it and the
+   * card simply renders without a thumbnail rather than showing an empty box.
+   */
+  image?: string;
 }
 
-// Scaffold — swap the [placeholders] for real wins. Order is irrelevant; the
-// panel sorts by date descending.
+// Order is irrelevant; the panel sorts by date descending.
 export const mockAchievements: Achievement[] = [
   {
-    id: "ach-1",
-    date: "2026-03-14",
-    title: "[Achievement Title 01]",
-    awardedTo: "[Team / member name]",
-    awardedBy: "[Competition or awarding body]",
-    scope: "International",
-    description:
-      "[Short context placeholder — what was won, against whom, and why it mattered.]",
-  },
-  {
-    id: "ach-2",
-    date: "2026-01-28",
-    title: "[Achievement Title 02]",
-    awardedTo: "[Team / member name]",
-    awardedBy: "[Competition or awarding body]",
+    id: "ach-solaris",
+    // The meet ran 10-11 April 2026; `date` holds a single day, so it carries the
+    // opening date and the span is spelled out in the description — same as the
+    // multi-day workshops in mockEvents.
+    date: "2026-04-10",
+    title: "2nd Runner-Up — SOLARIS",
+    awardedTo: "Yash Patil",
+    awardedBy: "India Automation Competition, PPPA Meet 2026",
     scope: "National",
+    image: "/achievements/solaris.jpg",
     description:
-      "[Short context placeholder — what was won, against whom, and why it mattered.]",
-  },
-  {
-    id: "ach-3",
-    date: "2025-12-05",
-    title: "[Achievement Title 03]",
-    awardedTo: "[Team / member name]",
-    awardedBy: "[Competition or awarding body]",
-    scope: "National",
-    description:
-      "[Short context placeholder — what was won, against whom, and why it mattered.]",
-  },
-  {
-    id: "ach-4",
-    date: "2025-11-19",
-    title: "[Achievement Title 04]",
-    awardedTo: "[Team / member name]",
-    awardedBy: "[Competition or awarding body]",
-    scope: "State",
-    description:
-      "[Short context placeholder — what was won, against whom, and why it mattered.]",
-  },
-  {
-    id: "ach-5",
-    date: "2025-09-30",
-    title: "[Achievement Title 05]",
-    awardedTo: "[Team / member name]",
-    awardedBy: "[Competition or awarding body]",
-    scope: "Institute",
-    description:
-      "[Short context placeholder — what was won, against whom, and why it mattered.]",
-  },
-  {
-    id: "ach-6",
-    date: "2025-09-02",
-    title: "[Achievement Title 06]",
-    awardedTo: "[Team / member name]",
-    awardedBy: "[Competition or awarding body]",
-    scope: "Institute",
-    description:
-      "[Short context placeholder — what was won, against whom, and why it mattered.]",
+      "Awarded at the India Automation Competition held during the PPPA Meet on 10 and 11 April 2026. SOLARIS — an autonomous space weather intelligence system for CME detection, classification and incident response — links space weather forecasting to real infrastructure protection, spotting solar storm events and triggering automated responses for high-risk systems such as power grids. It pairs solar wind telemetry analysis with computer-vision CME detection, running an ensemble of XGBoost and Isolation Forest models into a low-latency control pipeline that fires protective action for grid infrastructure. Guided by Dr. Sharad P. Jadhav and Dr. Supriya Bhuran (Yadav).",
   },
 ];
 
-export interface Article {
-  id: string;
-  title: string;
-  excerpt: string;
-  image: string; // placeholder reference — swap for a real image path/URL later
-}
-
-export const mockArticles: Article[] = [
-  {
-    id: "art-1",
-    title: "[Feature Article Title]",
-    excerpt:
-      "[Longer excerpt placeholder for the featured story — this is the hero card of the bento grid.]",
-    image: "[thumbnail-01]",
-  },
-  {
-    id: "art-2",
-    title: "[Article Title 02]",
-    excerpt: "[Short excerpt placeholder for a secondary article.]",
-    image: "[thumbnail-02]",
-  },
-  {
-    id: "art-3",
-    title: "[Article Title 03]",
-    excerpt: "[Short excerpt placeholder for a secondary article.]",
-    image: "[thumbnail-03]",
-  },
-  {
-    id: "art-4",
-    title: "[Article Title 04]",
-    excerpt: "[Short excerpt placeholder for a secondary article.]",
-    image: "[thumbnail-04]",
-  },
-  {
-    id: "art-5",
-    title: "[Article Title 05]",
-    excerpt: "[Short excerpt placeholder for a secondary article.]",
-    image: "[thumbnail-05]",
-  },
-];
+// Articles live in lib/articles.ts — they carry full body content, so they are
+// kept out of this file. The initiatives hub and /articles/[slug] both read
+// from there.
 
 // Unsplash is asked for display-sized renders, not native resolution. The grid
 // cells top out around 640px wide (the 2x2 hero) / 320px (the rest); w= here
