@@ -73,3 +73,21 @@ export function normalizeUid(uid: string): string {
 export function normalizePassword(password: string): string {
   return password.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
 }
+
+/** Counted after normalising, so punctuation can't pad a short code. */
+export const MIN_CODE_LENGTH = 6;
+export const MAX_CODE_LENGTH = 128;
+
+/** Returns the problem with a chosen code, or null if it's fine. */
+export function validateAccessCode(code: unknown): string | null {
+  if (typeof code !== "string" || code.length === 0) {
+    return "Enter a new access code.";
+  }
+  if (code.length > MAX_CODE_LENGTH) {
+    return `Keep it under ${MAX_CODE_LENGTH} characters.`;
+  }
+  if (normalizePassword(code).length < MIN_CODE_LENGTH) {
+    return `Use at least ${MIN_CODE_LENGTH} letters or numbers — spaces and punctuation are ignored.`;
+  }
+  return null;
+}
