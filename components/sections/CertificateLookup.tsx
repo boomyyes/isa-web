@@ -9,6 +9,7 @@ import {
   CircleSlash,
   Download,
   FileWarning,
+  KeyRound,
   Loader2,
   Printer,
   Search,
@@ -18,7 +19,12 @@ import { HolographicCard } from "@/components/ui/HolographicCard";
 import { TerminalShell } from "@/components/ui/TerminalShell";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import { formatEventDate } from "@/lib/events";
-import type { PublicCertView, PublicWorkshopView } from "@/lib/certificates";
+import {
+  MIN_CODE_LENGTH,
+  validateAccessCode,
+  type PublicCertView,
+  type PublicWorkshopView,
+} from "@/lib/certificates";
 
 /** The directory is `help`; the UI calls it "Support". */
 const SUPPORT_HREF = "/help";
@@ -325,6 +331,12 @@ export function CertificateLookup() {
             </div>
           </header>
 
+          <ChangeCodePanel
+            uid={result.uid}
+            currentPassword={password}
+            onChanged={(next) => setPassword(next)}
+          />
+
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {result.workshops.map((workshop) => (
               <WorkshopCard
@@ -339,6 +351,161 @@ export function CertificateLookup() {
         </section>
       )}
     </div>
+  );
+}
+
+/**
+ * Collapsed by default — most students just want their certificate. The current
+ * code isn't asked for again; they signed in with it moments ago.
+ */
+function ChangeCodePanel({
+  uid,
+  currentPassword,
+  onChanged,
+}: {
+  uid: string;
+  currentPassword: string;
+  onChanged: (next: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [code, setCode] = useState("");
+  const [confirmCode, setConfirmCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+
+  const handleSubmit = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      const problem = validateAccessCode(code);
+      if (problem) return setError(problem);
+      if (code !== confirmCode) return setError("Those two codes don't match.");
+
+      setBusy(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/certificates/password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid, password: currentPassword, newPassword: code }),
+        });
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+
+        if (res.ok) {
+          // Keeps the stale-token refresh working with the code that now applies.
+          onChanged(code);
+          setDone(true);
+          setCode("");
+          setConfirmCode("");
+        } else {
+          setError(body?.error ?? "Couldn't change your code. Please try again.");
+        }
+      } catch {
+        setError("Couldn't reach the server. Check your connection and try again.");
+      } finally {
+        setBusy(false);
+      }
+    },
+    [uid, currentPassword, code, confirmCode, onChanged]
+  );
+
+  if (done) {
+    return (
+      <p className="mt-6 flex items-center gap-2 rounded-lg border border-[var(--border-active)]/40 bg-[var(--border-active)]/10 px-4 py-3 font-jetbrains text-sm text-[var(--border-active)]">
+        <BadgeCheck className="h-4 w-4 shrink-0" />
+        Access code updated. Use it next time you sign in.
+      </p>
+    );
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="mt-5 inline-flex items-center gap-1.5 font-jetbrains text-xs text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-color)]"
+      >
+        <KeyRound className="h-3.5 w-3.5" />
+        Change my access code
+      </button>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="mt-5 rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 p-5 backdrop-blur-md"
+    >
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="change-code" className={labelClass}>
+            New access code
+          </label>
+          <input
+            id="change-code"
+            name="new-password"
+            type="password"
+            required
+            autoComplete="new-password"
+            spellCheck={false}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            className={`${fieldClass} font-jetbrains tracking-widest`}
+          />
+        </div>
+        <div>
+          <label htmlFor="change-code-confirm" className={labelClass}>
+            Confirm it
+          </label>
+          <input
+            id="change-code-confirm"
+            name="confirm-password"
+            type="password"
+            required
+            autoComplete="new-password"
+            spellCheck={false}
+            value={confirmCode}
+            onChange={(e) => setConfirmCode(e.target.value)}
+            className={`${fieldClass} font-jetbrains tracking-widest`}
+          />
+        </div>
+      </div>
+
+      <p className="mt-3 text-xs text-[var(--text-secondary)]">
+        At least {MIN_CODE_LENGTH} letters or numbers. Capitals, spaces and
+        punctuation are ignored when you sign in.
+      </p>
+
+      {error && (
+        <p
+          role="alert"
+          className="mt-3 flex items-center gap-2 font-jetbrains text-sm text-red-400"
+        >
+          <CircleAlert className="h-4 w-4 shrink-0" />
+          {error}
+        </p>
+      )}
+
+      <div className="mt-4 flex flex-wrap gap-3">
+        <AngularButton
+          type="submit"
+          variant="primary"
+          disabled={busy}
+          className="disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {busy ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <KeyRound className="h-4 w-4" />
+          )}
+          Save new code
+        </AngularButton>
+        <AngularButton type="button" variant="outline" onClick={() => setOpen(false)}>
+          Cancel
+        </AngularButton>
+      </div>
+    </form>
   );
 }
 
