@@ -40,7 +40,7 @@ function Socials({ socials }: { socials: SocialLink[] }) {
 
   return (
     <div
-      className="mt-3 flex items-center justify-center gap-2"
+      className="mt-3 flex items-center justify-center gap-3"
       onClick={(e) => e.stopPropagation()}
     >
       {socials.map(({ platform, href }) => {
@@ -50,9 +50,9 @@ function Socials({ socials }: { socials: SocialLink[] }) {
             key={platform}
             href={href}
             aria-label={`${label} profile`}
-            className="rounded-md border border-[var(--border-color)]/60 p-1.5 text-[var(--text-secondary)] transition-colors hover:border-[var(--border-active)] hover:text-[var(--text-primary)]"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-[var(--border-color)]/60 text-[var(--text-secondary)] transition-colors hover:border-[var(--border-active)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]"
           >
-            <Icon className="h-3.5 w-3.5" />
+            <Icon className="h-4 w-4" />
           </a>
         );
       })}

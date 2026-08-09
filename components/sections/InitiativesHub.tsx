@@ -17,6 +17,7 @@ import {
   Tag,
   Trophy,
 } from "lucide-react";
+import { ClampedText } from "@/components/ui/ClampedText";
 import { articles, readingMinutes } from "@/lib/articles";
 import {
   mockAchievements,
@@ -179,7 +180,7 @@ export function InitiativesHub() {
               type="button"
               onClick={() => setPicked({ forHash: hash, tab: tab.id })}
               className={cn(
-                "relative rounded-lg px-4 py-2 font-inter text-sm font-medium transition-colors",
+                "relative inline-flex min-h-11 items-center rounded-lg px-4 py-2 font-inter text-sm font-medium transition-colors",
                 isActive
                   ? "text-[var(--text-primary)]"
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -354,9 +355,12 @@ function AchievementsPanel() {
             </div>
 
             {achievement.description && (
-              <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
-                {achievement.description}
-              </p>
+              <ClampedText
+                text={achievement.description}
+                lines={6}
+                className="mt-3"
+                textClassName="text-sm leading-relaxed text-[var(--text-secondary)]"
+              />
             )}
             </div>
           </motion.article>
@@ -482,9 +486,12 @@ function EventsPanel() {
                       {event.venue}
                     </p>
                     {event.description && (
-                      <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">
-                        {event.description}
-                      </p>
+                      <ClampedText
+                        text={event.description}
+                        lines={6}
+                        className="mt-1"
+                        textClassName="text-sm leading-relaxed text-[var(--text-secondary)]"
+                      />
                     )}
                   </div>
                 </motion.article>

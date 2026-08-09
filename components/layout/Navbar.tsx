@@ -149,13 +149,13 @@ export function Navbar() {
           </nav>
 
           {/* Mobile controls */}
-          <div className="flex items-center gap-1 md:hidden">
+          <div className="flex items-center gap-2 md:hidden">
             <ThemeToggle />
             <button
               type="button"
               aria-label="Toggle navigation menu"
               aria-expanded={isOpen}
-              className="rounded-full p-2 text-[var(--text-primary)] transition-colors hover:bg-[var(--card-color)]/60 focus:outline-none"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-[var(--text-primary)] transition-colors hover:bg-[var(--card-color)]/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]"
               onClick={() => setIsOpen((prev) => !prev)}
             >
               {isOpen ? <X size={18} /> : <Menu size={18} />}
@@ -183,7 +183,7 @@ export function Navbar() {
                     href={link.href}
                     onClick={() => setIsOpen(false)}
                     className={cn(
-                      "rounded-xl px-3 py-2 font-inter text-sm font-medium transition-colors",
+                      "flex min-h-11 items-center rounded-xl px-3 py-2 font-inter text-sm font-medium transition-colors",
                       active
                         ? "bg-[var(--border-active)]/10 text-[var(--text-primary)]"
                         : "text-[var(--text-secondary)] hover:bg-[var(--card-color)]/60 hover:text-[var(--text-primary)]"

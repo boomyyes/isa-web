@@ -469,10 +469,22 @@ export const mockAchievements: Achievement[] = [
     title: "2nd Runner-Up — SOLARIS",
     awardedTo: "Yash Patil",
     awardedBy: "India Automation Competition, PPPA Meet 2026",
-    scope: "National",
+    scope: "State",
     image: "/achievements/solaris.jpg",
     description:
       "Awarded at the India Automation Competition held during the PPPA Meet on 10 and 11 April 2026. SOLARIS — an autonomous space weather intelligence system for CME detection, classification and incident response — links space weather forecasting to real infrastructure protection, spotting solar storm events and triggering automated responses for high-risk systems such as power grids. It pairs solar wind telemetry analysis with computer-vision CME detection, running an ensemble of XGBoost and Isolation Forest models into a low-latency control pipeline that fires protective action for grid infrastructure. Guided by Dr. Sharad P. Jadhav and Dr. Supriya Bhuran (Yadav).",
+  },
+  {
+    id: "ach-best-student-leader-2026",
+    // Same meet as the SOLARIS award above — 10-11 April 2026.
+    date: "2026-04-10",
+    title: "Best Student Leader 2026",
+    awardedTo: "Shreya Srivastava",
+    awardedBy: "ISA Maharashtra Section, PPPA Meet 2026",
+    scope: "State",
+    image: "/achievements/shreya-srivastava.jpg",
+    description:
+      "Awarded at the PPPA Meet held on 10 and 11 April 2026 at the CIDCO Exhibition Centre, Vashi, organised by the ISA Maharashtra Section. As President of the ISA-RAIT Student Chapter through the 2025-26 tenure, Shreya Srivastava drove the chapter's student-led initiatives, kept the committee aligned and held its programme of activity steady across the year while balancing the role alongside her academics.",
   },
 ];
 
