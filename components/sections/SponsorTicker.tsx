@@ -29,7 +29,7 @@ export function SponsorTicker() {
                 key={`${sponsor.id}-${i}`}
                 className="flex-shrink-0 w-64 mx-8 relative group/logo"
               >
-                <div className="h-24 flex items-center justify-center border border-[var(--border-color)] bg-[var(--card-color)] opacity-40 hover:opacity-100 transition-all duration-300 cursor-pointer clip-angular">
+                <div className="h-24 flex items-center justify-center border border-[var(--border-color)] bg-[var(--card-color)] transition-all duration-300 cursor-pointer clip-angular md:opacity-40 md:hover:opacity-100">
                   <span className="font-inter font-black text-2xl uppercase tracking-tighter text-[var(--text-primary)]">
                     {sponsor.name}
                   </span>
@@ -45,7 +45,7 @@ export function SponsorTicker() {
                 key={`${sponsor.id}-${i}-dup`}
                 className="flex-shrink-0 w-64 mx-8 relative group/logo"
               >
-                <div className="h-24 flex items-center justify-center border border-[var(--border-color)] bg-[var(--card-color)] opacity-40 hover:opacity-100 transition-all duration-300 cursor-pointer clip-angular">
+                <div className="h-24 flex items-center justify-center border border-[var(--border-color)] bg-[var(--card-color)] transition-all duration-300 cursor-pointer clip-angular md:opacity-40 md:hover:opacity-100">
                   <span className="font-inter font-black text-2xl uppercase tracking-tighter text-[var(--text-primary)]">
                     {sponsor.name}
                   </span>

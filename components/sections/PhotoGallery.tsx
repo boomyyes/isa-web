@@ -41,18 +41,21 @@ export function PhotoGallery() {
               >
                 {/* Base image with grayscale and scanlines by default */}
                 <div 
-                  className="absolute inset-0 bg-cover bg-center transition-all duration-500 grayscale group-hover:grayscale-0 group-hover:scale-105"
+                  className="absolute inset-0 bg-cover bg-center transition-all duration-500 md:grayscale md:group-hover:grayscale-0 md:group-hover:scale-105"
                   style={{ backgroundImage: `url(${img.url})` }}
                 />
                 
                 {/* Scanline overlay - disappears on hover */}
-                <div className="absolute inset-0 scanline opacity-100 group-hover:opacity-0 transition-opacity duration-500 pointer-events-none" />
+                <div className="absolute inset-0 scanline opacity-0 transition-opacity duration-500 pointer-events-none md:opacity-100 md:group-hover:opacity-0" />
                 
                 {/* Optional Color Tint Overlay */}
                 <div className="absolute inset-0 bg-[var(--bg-color)]/20 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500 pointer-events-none" />
 
                 {/* Label */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                {/* Reveal-on-hover only from md: on a touch screen there is no
+                    hover, so the caption would otherwise sit permanently below
+                    the frame and never be readable. */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent transition-transform duration-300 md:translate-y-full md:group-hover:translate-y-0">
                   <p className="font-jetbrains text-sm font-bold text-white uppercase tracking-widest">{img.alt}</p>
                 </div>
               </HolographicCard>

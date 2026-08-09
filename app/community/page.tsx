@@ -3,6 +3,7 @@ import Image from "next/image";
 import { UserRound } from "lucide-react";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { LinkedinIcon } from "@/components/ui/BrandIcons";
+import { ClampedText } from "@/components/ui/ClampedText";
 import { ProfileCard } from "@/components/ui/ProfileCard";
 import {
   core,
@@ -89,13 +90,15 @@ function BlogNote({
           <p className="mt-1 font-jetbrains text-xs uppercase tracking-widest text-[var(--text-secondary)]">
             {title}
           </p>
-          <div className="mt-6 max-w-3xl space-y-4">
-            {message.map((paragraph, i) => (
-              <p key={i} className="text-base leading-relaxed text-[var(--text-secondary)]">
-                {paragraph}
-              </p>
-            ))}
-          </div>
+          {/* Collapsed on phones only — these notes run to roughly 50 lines
+              there, and two of them stacked would push the whole roster below
+              three screenfuls. */}
+          <ClampedText
+            text={message}
+            lines={8}
+            className="mt-6 max-w-3xl"
+            textClassName="space-y-4 text-base leading-relaxed text-[var(--text-secondary)]"
+          />
           {/* mt-auto pins the footer to the bottom of the card even when this
               note is shorter than the one beside it. */}
           {footer && <div className="mt-auto flex justify-end pt-8">{footer}</div>}
@@ -174,7 +177,7 @@ export default function CommunityPage() {
                 href={mentorLinkedin}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="inline-flex items-center gap-2 rounded-md border border-[var(--border-color)]/60 px-3 py-1.5 font-jetbrains text-xs text-[var(--text-secondary)] transition-colors hover:border-[var(--border-active)] hover:text-[var(--text-primary)]"
+                className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[var(--border-color)]/60 px-4 py-1.5 font-jetbrains text-xs text-[var(--text-secondary)] transition-colors hover:border-[var(--border-active)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]"
               >
                 <LinkedinIcon className="h-3.5 w-3.5" />
                 LinkedIn

@@ -123,10 +123,66 @@
     animation: neon-breathe-glow 3.8s ease-in-out infinite;
   }
 
+  /* ------------------------------------------------------------------ *
+   * Mobile prose collapse — see components/ui/ClampedText.tsx.
+   *
+   * The breakpoint is a media query rather than a JS check on purpose: the
+   * server has no idea how wide the screen is, so deciding this in React would
+   * either mismatch on hydration or flash. At md and up not one of these rules
+   * exists, which is why the desktop layout is untouched and why crossing the
+   * breakpoint on rotate needs no code at all.
+   * ------------------------------------------------------------------ */
+
+  /* Exact complement of Tailwind's md: (min-width: 48rem), written as
+     `not all and` rather than a max-width so there is no sub-pixel band where
+     both the clamp and the desktop reset apply. */
+  @media not all and (min-width: 48rem) {
+    [data-clamp-body] {
+      /* Same gradient shape in both states — same function, same two stops —
+         so the fade dissolves on expand instead of popping off at frame one.
+         `mask-image: none` would not interpolate. */
+      -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1) 100%, rgb(0 0 0 / 0) 100%);
+      mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1) 100%, rgb(0 0 0 / 0) 100%);
+      transition:
+        max-height 380ms cubic-bezier(0.22, 1, 0.36, 1),
+        -webkit-mask-image 380ms cubic-bezier(0.22, 1, 0.36, 1),
+        mask-image 380ms cubic-bezier(0.22, 1, 0.36, 1);
+      /* Lets max-height interpolate to and from max-content (Chromium today).
+         Elsewhere the size change is instant, which is what <details> does. */
+      interpolate-size: allow-keywords;
+    }
+
+    [data-clamp-body][data-expanded="false"] {
+      overflow: hidden;
+      /* First line is the pre-2023 fallback and assumes leading-relaxed; the lh
+         line wins wherever it parses and is exact for any leading-*. If a
+         browser parses neither, max-height is invalid and the block simply
+         renders in full — the failure direction is the safe one. */
+      max-height: calc(var(--clamp-lines) * 1.625em);
+      max-height: calc(var(--clamp-lines) * 1lh);
+      /* Fades the last line out rather than guillotining it mid-glyph. A mask,
+         not an overlay div: these cards are translucent over a blurred backdrop,
+         so an opaque gradient could not match and would read as a band. */
+      -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1) 55%, rgb(0 0 0 / 0) 100%);
+      mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1) 55%, rgb(0 0 0 / 0) 100%);
+    }
+
+    [data-clamp-body][data-expanded="true"] {
+      max-height: max-content;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .animate-neon-breathe,
-    .animate-neon-breathe-glow {
+    .animate-neon-breathe-glow,
+    /* 25s infinite horizontal scroll — the most motion-sickness-prone thing on
+       the site, and it was the one animation this block did not cover. */
+    .animate-marquee {
       animation: none;
+    }
+
+    [data-clamp-body] {
+      transition: none;
     }
   }
 }

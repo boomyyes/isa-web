@@ -41,12 +41,14 @@ export function Footer() {
             <h3 className="font-jetbrains text-xs uppercase tracking-widest text-[var(--text-secondary)]">
               Quick Links
             </h3>
+            {/* -my-1.5 keeps the visual rhythm while the padding lifts each
+                row to a 44px touch target. */}
             <ul className="mt-4 space-y-2">
               {QUICK_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                    className="-my-1.5 flex min-h-11 items-center py-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -80,7 +82,7 @@ export function Footer() {
                   key={label}
                   href={href}
                   aria-label={`[${label} Placeholder]`}
-                  className="p-2 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]/60 hover:border-[var(--accent-color)] transition-colors"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]/60 hover:border-[var(--accent-color)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]"
                 >
                   <Icon className="h-4 w-4" />
                 </a>

@@ -62,6 +62,12 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased min-h-screen relative dark:bg-grid-dark bg-grid-light`}
       >
+        {/* With scripting off the Read more button can never fire, so drop the
+            clamp wholesale rather than strand the rest of a paragraph behind a
+            dead control. See components/ui/ClampedText.tsx. */}
+        <noscript>
+          <style>{`[data-clamp-body]{max-height:none!important;-webkit-mask-image:none!important;mask-image:none!important}[data-clamp-toggle]{display:none!important}`}</style>
+        </noscript>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

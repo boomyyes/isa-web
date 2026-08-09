@@ -1,15 +1,29 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { HeroOrb } from "@/components/three/HeroOrb";
 import { AngularButton } from "@/components/ui/AngularButton";
 import { Terminal } from "lucide-react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+
+// three + @react-three/fiber is ~170KB gzipped and the scene's only input is
+// the mouse, so it is dead weight on a phone. Loading it lazily keeps it out of
+// the homepage's first bundle entirely; the md gate below keeps it off small
+// screens even after hydration.
+const HeroOrb = dynamic(
+  () => import("@/components/three/HeroOrb").then((m) => m.HeroOrb),
+  { ssr: false }
+);
 
 export function Hero() {
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+  // False on the server and on phones, so the orb never mounts there.
+  const showOrb = useMediaQuery("(min-width: 768px)");
 
   useEffect(() => {
+    // No orb, no reason to re-render this whole section on every pointer move.
+    if (!showOrb) return;
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({
         x: e.clientX / window.innerWidth,
@@ -18,7 +32,7 @@ export function Hero() {
     };
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  }, [showOrb]);
 
   const headline = "INTERNATIONAL SOCIETY OF AUTOMATION, RAIT";
 
@@ -54,7 +68,12 @@ export function Hero() {
             <span>&gt; SYS.BOOT SEQUENCE INITIATED</span>
           </motion.div>
 
-          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black font-inter tracking-tighter leading-none mb-6 md:mb-8 max-w-2xl">
+          {/* text-3xl at the base step, not text-4xl: each word below is an
+              inline-block with overflow-hidden (that clip is what masks the
+              slide-up reveal), so "INTERNATIONAL" too wide for the column gets
+              cut mid-letter instead of wrapping. At 36px it overflowed a 360px
+              screen. sm: and up are unchanged. */}
+          <h1 className="text-3xl sm:text-6xl md:text-7xl lg:text-8xl font-black font-inter tracking-tighter leading-none mb-6 md:mb-8 max-w-2xl">
             {headline.split(" ").map((word, i) => (
               <span key={i} className="inline-block mr-[0.2em] overflow-hidden">
                 <motion.span
@@ -109,9 +128,9 @@ export function Hero() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
-          className="relative w-full h-[40vh] sm:h-[50vh] lg:h-[80vh] flex items-center justify-center pointer-events-none"
+          className="relative hidden w-full h-[40vh] sm:h-[50vh] lg:h-[80vh] items-center justify-center pointer-events-none md:flex"
         >
-          <HeroOrb mouseX={mousePos.x} mouseY={mousePos.y} />
+          {showOrb && <HeroOrb mouseX={mousePos.x} mouseY={mousePos.y} />}
         </motion.div>
 
       </div>
