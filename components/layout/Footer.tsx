@@ -65,7 +65,7 @@ export function Footer() {
                 <Mail className="h-4 w-4 shrink-0" />
                 <span>isa.rait@rait.ac.in</span>
               </li>
-              <li>ISA Room, 1st floor, Ramrao Adik Institute of Technology, DYPU.</li>
+              <li>Ramrao Adik Institute of Technology, DY Patil University Sector 7. Nerul, Navi Mumbai 400706.</li>
             </ul>
           </div>
 
@@ -89,11 +89,16 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-[var(--border-color)]/60 flex flex-col sm:flex-row items-center justify-between gap-2">
+        {/* Three columns so the copyright sits in the true centre of the footer:
+            with justify-between it was only centred when SYS_HALT happened to
+            match the empty space opposite it. The leading spacer balances that
+            column. Stacks to a single centred column below sm. */}
+        <div className="mt-10 grid grid-cols-1 gap-2 border-t border-[var(--border-color)]/60 pt-6 text-center sm:grid-cols-3 sm:items-center">
+          <span aria-hidden className="hidden sm:block" />
           <p className="font-jetbrains text-xs text-[var(--text-secondary)]">
             © 2026 ISA RAIT Student Chapter. All rights reserved.
           </p>
-          <p className="font-jetbrains text-xs opacity-50 text-[var(--text-secondary)]">
+          <p className="font-jetbrains text-xs opacity-50 text-[var(--text-secondary)] sm:text-right">
             [ SYS_HALT ]
           </p>
         </div>

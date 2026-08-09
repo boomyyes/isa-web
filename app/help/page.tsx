@@ -34,7 +34,7 @@ export default function HelpPage() {
             </span>
           </h1>
           <p className="relative mt-5 max-w-2xl text-lg leading-relaxed text-[var(--text-secondary)]">
-            Questions about membership, events, or collaborations? Browse the{" "}
+            Browse the{" "}
             <span className="font-medium text-[var(--text-primary)] [text-shadow:0_0_18px_color-mix(in_srgb,var(--accent-color)_55%,transparent)]">
               knowledge base
             </span>{" "}
