@@ -34,6 +34,10 @@ interface ProfileCardProps {
 }
 
 function Socials({ socials }: { socials: SocialLink[] }) {
+  // Nothing linked yet — render nothing rather than an empty row, which would
+  // still contribute its top margin and leave a gap under the name.
+  if (socials.length === 0) return null;
+
   return (
     <div
       className="mt-3 flex items-center justify-center gap-2"
@@ -102,7 +106,10 @@ export function ProfileCard({ role, name, type, photo, socials }: ProfileCardPro
                 ? "(max-width: 640px) 100vw, 320px"
                 : "(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
             }
-            className="object-cover"
+            // object-top, not the default centre: the team shots are full-body
+            // portraits, so a centred square crop lands on the torso and cuts
+            // the face off. Anchoring to the top keeps every head in frame.
+            className="object-cover object-top"
           />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-2 text-center text-[var(--text-secondary)]">

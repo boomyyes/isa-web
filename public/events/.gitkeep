@@ -1,0 +1,3 @@
+Event photos live here. Reference them from lib/data.ts as
+  image: "/events/automationx-2026.jpg"
+Anything left as a "[label]" renders the empty photo box instead.
