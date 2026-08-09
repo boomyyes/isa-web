@@ -58,6 +58,10 @@ export function QueryForm() {
             name="email"
             type="email"
             required
+            autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             placeholder="you@rait.ac.in"
             className={fieldClass}
           />
