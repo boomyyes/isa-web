@@ -25,7 +25,7 @@ import {
   type ProjectStatus,
 } from "@/lib/data";
 import { formatEventDate, groupFinishedByTenure, partitionEvents } from "@/lib/events";
-import { cn } from "@/lib/utils";
+import { cn, isRealImage } from "@/lib/utils";
 
 type TabId = "projects" | "events" | "achievements" | "articles";
 
@@ -309,12 +309,6 @@ function AchievementsPanel() {
 /* ------------------------------------------------------------------ */
 /* Events — Upcoming timeline + Finished card grid                     */
 /* ------------------------------------------------------------------ */
-
-// A finished thumbnail is "real" when it points at an actual asset; otherwise
-// the string is a "[placeholder]" label and we render the empty image box.
-function isRealImage(src: string | undefined): src is string {
-  return !!src && (src.startsWith("/") || src.startsWith("http"));
-}
 
 function EventsPanel() {
   // Evaluated once per render on both server and client. Same calendar day →

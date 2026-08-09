@@ -13,21 +13,43 @@ export interface TeamMember {
   id: string;
   role: string;
   name: string;
+  /**
+   * Headshot. Either a real image served locally, e.g. "/team/yash-patil.jpg"
+   * (drop files in public/team/ — no config needed), or a "[placeholder]" label,
+   * which renders the empty photo box instead. Same convention as EventItem.image.
+   */
+  photo: string;
   socials: SocialLink[];
 }
 
-// Every member shares the same placeholder links for now.
-const placeholderSocials: SocialLink[] = [
-  { platform: "github", href: "#" },
+// Shared, read-only link sets. Hrefs are "#" until the real profiles land.
+// Everyone gets LinkedIn; only technical roles also get GitHub, since it is the
+// only place a code link is meaningful.
+const LINKEDIN_ONLY: SocialLink[] = [{ platform: "linkedin", href: "#" }];
+
+const LINKEDIN_AND_GITHUB: SocialLink[] = [
   { platform: "linkedin", href: "#" },
+  { platform: "github", href: "#" },
 ];
 
-// Small helper to keep the member list declarations terse.
-const member = (id: string, role: string, name: string): TeamMember => ({
+/**
+ * Small helper to keep the member list declarations terse.
+ *
+ * `technical` adds the GitHub link. It is opt-in per member rather than inferred
+ * from the domain heading, because the CTO sits under Sub-Core rather than the
+ * Technical domain but is just as much a code role.
+ */
+const member = (
+  id: string,
+  role: string,
+  name: string,
+  { technical = false }: { technical?: boolean } = {}
+): TeamMember => ({
   id,
   role,
   name,
-  socials: placeholderSocials,
+  photo: `[photo-${id}]`,
+  socials: technical ? LINKEDIN_AND_GITHUB : LINKEDIN_ONLY,
 });
 
 export const principal = {
@@ -47,7 +69,7 @@ export const principal = {
 };
 
 export const faculty: TeamMember[] = [
-  member("fac-advisor", "Faculty Advisor", "[Name]"),
+  member("fac-advisor", "Faculty Advisor", "Dr. Sharad P Jadhav"),
   member("fac-coordinator", "Faculty Coordinator", "[Name]"),
 ];
 
@@ -62,7 +84,7 @@ export const core: TeamMember[] = [
 export const subCore: TeamMember[] = [
   member("sub-pro", "Public Relations Officer", "Suhani Guralwar"),
   member("sub-sponsorship", "Sponsorship Officer", "Suhas Dongre"),
-  member("sub-cto", "Chief Technical Officer", "Chris Misquitta"),
+  member("sub-cto", "Chief Technical Officer", "Chris Misquitta", { technical: true }),
 ];
 
 export interface JointCoreDomain {
@@ -74,9 +96,9 @@ export const jointCore: JointCoreDomain[] = [
   {
     domain: "Technical",
     members: [
-      member("jc-tech-1", "Technical Member", "Ujjwal Prajapati"),
-      member("jc-tech-2", "Technical Member", "Aryesh Deshmukh"),
-      member("jc-tech-3", "Technical Member", "Avanish Wankhede"),
+      member("jc-tech-1", "Technical Member", "Ujjwal Prajapati", { technical: true }),
+      member("jc-tech-2", "Technical Member", "Aryesh Deshmukh", { technical: true }),
+      member("jc-tech-3", "Technical Member", "Avanish Wankhede", { technical: true }),
     ],
   },
   {
@@ -108,7 +130,7 @@ export const jointCore: JointCoreDomain[] = [
       member("jc-create-1", "Creativity Head", "Yahya Dongarkar"),
       member("jc-create-2", "Creativity Co-head", "Vaibhavi Patil"),
       member("jc-create-3", "Creativity Co-head", "Shriya Dalvi"),
-      member("jc-create-4", "Creativity Member", "Angel Bari"),
+      member("jc-create-4", "Creativity Co-head", "Angel Bari"),
     ],
   },
   {
