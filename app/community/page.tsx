@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { UserRound } from "lucide-react";
+import Image from "next/image";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { ProfileCard } from "@/components/ui/ProfileCard";
 import {
@@ -68,14 +68,17 @@ export default function CommunityPage() {
           </p>
 
           <div className="relative mt-6 flex flex-col gap-8 md:flex-row md:items-start">
-            {/* Portrait placeholder */}
-            <div className="flex shrink-0 flex-col items-center gap-3">
-              <div className="flex h-40 w-40 items-center justify-center rounded-2xl border border-[var(--border-active)]/40 bg-[var(--bg-color)]/60 text-[var(--text-secondary)] shadow-[0_0_24px_rgba(0,229,255,0.12)]">
-                <UserRound className="h-16 w-16" />
-              </div>
-              <span className="font-jetbrains text-[11px] text-[var(--text-secondary)]">
-                [Principal Portrait]
-              </span>
+            {/* Portrait. The source is 544x700, so it is framed at its own 4:5-ish
+                ratio rather than cropped square — a square would cut the shot. */}
+            <div className="w-fit shrink-0 overflow-hidden rounded-2xl border border-[var(--border-active)]/40 bg-[var(--bg-color)]/60 shadow-[0_0_24px_rgba(0,229,255,0.12)]">
+              <Image
+                src={principal.photo}
+                alt={`${principal.name}, ${principal.title}`}
+                width={544}
+                height={700}
+                sizes="(max-width: 768px) 176px, 224px"
+                className="h-auto w-44 md:w-56"
+              />
             </div>
 
             {/* Message */}
@@ -86,9 +89,13 @@ export default function CommunityPage() {
               <p className="mt-1 font-jetbrains text-xs uppercase tracking-widest text-[var(--text-secondary)]">
                 {principal.title}
               </p>
-              <p className="mt-6 max-w-3xl text-base leading-relaxed text-[var(--text-secondary)]">
-                {principal.message}
-              </p>
+              <div className="mt-6 max-w-3xl space-y-4">
+                {principal.message.map((paragraph, i) => (
+                  <p key={i} className="text-base leading-relaxed text-[var(--text-secondary)]">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
             </div>
           </div>
         </section>

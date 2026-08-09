@@ -6,27 +6,33 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowUpRight,
+  Award,
   Calendar,
   CheckCircle2,
   Clock,
   ImageIcon,
   MapPin,
+  Medal,
   Tag,
+  Trophy,
 } from "lucide-react";
 import {
+  mockAchievements,
   mockArticles,
   mockEvents,
   mockProjects,
+  type AchievementScope,
   type ProjectStatus,
 } from "@/lib/data";
-import { formatEventDate, partitionEvents } from "@/lib/events";
+import { formatEventDate, groupFinishedByTenure, partitionEvents } from "@/lib/events";
 import { cn } from "@/lib/utils";
 
-type TabId = "projects" | "events" | "articles";
+type TabId = "projects" | "events" | "achievements" | "articles";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "projects", label: "Running Projects" },
   { id: "events", label: "Events" },
+  { id: "achievements", label: "Achievements" },
   { id: "articles", label: "ISA Articles" },
 ];
 
@@ -48,6 +54,38 @@ const STATUS_STYLES: Record<
     glow: "shadow-[0_0_12px_rgba(245,158,11,0.45)]",
   },
   Completed: {
+    dot: "bg-sky-400",
+    text: "text-sky-400",
+    ring: "border-sky-400/40 bg-sky-400/10",
+    glow: "shadow-[0_0_12px_rgba(56,189,248,0.4)]",
+  },
+};
+
+// Scope badge styles, same shape as STATUS_STYLES. Warmer = wider reach, so the
+// tier reads at a glance without needing the label.
+const SCOPE_STYLES: Record<
+  AchievementScope,
+  { dot: string; text: string; ring: string; glow: string }
+> = {
+  International: {
+    dot: "bg-amber-400",
+    text: "text-amber-400",
+    ring: "border-amber-400/40 bg-amber-400/10",
+    glow: "shadow-[0_0_12px_rgba(245,158,11,0.45)]",
+  },
+  National: {
+    dot: "bg-violet-400",
+    text: "text-violet-400",
+    ring: "border-violet-400/40 bg-violet-400/10",
+    glow: "shadow-[0_0_12px_rgba(167,139,250,0.45)]",
+  },
+  State: {
+    dot: "bg-emerald-400",
+    text: "text-emerald-400",
+    ring: "border-emerald-400/40 bg-emerald-400/10",
+    glow: "shadow-[0_0_12px_rgba(16,185,129,0.45)]",
+  },
+  Institute: {
     dot: "bg-sky-400",
     text: "text-sky-400",
     ring: "border-sky-400/40 bg-sky-400/10",
@@ -83,9 +121,13 @@ export function InitiativesHub() {
             Hub
           </span>
         </h1>
-        <p className="relative mt-4 max-w-2xl text-[var(--text-secondary)]">
-          [ Intro placeholder — a short line describing projects, events, and
-          articles from the ISA RAIT chapter. ]
+        {/* mt-5 / text-lg / leading-relaxed to match the intro paragraph on the
+            Help and Certificates pages. No accent-highlighted span here — the
+            heading above already carries one on "Hub". */}
+        <p className="relative mt-5 max-w-2xl text-lg leading-relaxed text-[var(--text-secondary)]">
+          Everything the chapter has in motion, in one place: projects in build,
+          events past and upcoming, awards the teams have brought home, and
+          articles written by our members.
         </p>
       </header>
 
@@ -135,6 +177,7 @@ export function InitiativesHub() {
           >
             {active === "projects" && <ProjectsPanel />}
             {active === "events" && <EventsPanel />}
+            {active === "achievements" && <AchievementsPanel />}
             {active === "articles" && <ArticlesPanel />}
           </motion.div>
         </AnimatePresence>
@@ -186,6 +229,84 @@ function ProjectsPanel() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Achievements                                                        */
+/* ------------------------------------------------------------------ */
+
+function AchievementsPanel() {
+  // Sorted here rather than relying on the order in data.ts, so adding a win to
+  // the end of that array still lands it in the right place.
+  const achievements = useMemo(
+    () => [...mockAchievements].sort((a, b) => b.date.localeCompare(a.date)),
+    []
+  );
+
+  if (achievements.length === 0) {
+    return (
+      <p className="font-jetbrains text-sm text-[var(--text-secondary)]">
+        No achievements recorded yet.
+      </p>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {achievements.map((achievement, i) => {
+        const s = SCOPE_STYLES[achievement.scope];
+        return (
+          <motion.article
+            key={achievement.id}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05, duration: 0.3 }}
+            className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 p-6 backdrop-blur-md transition-colors duration-300 hover:border-[var(--border-active)]/50"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-jetbrains text-[11px] font-medium",
+                  s.ring,
+                  s.text,
+                  s.glow
+                )}
+              >
+                <span className={cn("h-1.5 w-1.5 rounded-full", s.dot)} />
+                {achievement.scope}
+              </span>
+              <Trophy className={cn("h-5 w-5 shrink-0", s.text)} />
+            </div>
+
+            <h3 className="mt-5 font-jetbrains text-lg font-bold text-[var(--text-primary)]">
+              {achievement.title}
+            </h3>
+
+            <p className="mt-2 flex items-center gap-1.5 text-sm text-[var(--text-primary)]">
+              <Medal className="h-3.5 w-3.5 shrink-0 text-[var(--text-secondary)]" />
+              {achievement.awardedTo}
+            </p>
+
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="font-jetbrains text-xs text-[var(--accent-color)]">
+                {formatEventDate(achievement.date)}
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-color)]/60 px-2 py-0.5 font-jetbrains text-[11px] text-[var(--text-secondary)]">
+                <Award className="h-3 w-3 shrink-0" />
+                {achievement.awardedBy}
+              </span>
+            </div>
+
+            {achievement.description && (
+              <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
+                {achievement.description}
+              </p>
+            )}
+          </motion.article>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Events — Upcoming timeline + Finished card grid                     */
 /* ------------------------------------------------------------------ */
 
@@ -204,6 +325,8 @@ function EventsPanel() {
     () => partitionEvents(mockEvents, now),
     [now]
   );
+  // Upcoming stays one combined list; only the finished events split by tenure.
+  const finishedByTenure = useMemo(() => groupFinishedByTenure(finished), [finished]);
 
   return (
     <div className="space-y-16">
@@ -267,77 +390,83 @@ function EventsPanel() {
         )}
       </section>
 
-      {/* ── Finished — 2025-26 tenure ────────────────────────────────── */}
-      {finished.length > 0 && (
-        <section>
+      {/* ── Finished — one section per committee tenure, newest first ── */}
+      {finishedByTenure.map(({ id, label, events }) => (
+        <section key={id}>
           <SubHeading
-            eyebrow="Finished — 2025-26 Tenure"
-            count={finished.length}
+            eyebrow={`Finished — ${label} Tenure`}
+            count={events.length}
             accent="var(--accent-color)"
           />
 
-          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {finished.map((event, i) => (
-              <motion.article
-                key={event.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05, duration: 0.3 }}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 backdrop-blur-md transition-colors duration-300 hover:border-[var(--border-active)]/50"
-              >
-                {/* thumbnail */}
-                <div className="relative aspect-[16/9] border-b border-[var(--border-color)]/60 bg-[var(--bg-color)]/60">
-                  {isRealImage(event.image) ? (
-                    <Image
-                      src={event.image}
-                      alt={event.title}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full flex-col items-center justify-center gap-2 text-[var(--text-secondary)]">
-                      <ImageIcon className="h-8 w-8" />
-                      <span className="font-jetbrains text-[11px]">
-                        [{event.image ?? "photo"}]
-                      </span>
-                    </div>
-                  )}
-                  {/* finished badge */}
-                  <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-400/10 px-2 py-0.5 font-jetbrains text-[10px] font-medium text-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.4)] backdrop-blur-sm">
-                    <CheckCircle2 className="h-3 w-3" />
-                    FINISHED
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-2 p-5">
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span className="font-jetbrains text-xs text-[var(--accent-color)]">
-                      {formatEventDate(event.date)}
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-color)]/60 px-2 py-0.5 font-jetbrains text-[11px] text-[var(--text-secondary)]">
-                      <Tag className="h-3 w-3" />
-                      {event.type}
+          {events.length === 0 ? (
+            <p className="mt-6 font-jetbrains text-sm text-[var(--text-secondary)]">
+              No events finished yet this tenure.
+            </p>
+          ) : (
+            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {events.map((event, i) => (
+                <motion.article
+                  key={event.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.3 }}
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 backdrop-blur-md transition-colors duration-300 hover:border-[var(--border-active)]/50"
+                >
+                  {/* thumbnail */}
+                  <div className="relative aspect-[16/9] border-b border-[var(--border-color)]/60 bg-[var(--bg-color)]/60">
+                    {isRealImage(event.image) ? (
+                      <Image
+                        src={event.image}
+                        alt={event.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full flex-col items-center justify-center gap-2 text-[var(--text-secondary)]">
+                        <ImageIcon className="h-8 w-8" />
+                        <span className="font-jetbrains text-[11px]">
+                          [{event.image ?? "photo"}]
+                        </span>
+                      </div>
+                    )}
+                    {/* finished badge */}
+                    <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-400/10 px-2 py-0.5 font-jetbrains text-[10px] font-medium text-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.4)] backdrop-blur-sm">
+                      <CheckCircle2 className="h-3 w-3" />
+                      FINISHED
                     </span>
                   </div>
-                  <h3 className="font-jetbrains text-base font-bold text-[var(--text-primary)]">
-                    {event.title}
-                  </h3>
-                  <p className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {event.venue}
-                  </p>
-                  {event.description && (
-                    <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">
-                      {event.description}
+
+                  <div className="flex flex-col gap-2 p-5">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span className="font-jetbrains text-xs text-[var(--accent-color)]">
+                        {formatEventDate(event.date)}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-color)]/60 px-2 py-0.5 font-jetbrains text-[11px] text-[var(--text-secondary)]">
+                        <Tag className="h-3 w-3" />
+                        {event.type}
+                      </span>
+                    </div>
+                    <h3 className="font-jetbrains text-base font-bold text-[var(--text-primary)]">
+                      {event.title}
+                    </h3>
+                    <p className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {event.venue}
                     </p>
-                  )}
-                </div>
-              </motion.article>
-            ))}
-          </div>
+                    {event.description && (
+                      <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">
+                        {event.description}
+                      </p>
+                    )}
+                  </div>
+                </motion.article>
+              ))}
+            </div>
+          )}
         </section>
-      )}
+      ))}
     </div>
   );
 }
