@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, CircleAlert, Copy, KeyRound, Loader2, MailCheck } from "lucide-react";
 import { AngularButton } from "@/components/ui/AngularButton";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
+import { MIN_CODE_LENGTH, validateAccessCode } from "@/lib/certificates";
 
 const SUPPORT_HREF = "/help";
 
@@ -124,29 +125,48 @@ function RequestLink() {
   );
 }
 
+/**
+ * The link is only spent on submit, never on load — a mail scanner following it
+ * would otherwise consume someone's reset before they read the email.
+ */
 function RedeemLink({ token }: { token: string }) {
-  const [state, setState] = useState<
-    { status: "working" } | { status: "done"; uid: string; password: string } | { status: "failed"; error: string }
-  >({ status: "working" });
+  const [code, setCode] = useState("");
+  const [confirmCode, setConfirmCode] = useState("");
+  const [busy, setBusy] = useState<"chosen" | "generated" | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [state, setState] = useState<
+    | { status: "form" }
+    | { status: "done"; uid: string; password: string }
+    | { status: "failed"; error: string }
+  >({ status: "form" });
 
-  useEffect(() => {
-    let cancelled = false;
+  const submit = useCallback(
+    async (chosen: string | null) => {
+      if (chosen !== null) {
+        const problem = validateAccessCode(chosen);
+        if (problem) return setError(problem);
+        if (chosen !== confirmCode) return setError("Those two codes don't match.");
+      }
 
-    (async () => {
+      setBusy(chosen === null ? "generated" : "chosen");
+      setError(null);
+
       try {
         const res = await fetch("/api/certificates/reset/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
+          body: JSON.stringify(chosen === null ? { token } : { token, password: chosen }),
         });
         const body = (await res.json().catch(() => null)) as
-          | { uid?: string; password?: string; error?: string }
+          | { uid?: string; password?: string; error?: string; reason?: string }
           | null;
-        if (cancelled) return;
 
         if (res.ok && body?.uid && body?.password) {
           setState({ status: "done", uid: body.uid, password: body.password });
+        } else if (body?.reason === "code") {
+          // Their code was rejected, not the link — stay put so they can retry.
+          setError(body.error ?? "Pick a different code.");
         } else {
           setState({
             status: "failed",
@@ -154,27 +174,13 @@ function RedeemLink({ token }: { token: string }) {
           });
         }
       } catch {
-        if (!cancelled) {
-          setState({ status: "failed", error: "Couldn't reach the server. Try the link again." });
-        }
+        setError("Couldn't reach the server. Check your connection and try again.");
+      } finally {
+        setBusy(null);
       }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [token]);
-
-  if (state.status === "working") {
-    return (
-      <div className="flex items-center gap-3 rounded-2xl border border-[var(--border-color)] bg-[var(--card-color)]/60 p-8 backdrop-blur-md">
-        <Loader2 className="h-5 w-5 animate-spin text-[var(--border-active)]" />
-        <p className="font-jetbrains text-sm text-[var(--text-secondary)]">
-          Issuing a new access code…
-        </p>
-      </div>
-    );
-  }
+    },
+    [token, confirmCode]
+  );
 
   if (state.status === "failed") {
     return (
@@ -193,6 +199,102 @@ function RedeemLink({ token }: { token: string }) {
           </AngularButton>
         </div>
       </div>
+    );
+  }
+
+  if (state.status === "form") {
+    return (
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          submit(code);
+        }}
+        className="rounded-2xl border border-[var(--border-color)] bg-[var(--card-color)]/60 p-6 backdrop-blur-md md:p-8"
+      >
+        <h2 className="font-jetbrains text-lg font-semibold text-[var(--text-primary)]">
+          Choose your new access code
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
+          Pick something you&apos;ll remember. It replaces your current code, and
+          it&apos;s stored scrambled — so we won&apos;t be able to read it back to you.
+        </p>
+
+        <div className="mt-6 grid gap-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor="reset-code" className={labelClass}>
+              New access code
+            </label>
+            <input
+              id="reset-code"
+              name="new-password"
+              type="password"
+              required
+              autoComplete="new-password"
+              spellCheck={false}
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              className={`${fieldClass} font-jetbrains tracking-widest`}
+            />
+          </div>
+          <div>
+            <label htmlFor="reset-code-confirm" className={labelClass}>
+              Confirm it
+            </label>
+            <input
+              id="reset-code-confirm"
+              name="confirm-password"
+              type="password"
+              required
+              autoComplete="new-password"
+              spellCheck={false}
+              value={confirmCode}
+              onChange={(e) => setConfirmCode(e.target.value)}
+              className={`${fieldClass} font-jetbrains tracking-widest`}
+            />
+          </div>
+        </div>
+
+        <p className="mt-3 text-xs text-[var(--text-secondary)]">
+          At least {MIN_CODE_LENGTH} letters or numbers. Capitals, spaces and
+          punctuation are ignored when you sign in.
+        </p>
+
+        {error && (
+          <p
+            role="alert"
+            className="mt-4 flex items-center gap-2 font-jetbrains text-sm text-red-400"
+          >
+            <CircleAlert className="h-4 w-4 shrink-0" />
+            {error}
+          </p>
+        )}
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          <AngularButton
+            type="submit"
+            variant="primary"
+            disabled={busy !== null}
+            className="disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {busy === "chosen" ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <KeyRound className="h-4 w-4" />
+            )}
+            Set this code
+          </AngularButton>
+          <AngularButton
+            type="button"
+            variant="outline"
+            disabled={busy !== null}
+            onClick={() => submit(null)}
+            className="disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {busy === "generated" && <Loader2 className="h-4 w-4 animate-spin" />}
+            Generate one for me
+          </AngularButton>
+        </div>
+      </form>
     );
   }
 

@@ -1,10 +1,11 @@
-// POST { token } -> issues a new access code and returns it once, on screen.
+// POST { token, password? } -> sets the access code and returns it once, on
+// screen. Omit `password` to have one generated.
 //
 // Single-use falls out of the token design: the payload carries a fingerprint of
 // the password hash current when the link was minted, so changing the code
 // invalidates every outstanding token. No used-token table needed.
 
-import type { CertRecord } from "@/lib/certificates";
+import { validateAccessCode, type CertRecord } from "@/lib/certificates";
 import {
   generatePassword,
   hashPassword,
@@ -29,9 +30,24 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid request body." }, { status: 400, headers: PRIVATE_HEADERS });
   }
 
-  const { token } = (body ?? {}) as { token?: unknown };
+  const { token, password: chosen } = (body ?? {}) as {
+    token?: unknown;
+    password?: unknown;
+  };
   if (typeof token !== "string" || token.length === 0 || token.length > 512) {
     return Response.json(INVALID, { status: 400, headers: PRIVATE_HEADERS });
+  }
+
+  // Omitted means "pick one for me", so only validate when they typed something.
+  if (chosen !== undefined) {
+    const problem = validateAccessCode(chosen);
+    if (problem) {
+      // `reason` lets the page keep them on the form instead of burning the link.
+      return Response.json(
+        { error: problem, reason: "code" },
+        { status: 400, headers: PRIVATE_HEADERS }
+      );
+    }
   }
 
   try {
@@ -78,7 +94,7 @@ export async function POST(request: Request) {
     return Response.json(INVALID, { status: 400, headers: PRIVATE_HEADERS });
   }
 
-  const password = generatePassword();
+  const password = typeof chosen === "string" ? chosen : generatePassword();
   try {
     await redis().set(redisKey(record.uid), {
       ...record,
