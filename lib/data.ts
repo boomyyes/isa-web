@@ -70,7 +70,7 @@ export const principal = {
 
 export const faculty: TeamMember[] = [
   member("fac-advisor", "Faculty Advisor", "Dr. Sharad P Jadhav"),
-  member("fac-coordinator", "Faculty Coordinator", "[Name]"),
+  member("fac-coordinator", "Faculty Coordinator", "Dr. Supriya Bhuran"),
 ];
 
 export const core: TeamMember[] = [

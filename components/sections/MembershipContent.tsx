@@ -26,7 +26,7 @@ import {
 import { HolographicCard } from "@/components/ui/HolographicCard";
 
 /** External sign-up destination. */
-const JOIN_URL = "https://www.isa.org/membership";
+const JOIN_URL = "https://forms.gle/ZL1QSLHD2SkmDpS66";
 
 const badges = [
   { icon: Globe, label: "Global Network" },
