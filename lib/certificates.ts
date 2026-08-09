@@ -18,7 +18,7 @@ export interface WorkshopMeta {
  * folder name in R2. See ADD-WORKSHOP.md.
  */
 export const WORKSHOPS: WorkshopMeta[] = [
-  { id: "iaw", title: "Industrial Automation Workshop", date: "2026-08-01" }
+  { id: "iaw", title: "Industrial Automation Workshop", date: "2026-08-01", sheetLabel: "IAW" }
 ];
 
 export interface WorkshopRecord {
