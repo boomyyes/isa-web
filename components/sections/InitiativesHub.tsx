@@ -135,7 +135,7 @@ export function InitiativesHub() {
         {/* ambient glow behind the title */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-10 left-0 h-40 w-80 rounded-full blur-3xl opacity-30"
+          className="pointer-events-none absolute -top-10 left-0 h-40 w-80 max-w-full rounded-full blur-3xl opacity-30"
           style={{ background: "var(--accent-color)" }}
         />
         <p className="relative font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
@@ -236,36 +236,113 @@ function ProjectsPanel() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {mockProjects.map((project) => {
+    /* One panel per project rather than a card in a grid: a project carries its
+       verticals and its development approach with it, which is far more than a
+       third of a row can hold. Sections inside the panel are separated by the
+       same hairline the rest of the hub uses. */
+    <div className="space-y-10">
+      {mockProjects.map((project, i) => {
         const s = STATUS_STYLES[project.status];
         return (
-          <div
+          <motion.article
             key={project.id}
-            className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 p-6 backdrop-blur-md transition-colors duration-300 hover:border-[var(--border-active)]/50"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05, duration: 0.3 }}
+            className="overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]/40 backdrop-blur-md transition-colors duration-300 hover:border-[var(--border-active)]/50"
           >
-            <div className="flex items-start justify-between gap-3">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-jetbrains text-[11px] font-medium",
-                  s.ring,
-                  s.text,
-                  s.glow
+            {/* Lead — photo beside the summary on a wide screen, stacked below
+                it on a phone. A project with no photo just gets the one column. */}
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+              {isRealImage(project.image) && (
+                <div className="relative aspect-[16/10] border-b border-[var(--border-color)]/60 bg-[var(--bg-color)]/60 lg:aspect-auto lg:border-b-0 lg:border-r">
+                  <Image
+                    src={project.image}
+                    alt={project.title}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 42vw"
+                    className="object-cover"
+                  />
+                </div>
+              )}
+
+              <div className="flex flex-col p-6 sm:p-8">
+                <span
+                  className={cn(
+                    "inline-flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 font-jetbrains text-[11px] font-medium",
+                    s.ring,
+                    s.text,
+                    s.glow
+                  )}
+                >
+                  <span className={cn("h-1.5 w-1.5 rounded-full", s.dot)} />
+                  {project.status}
+                </span>
+
+                <h3 className="mt-5 font-jetbrains text-2xl font-bold text-[var(--text-primary)]">
+                  {project.title}
+                </h3>
+
+                {project.tagline && (
+                  <p className="mt-2 text-base leading-relaxed text-[var(--text-secondary)]">
+                    {project.tagline}
+                  </p>
                 )}
-              >
-                <span className={cn("h-1.5 w-1.5 rounded-full", s.dot)} />
-                {project.status}
-              </span>
-              <ArrowUpRight className="h-5 w-5 text-[var(--text-secondary)] transition-colors group-hover:text-[var(--accent-color)]" />
+
+                <ClampedText
+                  text={project.description}
+                  lines={6}
+                  className="mt-4"
+                  textClassName="text-sm leading-relaxed text-[var(--text-secondary)]"
+                />
+              </div>
             </div>
 
-            <h3 className="mt-5 font-jetbrains text-lg font-bold text-[var(--text-primary)]">
-              {project.title}
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
-              {project.description}
-            </p>
-          </div>
+            {project.verticals && project.verticals.length > 0 && (
+              <div className="border-t border-[var(--border-color)]/60 p-6 sm:p-8">
+                <SubHeading
+                  eyebrow="Verticals"
+                  count={project.verticals.length}
+                  accent="var(--border-active)"
+                />
+                <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {project.verticals.map((vertical) => (
+                    <div
+                      key={vertical.name}
+                      className="rounded-xl border border-[var(--border-color)]/60 bg-[var(--bg-color)]/40 p-5 transition-colors duration-300 hover:border-[var(--border-active)]/40"
+                    >
+                      <dt className="font-jetbrains text-sm font-bold text-[var(--text-primary)]">
+                        <span className="mr-2 text-[var(--accent-color)]">
+                          {"//"}
+                        </span>
+                        {vertical.name}
+                      </dt>
+                      <dd>
+                        <ClampedText
+                          text={vertical.description}
+                          lines={6}
+                          className="mt-2"
+                          textClassName="text-sm leading-relaxed text-[var(--text-secondary)]"
+                        />
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            )}
+
+            {project.approach && (
+              <div className="border-t border-[var(--border-color)]/60 p-6 sm:p-8">
+                <SubHeading eyebrow="Development Approach" accent="var(--accent-color)" />
+                <ClampedText
+                  text={project.approach}
+                  lines={6}
+                  className="mt-6 max-w-4xl"
+                  textClassName="text-sm leading-relaxed text-[var(--text-secondary)]"
+                />
+              </div>
+            )}
+          </motion.article>
         );
       })}
     </div>
@@ -345,8 +422,10 @@ function AchievementsPanel() {
             </p>
 
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+              {/* dateLabel wins when the real precision is coarser than a day —
+                  see Achievement.dateLabel. */}
               <span className="font-jetbrains text-xs text-[var(--accent-color)]">
-                {formatEventDate(achievement.date)}
+                {achievement.dateLabel ?? formatEventDate(achievement.date)}
               </span>
               <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-color)]/60 px-2 py-0.5 font-jetbrains text-[11px] text-[var(--text-secondary)]">
                 <Award className="h-3 w-3 shrink-0" />
@@ -520,14 +599,15 @@ function FinishedBadge({ className }: { className?: string }) {
   );
 }
 
-// Small labeled divider heading used by the Events sub-sections.
+// Small labeled divider heading used by the Events and Projects sub-sections.
 function SubHeading({
   eyebrow,
   count,
   accent,
 }: {
   eyebrow: string;
-  count: number;
+  /** Omit for a section that isn't a list — the counter is dropped entirely. */
+  count?: number;
   accent: string;
 }) {
   return (
@@ -535,12 +615,14 @@ function SubHeading({
       <h2 className="font-jetbrains text-sm font-bold uppercase tracking-widest text-[var(--text-primary)]">
         {eyebrow}
       </h2>
-      <span
-        className="font-jetbrains text-xs"
-        style={{ color: accent }}
-      >
-        [{count.toString().padStart(2, "0")}]
-      </span>
+      {count !== undefined && (
+        <span
+          className="font-jetbrains text-xs"
+          style={{ color: accent }}
+        >
+          [{count.toString().padStart(2, "0")}]
+        </span>
+      )}
       <div className="h-px flex-1 bg-[var(--border-color)]" />
     </div>
   );

@@ -48,7 +48,7 @@ export default function CertificatesPage() {
           {/* ambient glow behind the title */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -top-10 left-0 h-40 w-80 rounded-full opacity-30 blur-3xl"
+            className="pointer-events-none absolute -top-10 left-0 h-40 w-80 max-w-full rounded-full opacity-30 blur-3xl"
             style={{ background: "var(--accent-color)" }}
           />
           <p className="relative font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
