@@ -9,12 +9,18 @@
 // ISAAC_COVER_FILE_ID=...). Get it from the share link
 // https://drive.google.com/file/d/<FILE_ID>/view — paste just the <FILE_ID>.
 // The file must be shared as "Anyone with the link".
+import { ISAAC_COVER_VERSION } from "@/lib/isaac";
+
 const FILE_ID = process.env.ISAAC_COVER_FILE_ID;
 
 // lh3 serves the raw image bytes directly (more reliable than uc?export=view).
-// The =s0 suffix returns the original, un-resized image (the source is only
-// 512x800, so up-scaling it would just add blur and weight).
-const UPSTREAM = `https://lh3.googleusercontent.com/d/${FILE_ID}=s0`;
+// The =s0 suffix returns the original, un-resized image — currently a 2480x3508
+// PNG, which next/image compresses to roughly 200KB before it reaches a browser.
+//
+// The ?v= is inert to lh3 (verified: same bytes with and without it) and exists
+// only to vary this URL, which is what Next keys its fetch cache on. Without it,
+// swapping the artwork in Drive leaves the old bytes cached here for a day.
+const UPSTREAM = `https://lh3.googleusercontent.com/d/${FILE_ID}=s0?v=${ISAAC_COVER_VERSION}`;
 
 export async function GET() {
   if (!FILE_ID || FILE_ID === "<FILE_ID>") {

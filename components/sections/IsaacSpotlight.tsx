@@ -4,11 +4,13 @@ import { useRef } from "react";
 import Image from "next/image";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { StatusBlock } from "@/components/ui/StatusBlock";
+import { ISAAC_COVER_SRC } from "@/lib/isaac";
 
 // ISAAC magazine first page. Served through our own server proxy so the real
 // Drive source stays hidden from viewers — the browser only ever sees this
-// same-origin path. Configure the actual Drive file ID in app/api/isaac-cover/route.ts.
-const MAGAZINE_COVER_URL = "/api/isaac-cover";
+// same-origin path. The Drive file ID lives in ISAAC_COVER_FILE_ID (.env.local);
+// the ?v= token that makes a replaced cover show up immediately lives in
+// lib/isaac.ts.
 
 export function IsaacSpotlight() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -92,7 +94,7 @@ export function IsaacSpotlight() {
               {/* Real first-page cover, hotlinked from Drive. */}
               <div className="absolute inset-0 bg-[var(--card-color)] border border-[var(--border-active)] shadow-2xl overflow-hidden">
                 <Image
-                  src={MAGAZINE_COVER_URL}
+                  src={ISAAC_COVER_SRC}
                   alt="ISAAC magazine — first page"
                   fill
                   draggable={false}

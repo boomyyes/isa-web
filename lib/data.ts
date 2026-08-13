@@ -222,14 +222,66 @@ export const SPONSORS = [
 
 export type ProjectStatus = "Live" | "In Progress" | "Completed";
 
+/**
+ * A working group within a project. Optional on Project — a smaller project
+ * that is not split into teams simply omits `verticals` and the panel skips
+ * that whole block rather than rendering an empty heading.
+ */
+export interface ProjectVertical {
+  name: string;
+  description: string;
+}
+
 export interface Project {
   id: string;
   title: string;
+  /** One line under the title — what the project is, in a breath. */
+  tagline?: string;
+  /** The lead paragraph. Everything else on the card is optional; this is not. */
   description: string;
   status: ProjectStatus;
+  /**
+   * Hero photo, e.g. "/projects/ignite.jpeg" (drop files in public/projects/ —
+   * no config needed). Omit it and the panel runs full width with no image
+   * column, the same way the event cards handle a missing thumbnail.
+   */
+  image?: string;
+  /** The teams the work is split across, rendered as labelled rows. */
+  verticals?: ProjectVertical[];
+  /** How the verticals actually feed each other. Closes the panel. */
+  approach?: string;
 }
 
-export const mockProjects: Project[] = [];
+export const mockProjects: Project[] = [
+  {
+    id: "proj-ignite",
+    title: "Project IGNITE",
+    tagline: "Experimental rocketry — design, simulation, fabrication and instrumentation",
+    description:
+      "Project IGNITE is the rocketry programme of the ISA RAIT Student Chapter, focused on the design, simulation, fabrication and instrumentation of experimental rockets. The project covers the development of the rocket from initial analysis and CAD design through to physical fabrication, avionics integration and testing. It is divided into three technical verticals, each handling a specific part of the rocket development process and contributing to the design and testing of the overall vehicle.",
+    status: "In Progress",
+    image: "/projects/ignite.jpeg",
+    verticals: [
+      {
+        name: "Sensors and Avionics",
+        description:
+          "Handles the electronics and instrumentation of the rocket. The team develops the flight computer, sensor integration, power distribution, data acquisition and telemetry systems, with the flight computer designed to record parameters such as acceleration, altitude and orientation during flight. The team also works on the physical layout of the avionics and sensor bay, including component mounting, wiring and integration within the rocket.",
+      },
+      {
+        name: "Research and Simulations",
+        description:
+          "Handles the analytical work behind the rocket, covering propulsion calculations, rocket performance analysis, trajectory modelling and flight simulations. CAD models and simulation results are used to evaluate the vehicle before fabrication and testing, and the team analyses experimental data to compare actual flight behaviour against predicted performance.",
+      },
+      {
+        name: "Hardware",
+        description:
+          "Responsible for developing the physical rocket, working on CAD modelling, structural design, fabrication, assembly and mechanical integration. This covers the rocket body and the internal component layout, accommodating the propulsion system, flight computer, sensors and other subsystems, and converts the designs developed through analysis and simulation into the physical rocket structure.",
+      },
+    ],
+    approach:
+      "Project IGNITE follows an iterative development process. Research and Simulations develops and evaluates the technical parameters, Hardware implements the physical design, and Sensors and Avionics integrates the systems required to measure and record flight data. Results from testing are used to validate the simulations and improve subsequent designs. Through this process IGNITE continues to build capability in rocket propulsion, structural engineering, CAD design, computational simulation, avionics and flight instrumentation, with each development cycle contributing to the next stage of the project.",
+  },
+];
 
 /**
  * A committee tenure (academic year). Add the next one here and to TENURES when
@@ -333,6 +385,7 @@ export const mockEvents: EventItem[] = [
     title: "Computer Vision & Machine Learning: From Data to Intelligence",
     type: "Workshop",
     venue: "RAIT",
+    image: "/events/CVML_2026.jpg",
     description:
       "ISA-RAIT organised a hands-on workshop on Computer Vision and Machine Learning on 14th August 2026, introducing participants to real-world AI workflows and practical implementation. The session focused on building end-to-end AI pipelines while bridging the gap between theoretical understanding and applied intelligence. Participants worked through the Titanic Survival Prediction dataset from Kaggle, covering data preprocessing, feature engineering and model building with Logistic Regression and Decision Trees, alongside an introduction to the core concepts of supervised learning and model evaluation. The workshop also featured a live demonstration of moon crater detection using computer vision techniques with OpenCV, and exposure to real-time vision system concepts using Python libraries including Pandas, NumPy, Scikit-learn and OpenCV. It was conducted by Yash Patil, an ISA-RAIT Joint Core Member, who guided participants through each stage of the AI pipeline with practical insights and interactive learning. ISA-RAIT extends its gratitude to Dr. Sharad P. Jadhav, Head of the Department, the organising team and all participants for making the event a success.",
     tenure: "2026-27",
@@ -442,6 +495,14 @@ export interface Achievement {
    * panel orders achievements newest first, so data order here does not matter.
    */
   date: string;
+  /**
+   * Overrides the rendered date when `date` is more precise than what is
+   * actually known. formatEventDate() always prints a specific day, so an award
+   * known only to the month would otherwise show an invented one — set this to
+   * "October 2025" and keep `date` as the first of that month purely as the sort
+   * key. Same idea as UpcomingEvent.when: shown exactly as written.
+   */
+  dateLabel?: string;
   title: string;
   /** Who earned it — an individual, a team, or the chapter itself. */
   awardedTo: string;
@@ -460,6 +521,20 @@ export interface Achievement {
 
 // Order is irrelevant; the panel sorts by date descending.
 export const mockAchievements: Achievement[] = [
+  {
+    id: "ach-ignite-isro-felicitation",
+    // Only the month is on record, so this is the 1st purely as a sort key —
+    // `dateLabel` is what actually renders. See Achievement.dateLabel.
+    date: "2025-10-01",
+    dateLabel: "October 2025",
+    title: "Felicitation by the Chairman, ISRO",
+    awardedTo: "Team IGNITE",
+    awardedBy: "Dr. V. Narayanan, Chairman, ISRO",
+    scope: "State",
+    image: "/achievements/ignite-felicitation.jpeg",
+    description:
+      "Team IGNITE was felicitated by Dr. V. Narayanan, Chairman of the Indian Space Research Organisation, at the Conquer Space Inter-Collegiate Exhibition organised by the Navi Mumbai Tamil Sangam. The team was recognised for its work on a solid fuel rocket prototype developed under Project IGNITE, a significant step in its pursuit of practical rocketry and aerospace engineering. The team showcased the complete technical development of the rocket, including its CAD-based structural design, propulsion modelling, flight simulations and performance analysis. The exhibition also featured the rocket's flight computer and avionics architecture, with a dedicated sensor bay integrating flight sensors for the measurement of acceleration, altitude and orientation, developed to support onboard data acquisition and flight monitoring. Presenting the project on a platform associated with the Indian space sector and receiving felicitation from the Chairman of ISRO marked a notable achievement for Team IGNITE and the ISA RAIT Student Chapter, highlighting the team's efforts in integrating rocket propulsion, structural engineering, computational simulation and avionics into a single student-developed rocketry system.",
+  },
   {
     id: "ach-solaris",
     // The meet ran 10-11 April 2026; `date` holds a single day, so it carries the
