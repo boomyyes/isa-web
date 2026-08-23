@@ -122,7 +122,7 @@ const facultyMentorEntry = member(
 );
 
 export const faculty: TeamMember[] = [
-  member("fac-coordinator", "Faculty Coordinator", "Dr. Supriya Bhuran", { linkedin: "https://www.linkedin.com/in/dr-supriya-bhuran-yadav-2899211a/" }),
+  member("fac-coordinator", "Faculty Coordinator", "Dr. Supriya Bhuran", { photo: "/team/supriya-bhuran.jpg", linkedin: "https://www.linkedin.com/in/dr-supriya-bhuran-yadav-2899211a/" }),
 ];
 
 /** The mentor's note, shown beside the principal's. Same shape as `principal`. */
@@ -139,16 +139,16 @@ export const facultyMentor = {
 };
 
 export const core: TeamMember[] = [
-  member("core-president", "President", "Yash Patil", { linkedin: "https://www.linkedin.com/in/yash-v-patil/" }),
-  member("core-vp", "Vice President", "Jyotiraditya Patil", { linkedin: "https://www.linkedin.com/in/jyotiraditya-patil-73b394274/" }),
-  member("core-treasurer", "Treasurer", "Arya Bhagwat", { linkedin: "https://www.linkedin.com/in/arya-bhagwat-08653334b/" }),
-  member("core-gen-sec", "General Secretary", "Harsh Watkar", { linkedin: "https://www.linkedin.com/in/harsh-watkar-00105a346/" }),
-  member("core-ceo", "Chief Event Organizer", "Janhavi Patankar", { linkedin: "https://www.linkedin.com/in/janhavi-patankar-264292397/" }),
+  member("core-president", "President", "Yash Patil", { photo: "/team/yash-patil.jpg", linkedin: "https://www.linkedin.com/in/yash-v-patil/" }),
+  member("core-vp", "Vice President", "Jyotiraditya Patil", { photo: "/team/jyotiraditya-patil.jpg", linkedin: "https://www.linkedin.com/in/jyotiraditya-patil-73b394274/" }),
+  member("core-treasurer", "Treasurer", "Arya Bhagwat", { photo: "/team/arya-bhagwat.jpg", linkedin: "https://www.linkedin.com/in/arya-bhagwat-08653334b/" }),
+  member("core-gen-sec", "General Secretary", "Harsh Watkar", { photo: "/team/harsh-watkar.jpg", linkedin: "https://www.linkedin.com/in/harsh-watkar-00105a346/" }),
+  member("core-ceo", "Chief Event Organizer", "Janhavi Patankar", { photo: "/team/janhavi-patankar.jpg", linkedin: "https://www.linkedin.com/in/janhavi-patankar-264292397/" }),
 ];
 
 export const subCore: TeamMember[] = [
-  member("sub-pro", "Public Relations Officer", "Suhani Guralwar", { linkedin: "https://www.linkedin.com/in/suhani-guralwar-b43807421/" }),
-  member("sub-sponsorship", "Sponsorship Officer", "Suhas Dongre", { linkedin: "https://www.linkedin.com/in/suhasdongre/" }),
+  member("sub-pro", "Public Relations Officer", "Suhani Guralwar", { photo: "/team/suhani-guralwar.jpg", linkedin: "https://www.linkedin.com/in/suhani-guralwar-b43807421/" }),
+  member("sub-sponsorship", "Sponsorship Officer", "Suhas Dongre", { photo: "/team/suhas-dongre.jpg", linkedin: "https://www.linkedin.com/in/suhasdongre/" }),
   member("sub-cto", "Chief Technical Officer", "Chris Misquitta", { technical: true, linkedin: "https://www.linkedin.com/in/chrismm31313/", github: "https://github.com/CMM31313" }),
 ];
 
@@ -170,7 +170,7 @@ export const jointCore: JointCoreDomain[] = [
     domain: "Editorial",
     members: [
       member("jc-edit-1", "Historian", "Keyur Kulkarni", { photo: "/team/keyur-kulkarni.jpg", linkedin: "https://www.linkedin.com/in/keyur-anand-kulkarni-b89508333/" }),
-      member("jc-edit-2", "Historian", "Aadya Bharde"),
+      member("jc-edit-2", "Historian", "Aadya Bharde", { photo: "/team/aadya-bharde.jpg" }),
     ],
   },
   {
@@ -184,27 +184,28 @@ export const jointCore: JointCoreDomain[] = [
   {
     domain: "Administration",
     members: [
-      member("jc-admin-1", "Administration Head", "Ayan Varekar", { linkedin: "https://www.linkedin.com/in/ayanvarekar/" }),
-      member("jc-admin-2", "Administration Co-head", "Atharv Gharat", { linkedin: "https://www.linkedin.com/in/atharva-gharat-b12a6b306/" }),
-      member("jc-admin-3", "Administration Co-head", "Atharv Bhoir", { technical: true, photo: "/team/atharv-bhoir.jpg", linkedin: "https://www.linkedin.com/in/atharv-bhoir-800352388", github: "https://github.com/AtharvKB" }),
+      member("jc-admin-1", "Administration Head", "Ayan Varekar", { photo: "/team/ayan-varekar.jpg", linkedin: "https://www.linkedin.com/in/ayanvarekar/" }),
+      // member("jc-admin-3", "Administration Co-head", "Atharv Gharat", { linkedin: "https://www.linkedin.com/in/atharva-gharat-b12a6b306/" }),
+      member("jc-admin-2", "Administration Co-head", "Atharv Bhoir", { technical: true, photo: "/team/atharv-bhoir.jpg", linkedin: "https://www.linkedin.com/in/atharv-bhoir-800352388", github: "https://github.com/AtharvKB" }),
     ],
   },
   {
     domain: "Creativity",
     members: [
-      member("jc-create-1", "Creativity Head", "Yahya Dongarkar"),
+      member("jc-create-1", "Creativity Head", "Yahya Dongarkar", { photo: "/team/yahya-dongarkar.jpg" }),
       member("jc-create-2", "Creativity Co-head", "Vaibhavi Patil", { photo: "/team/vaibhavi-patil.jpg", linkedin: "https://www.linkedin.com/in/vaibhavi-patil-836b1a382" }),
       member("jc-create-3", "Creativity Co-head", "Shriya Dalvi", { photo: "/team/shriya-dalvi.jpg" }),
-      member("jc-create-4", "Creativity Co-head", "Angel Bari", { linkedin: "https://www.linkedin.com/in/angel-bari-75441b300/" }),
+      member("jc-create-4", "Creativity Co-head", "Angel Bari", { photo: "/team/angel-bari.jpg", linkedin: "https://www.linkedin.com/in/angel-bari-75441b300/" }),
+      member("jc-create-5", "Creativity Co-head", "Tanmayi Rathod", { photo: "/team/tanmayi-rathod.jpg" }),
     ],
   },
   {
     domain: "Media",
     members: [
-      member("jc-media-1", "Media Head", "Mazen Zari", { linkedin: "https://www.linkedin.com/in/mazen-ejaj-zari-63968b243" }),
+      member("jc-media-1", "Media Head", "Mazen Zari", { photo: "/team/mazen-zari.jpg", linkedin: "https://www.linkedin.com/in/mazen-ejaj-zari-63968b243" }),
       member("jc-media-2", "Media Co-head", "Sayan Dutta", { photo: "/team/sayan-dutta.jpg" }),
-      member("jc-media-3", "Media Co-head", "Vishesh Karot", { linkedin: "https://www.linkedin.com/in/vishesh-karoth-0061273aa/" }),
-      member("jc-media-4", "Media Co-head", "Mayuri Varti"),
+      member("jc-media-3", "Media Co-head", "Vishesh Karot", { photo: "/team/vishesh-karot.jpg", linkedin: "https://www.linkedin.com/in/vishesh-karoth-0061273aa/" }),
+      member("jc-media-4", "Media Co-head", "Mayuri Varti", { photo: "/team/mayuri-varti.jpg" }),
     ],
   },
 ];
