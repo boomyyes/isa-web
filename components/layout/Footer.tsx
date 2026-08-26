@@ -7,6 +7,7 @@ const QUICK_LINKS = [
   { href: "/", label: "Home" },
   { href: "/initiatives", label: "Initiatives" },
   { href: "/community", label: "Community" },
+  { href: "/artemis", label: "Artemis" },
   { href: "/membership", label: "Membership" },
   { href: "/certificates", label: "Certificates" },
   { href: "/help", label: "Support" },

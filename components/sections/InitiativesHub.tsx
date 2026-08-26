@@ -487,10 +487,26 @@ function EventsPanel() {
                 transition={{ delay: i * 0.05, duration: 0.3 }}
                 className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-5 py-4 transition-colors hover:bg-[var(--border-active)]/5"
               >
-                <span className="flex items-center gap-2.5 font-jetbrains text-base font-bold text-[var(--text-primary)]">
-                  <Calendar className="h-4 w-4 shrink-0 text-[var(--border-active)]" />
-                  {event.title}
-                </span>
+                {/* A handful of events get a page of their own (UpcomingEvent.href);
+                    the rest are a name and a date, so they stay plain text rather
+                    than becoming dead links. */}
+                {event.href ? (
+                  <Link
+                    href={event.href}
+                    className="group flex items-center gap-2.5 font-jetbrains text-base font-bold text-[var(--text-primary)] transition-colors hover:text-[var(--border-active)]"
+                  >
+                    <Calendar className="h-4 w-4 shrink-0 text-[var(--border-active)]" />
+                    <span className="underline decoration-[var(--border-active)]/40 decoration-dotted underline-offset-4 group-hover:decoration-[var(--border-active)]">
+                      {event.title}
+                    </span>
+                    <ArrowUpRight className="h-4 w-4 shrink-0 text-[var(--border-active)] opacity-0 transition-opacity group-hover:opacity-100" />
+                  </Link>
+                ) : (
+                  <span className="flex items-center gap-2.5 font-jetbrains text-base font-bold text-[var(--text-primary)]">
+                    <Calendar className="h-4 w-4 shrink-0 text-[var(--border-active)]" />
+                    {event.title}
+                  </span>
+                )}
                 {/* Free text, printed as written — see UpcomingEvent.when. */}
                 <span className="font-jetbrains text-xs text-[var(--accent-color)]">
                   {event.when}

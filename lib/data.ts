@@ -149,7 +149,7 @@ export const core: TeamMember[] = [
 export const subCore: TeamMember[] = [
   member("sub-pro", "Public Relations Officer", "Suhani Guralwar", { photo: "/team/suhani-guralwar.jpg", linkedin: "https://www.linkedin.com/in/suhani-guralwar-b43807421/" }),
   member("sub-sponsorship", "Sponsorship Officer", "Suhas Dongre", { photo: "/team/suhas-dongre.jpg", linkedin: "https://www.linkedin.com/in/suhasdongre/" }),
-  member("sub-cto", "Chief Technical Officer", "Chris Misquitta", { technical: true, linkedin: "https://www.linkedin.com/in/chrismm31313/", github: "https://github.com/CMM31313" }),
+  member("sub-cto", "Chief Technical Officer", "Chris Misquitta", { technical: true, photo: "/team/chris-misquitta.jpg", linkedin: "https://www.linkedin.com/in/chrismm31313/", github: "https://github.com/CMM31313" }),
 ];
 
 export interface JointCoreDomain {
@@ -349,6 +349,12 @@ export interface UpcomingEvent {
    * "Late Nov 2026", "Q1 2027", "TBA".
    */
   when: string;
+  /**
+   * Optional. When set, the row's title becomes a link to this path — for the
+   * few events that get a page of their own. Omit it and the row renders as
+   * plain text, which is the case for most entries.
+   */
+  href?: string;
 }
 
 /**
@@ -371,6 +377,7 @@ export const upcomingEvents: UpcomingEvent[] = [
     id: "evt-up-artemis",
     title: "Artemis Hackathon",
     when: "26 September 2026",
+    href: "/artemis",
   },
 ];
 
