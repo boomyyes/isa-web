@@ -11,7 +11,7 @@ export function ThemeToggle() {
   return (
     <AngularButton
       variant="outline"
-      className="p-2 aspect-square flex items-center justify-center"
+      className="p-2 min-h-11 min-w-11 aspect-square flex items-center justify-center"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
     >
       <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
