@@ -167,7 +167,9 @@ function OrbScene({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
 export function HeroOrb({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
   return (
     <div className="absolute inset-0 pointer-events-none z-0">
-      <Canvas camera={{ position: [0, 0, 12], fov: 45 }}>
+      {/* dpr cap: a DPR-3 laptop would otherwise render this wireframe
+          extrusion at 9x the logical pixel budget for no visible gain. */}
+      <Canvas camera={{ position: [0, 0, 12], fov: 45 }} dpr={[1, 1.5]}>
         <OrbScene mouseX={mouseX} mouseY={mouseY} />
         {/* Removed Bloom for better performance and matte look, or kept minimal */}
       </Canvas>

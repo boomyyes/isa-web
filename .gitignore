@@ -32,6 +32,18 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# attendance roster exports — these hold student emails and phone numbers
+*.csv
+
+# generated sample certificates (see scripts/make-sample-data.ts)
+/sample-certificates/
+
+# internal operator documentation — kept out of the public repo
+/SETUP.md
+/CERTIFICATES.md
+/ADD-WORKSHOP.md
 
 # vercel
 .vercel

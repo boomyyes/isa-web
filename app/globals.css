@@ -30,6 +30,14 @@
 
   --font-inter: var(--font-inter);
   --font-jetbrains: var(--font-jetbrains-mono);
+
+  /* Greek-theme faces. Only /artemis uses these, and the fonts themselves are
+     declared in app/artemis/layout.tsx so they are not fetched on other routes
+     — next/font scopes a face to the component that calls it. These entries
+     only mint the font-cinzel / font-cormorant utilities; the underlying vars
+     are set on the Artemis wrapper. */
+  --font-cinzel: var(--font-cinzel-src);
+  --font-cormorant: var(--font-cormorant-src);
 }
 
 @layer base {
@@ -51,6 +59,61 @@
     --text-primary: var(--color-dark-text-primary);
     --text-secondary: var(--color-dark-text-secondary);
     --accent-color: var(--color-dark-accent);
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Artemis Hackathon (/artemis) — a self-contained "greek astrology"
+   * palette, scoped to that page only.
+   *
+   * These are the same semantic names :root and .dark set above, redefined on
+   * a wrapper element deep in the tree. Inheritance beats both regardless of
+   * which class next-themes put on <html>, which is what locks the page to one
+   * look: the light/dark toggle keeps working site-wide but has no visible
+   * effect here. Because every shared component reads these vars rather than
+   * hard-coded colours, AngularButton / Accordion / FormEmbed / StatusBlock all
+   * re-theme with no component changes.
+   *
+   * NeonFrame and HolographicCard are the two exceptions — both hard-code
+   * hex values — so the Artemis page does not use them.
+   * ------------------------------------------------------------------ */
+  .artemis {
+    /* Raw tokens, for the values the semantic set has no slot for. */
+    --artemis-void: #0A0912;
+    --artemis-night: #14122A;
+    --artemis-nebula: #241F3D;
+    --artemis-gold-deep: #8C6A2A;
+    --artemis-gold: #D9A94C;
+    --artemis-gold-light: #F2D08A;
+    --artemis-parchment-aged: #E4D5B8;
+    --artemis-parchment: #EFE3CE;
+    --artemis-parchment-high: #F6EEDF;
+    --artemis-oxblood: #7B1E28;
+    --artemis-navy: #1B2A5E;
+
+    /* Semantic set — cosmic. */
+    --bg-color: var(--artemis-void);
+    --card-color: #17142B;
+    --border-color: #4A3C1E;
+    --border-active: var(--artemis-gold);
+    --accent-color: var(--artemis-gold);
+    --text-primary: #EDE6D6;
+    --text-secondary: #A79B86;
+
+    color: var(--text-primary);
+  }
+
+  /* Inverted scope for parchment panels. Nested inside .artemis, so anything
+     dropped into a panel flips to cream-and-oxblood automatically. */
+  .artemis-parchment {
+    --bg-color: var(--artemis-parchment);
+    --card-color: var(--artemis-parchment-high);
+    --border-color: color-mix(in srgb, var(--artemis-oxblood) 40%, transparent);
+    --border-active: var(--artemis-oxblood);
+    --accent-color: var(--artemis-oxblood);
+    --text-primary: #241F1C;
+    --text-secondary: #6B5B4A;
+
+    color: var(--text-primary);
   }
 
   body {
@@ -104,6 +167,160 @@
 
   .animate-marquee {
     animation: marquee 25s linear infinite;
+  }
+
+  /* Neon "breathing" pulse for the gradient outline (see NeonFrame). Two ranges:
+     a crisp ring that stays legible, and a softer halo that fades further out. */
+  @keyframes neon-breathe {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes neon-breathe-glow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.75; }
+  }
+
+  .animate-neon-breathe {
+    animation: neon-breathe 3.8s ease-in-out infinite;
+  }
+
+  .animate-neon-breathe-glow {
+    animation: neon-breathe-glow 3.8s ease-in-out infinite;
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Mobile prose collapse — see components/ui/ClampedText.tsx.
+   *
+   * The breakpoint is a media query rather than a JS check on purpose: the
+   * server has no idea how wide the screen is, so deciding this in React would
+   * either mismatch on hydration or flash. At md and up not one of these rules
+   * exists, which is why the desktop layout is untouched and why crossing the
+   * breakpoint on rotate needs no code at all.
+   * ------------------------------------------------------------------ */
+
+  /* Exact complement of Tailwind's md: (min-width: 48rem), written as
+     `not all and` rather than a max-width so there is no sub-pixel band where
+     both the clamp and the desktop reset apply. */
+  @media not all and (min-width: 48rem) {
+    [data-clamp-body] {
+      /* Same gradient shape in both states — same function, same two stops —
+         so the fade dissolves on expand instead of popping off at frame one.
+         `mask-image: none` would not interpolate. */
+      -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1) 100%, rgb(0 0 0 / 0) 100%);
+      mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1) 100%, rgb(0 0 0 / 0) 100%);
+      transition:
+        max-height 380ms cubic-bezier(0.22, 1, 0.36, 1),
+        -webkit-mask-image 380ms cubic-bezier(0.22, 1, 0.36, 1),
+        mask-image 380ms cubic-bezier(0.22, 1, 0.36, 1);
+      /* Lets max-height interpolate to and from max-content (Chromium today).
+         Elsewhere the size change is instant, which is what <details> does. */
+      interpolate-size: allow-keywords;
+    }
+
+    [data-clamp-body][data-expanded="false"] {
+      overflow: hidden;
+      /* First line is the pre-2023 fallback and assumes leading-relaxed; the lh
+         line wins wherever it parses and is exact for any leading-*. If a
+         browser parses neither, max-height is invalid and the block simply
+         renders in full — the failure direction is the safe one. */
+      max-height: calc(var(--clamp-lines) * 1.625em);
+      max-height: calc(var(--clamp-lines) * 1lh);
+      /* Fades the last line out rather than guillotining it mid-glyph. A mask,
+         not an overlay div: these cards are translucent over a blurred backdrop,
+         so an opaque gradient could not match and would read as a band. */
+      -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1) 55%, rgb(0 0 0 / 0) 100%);
+      mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1) 55%, rgb(0 0 0 / 0) 100%);
+    }
+
+    [data-clamp-body][data-expanded="true"] {
+      max-height: max-content;
+    }
+  }
+
+  /* ---------------------------------------------------------------- *
+   * Artemis-only utilities. See the .artemis palette block above.
+   * ---------------------------------------------------------------- */
+
+  /* Aged-paper tone on the parchment panels. Two very wide, off-centre radial
+     gradients rather than a noise image — no asset to ship, and it survives
+     any panel size because the stops are in percentages. */
+  .artemis-grain {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 20% 15%, rgba(139, 106, 42, 0.09), transparent 70%),
+      radial-gradient(ellipse 70% 70% at 85% 85%, rgba(123, 30, 40, 0.07), transparent 70%);
+  }
+
+  /* Gilt lettering. Kept as a utility because it is applied to a dozen
+     headings and the three stops have to stay identical across all of them. */
+  .artemis-gilt {
+    background-image: linear-gradient(
+      170deg,
+      var(--artemis-gold-light) 0%,
+      var(--artemis-gold) 45%,
+      var(--artemis-gold-deep) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Slow drift for the hero's astrolabe ring. */
+  @keyframes artemis-orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-artemis-orbit {
+    animation: artemis-orbit 120s linear infinite;
+  }
+
+  .animate-artemis-orbit-reverse {
+    animation: artemis-orbit 90s linear infinite reverse;
+  }
+
+  /* Light sweep across the navbar's Artemis pill. Travels inside the pill's own
+     box — the nav island is overflow-hidden, so anything that left the box
+     would be clipped mid-sweep. */
+  @keyframes artemis-shimmer {
+    0% { transform: translateX(-140%); }
+    /* The long tail is the point: a 5s cycle that is mostly dead time reads as
+       an occasional glint rather than a loading bar. */
+    45%, 100% { transform: translateX(140%); }
+  }
+
+  .animate-artemis-shimmer {
+    animation: artemis-shimmer 5s ease-in-out infinite;
+  }
+
+  /* The star glyph beside the pill label, and the hero's scatter of accents. */
+  @keyframes artemis-twinkle {
+    0%, 100% { opacity: 0.45; transform: scale(0.86); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+
+  .animate-artemis-twinkle {
+    animation: artemis-twinkle 3.2s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-neon-breathe,
+    .animate-neon-breathe-glow,
+    /* 25s infinite horizontal scroll — the most motion-sickness-prone thing on
+       the site, and it was the one animation this block did not cover. */
+    .animate-marquee,
+    /* Artemis (/artemis). The orbit rings are the slowest thing on the site but
+       they never stop, which is exactly the case this block exists for. */
+    .animate-artemis-orbit,
+    .animate-artemis-orbit-reverse,
+    .animate-artemis-shimmer,
+    .animate-artemis-twinkle {
+      animation: none;
+    }
+
+    [data-clamp-body] {
+      transition: none;
+    }
   }
 }
 

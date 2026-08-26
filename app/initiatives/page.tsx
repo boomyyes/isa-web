@@ -5,7 +5,7 @@ import { InitiativesHub } from "@/components/sections/InitiativesHub";
 export const metadata: Metadata = {
   title: "Initiatives Hub | ISA RAIT",
   description:
-    "Running projects, upcoming events, and articles from the ISA RAIT student chapter.",
+    "Running projects, upcoming events, achievements, and articles from the ISA RAIT student chapter.",
 };
 
 export default function InitiativesPage() {
