@@ -9,6 +9,7 @@ import { Menu, Star, X } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/utils";
+import { themeLockFor } from "@/lib/themeLock";
 
 type NavLink = {
   href: string;
@@ -47,6 +48,10 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [atTop, setAtTop] = useState(true);
   const pathname = usePathname();
+  // Pages that pin their own palette (see lib/themeLock.ts) force the chrome
+  // theme, so the toggle would appear to do nothing. Same helper the provider
+  // uses, so the two can never disagree about which routes are locked.
+  const themeLock = themeLockFor(pathname);
   const { scrollY } = useScroll();
 
   // Hysteresis, not a single threshold: the lockup only returns at the very top
@@ -202,12 +207,12 @@ export function Navbar() {
               );
             })}
             <div className="mx-1 h-5 w-px bg-[var(--border-color)]/70" />
-            <ThemeToggle />
+            <ThemeToggle disabled={!!themeLock} disabledReason={themeLock?.reason} />
           </nav>
 
           {/* Mobile controls */}
           <div className="flex items-center gap-2 md:hidden">
-            <ThemeToggle />
+            <ThemeToggle disabled={!!themeLock} disabledReason={themeLock?.reason} />
             <button
               type="button"
               aria-label="Toggle navigation menu"
