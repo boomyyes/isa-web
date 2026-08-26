@@ -40,7 +40,19 @@ export const AngularButton = React.forwardRef<HTMLButtonElement, AngularButtonPr
   ({ className, variant = "primary", children, href, target, rel, ...props }, ref) => {
     if (href) {
       return (
-        <Link href={href} target={target} rel={rel} className={buttonClasses(variant, className)}>
+        <Link
+          href={href}
+          target={target}
+          rel={rel}
+          className={buttonClasses(variant, className)}
+          // Forwarded so the link branch is not a dead end for onClick, id,
+          // aria-*, and the rest — previously anything beyond href/target/rel
+          // was accepted by the types and then silently dropped. The cast is
+          // because the prop bag is typed for a <button>; the overlap is what
+          // callers actually pass, and the button-only members (type, disabled,
+          // form*) are meaningless rather than harmful on an anchor.
+          {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+        >
           <ButtonInner variant={variant}>{children}</ButtonInner>
         </Link>
       );
