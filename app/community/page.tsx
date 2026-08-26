@@ -12,6 +12,7 @@ import {
   jointCore,
   principal,
   subCore,
+  type SocialLink,
   type TeamMember,
 } from "@/lib/data";
 import { isRealImage } from "@/lib/utils";
@@ -144,12 +145,34 @@ function ProfileGrid({
   );
 }
 
+/**
+ * The corner LinkedIn link on a leader's note. One definition, used by both
+ * cards, so the two can never drift apart in styling or focus treatment.
+ * Renders nothing without an href, which is how a leader with no profile on
+ * file simply has no link rather than a dead one.
+ */
+function BlogNoteLinkedin({ href }: { href?: string }) {
+  if (!href) return null;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer noopener"
+      className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[var(--border-color)]/60 px-4 py-1.5 font-jetbrains text-xs text-[var(--text-secondary)] transition-colors hover:border-[var(--border-active)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]"
+    >
+      <LinkedinIcon className="h-3.5 w-3.5" />
+      LinkedIn
+    </a>
+  );
+}
+
 export default function CommunityPage() {
-  // Pulled off the shared roster record rather than hardcoded. Undefined until a
+  // Pulled off the shared roster records rather than hardcoded. Undefined until a
   // real URL is set, which is what hides the corner link below.
-  const mentorLinkedin = facultyMentor.socials.find(
-    (link) => link.platform === "linkedin"
-  )?.href;
+  const linkedinOf = (socials: SocialLink[]) =>
+    socials.find((link) => link.platform === "linkedin")?.href;
+  const principalLinkedin = linkedinOf(principal.socials);
+  const mentorLinkedin = linkedinOf(facultyMentor.socials);
 
   return (
     <PageTransition>
@@ -164,6 +187,7 @@ export default function CommunityPage() {
             photo={principal.photo}
             message={principal.message}
             headingLevel="h1"
+            footer={<BlogNoteLinkedin href={principalLinkedin} />}
           />
           <BlogNote
             eyebrow="[ Faculty Mentor's Blog ]"
@@ -171,19 +195,7 @@ export default function CommunityPage() {
             title={facultyMentor.title}
             photo={facultyMentor.photo}
             message={facultyMentor.message}
-            footer={
-              mentorLinkedin && (
-              <a
-                href={mentorLinkedin}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[var(--border-color)]/60 px-4 py-1.5 font-jetbrains text-xs text-[var(--text-secondary)] transition-colors hover:border-[var(--border-active)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]"
-              >
-                <LinkedinIcon className="h-3.5 w-3.5" />
-                LinkedIn
-              </a>
-              )
-            }
+            footer={<BlogNoteLinkedin href={mentorLinkedin} />}
           />
         </div>
 

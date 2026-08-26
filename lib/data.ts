@@ -89,6 +89,16 @@ const member = (
   return { id, role, name, photo: photo || `[photo-${id}]`, socials };
 };
 
+// Through profileUrl() for the same reason every member entry is: a blank or
+// scheme-less URL collapses to undefined, and the link below is dropped rather
+// than rendered pointing nowhere.
+const principalSocials: SocialLink[] = (() => {
+  const linkedin = profileUrl(
+    "https://www.linkedin.com/in/dr-mukesh-d-patil-42785039/"
+  );
+  return linkedin ? [{ platform: "linkedin", href: linkedin }] : [];
+})();
+
 export const principal = {
   name: "Dr. Mukesh D. Patil",
   title: "Principal, RAIT",
@@ -96,6 +106,11 @@ export const principal = {
    *  GIF it was sourced from: next/image passes GIF through unconverted (~170 KB),
    *  while a JPEG source lets the optimizer emit WebP/AVIF instead. */
   photo: "/principal.jpg",
+  /**
+   * Same shape as a TeamMember's socials, so the community page can pull the
+   * link out of the principal and the mentor through one code path.
+   */
+  socials: principalSocials,
   /** One entry per rendered paragraph. */
   message: [
     "As the Principal of Ramrao Adik Institute of Technology, I am pleased to see our students taking an active part in activities beyond their regular academic work. The ISA-RAIT Student Chapter has been one such platform where students come together with an interest in automation, technology and practical engineering.",
@@ -105,12 +120,6 @@ export const principal = {
   ],
 };
 
-/**
- * The mentor is deliberately NOT in the `faculty` roster below — he already has
- * his own note at the top of the community page, and a second card further down
- * would just repeat him. Still built with member() so the note gets the same
- * photo/socials shape every other member has.
- */
 const facultyMentorEntry = member(
   "fac-mentor",
   "Faculty Mentor",
