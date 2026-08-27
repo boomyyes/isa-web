@@ -1,9 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { BookOpen } from "lucide-react";
 import { StatusBlock } from "@/components/ui/StatusBlock";
+import { IsaacReader, type ReaderOrigin } from "@/components/isaac/IsaacReader";
 import { ISAAC_COVER_SRC } from "@/lib/isaac";
 
 // ISAAC magazine first page. Served through our own server proxy so the real
@@ -11,9 +13,25 @@ import { ISAAC_COVER_SRC } from "@/lib/isaac";
 // same-origin path. The Drive file ID lives in ISAAC_COVER_FILE_ID (.env.local);
 // the ?v= token that makes a replaced cover show up immediately lives in
 // lib/isaac.ts.
+//
+// Clicking the cover opens the full-screen reader, which serves the rest of the
+// issue the same way — see components/isaac/IsaacReader.tsx.
 
-export function IsaacSpotlight() {
+type IsaacSpotlightProps = {
+  /**
+   * Pages the reader can show, resolved on the server. 0 means the magazine is
+   * not configured yet, and the cover stays a picture rather than becoming a
+   * button that opens nothing.
+   */
+  pageCount: number;
+};
+
+export function IsaacSpotlight({ pageCount }: IsaacSpotlightProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const coverRef = useRef<HTMLButtonElement>(null);
+
+  const [readerOpen, setReaderOpen] = useState(false);
+  const [origin, setOrigin] = useState<ReaderOrigin | null>(null);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -42,8 +60,73 @@ export function IsaacSpotlight() {
     y.set(0);
   };
 
+  const openReader = useCallback(() => {
+    const el = coverRef.current;
+    if (el) {
+      // The cover is mid-tilt when it is clicked, so its bounding box is the
+      // rotated one — bigger than the card. Its *centre* is not affected by a
+      // rotation about the centre, and offsetWidth/Height are the untransformed
+      // layout size, so taking one from each gives the true on-screen rect.
+      const rect = el.getBoundingClientRect();
+      setOrigin({
+        cx: rect.left + rect.width / 2,
+        cy: rect.top + rect.height / 2,
+        width: el.offsetWidth,
+        height: el.offsetHeight,
+      });
+    }
+    // Let go of the tilt so the card is flat behind the blur.
+    x.set(0);
+    y.set(0);
+    setReaderOpen(true);
+  }, [x, y]);
+
+  const readable = pageCount > 0;
+
+  const coverArt = (
+    <>
+      {/* Glowing ring under */}
+      <div className="absolute inset-0 bg-[var(--border-active)] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-sm" />
+
+      {/* Real first-page cover, hotlinked from Drive. */}
+      <div className="absolute inset-0 bg-[var(--card-color)] border border-[var(--border-active)] shadow-2xl overflow-hidden">
+        <Image
+          src={ISAAC_COVER_SRC}
+          alt="ISAAC magazine — first page"
+          fill
+          draggable={false}
+          sizes="(max-width: 1024px) 80vw, 24rem"
+          className="pointer-events-none select-none object-cover"
+        />
+        {/* subtle inner sheen so the cover reads as a printed page */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/5" />
+
+        {readable ? (
+          // Hover/focus affordance. Without it the cover is a picture that
+          // happens to be clickable, which nobody discovers.
+          <div className="pointer-events-none absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/80 via-black/10 to-transparent p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
+            <span className="flex items-center gap-2 border border-white/40 bg-black/60 px-4 py-2 font-jetbrains text-xs tracking-widest text-white uppercase backdrop-blur-sm">
+              <BookOpen className="h-4 w-4" />
+              Read the issue
+            </span>
+          </div>
+        ) : null}
+
+        {/* transparent guard: sits above the image so right-click/drag
+            targets this layer, not the <img>, making casual "save image"
+            harder. Events still bubble to the parent tilt handler. */}
+        <div
+          className="absolute inset-0 z-10"
+          onContextMenu={(e) => e.preventDefault()}
+          onDragStart={(e) => e.preventDefault()}
+          aria-hidden
+        />
+      </div>
+    </>
+  );
+
   return (
-    <section id="spotlight" className="py-20 md:py-32 relative z-20 bg-[var(--bg-color)]">
+    <section id="spotlight" className="py-20 md:py-32 relative z-20">
       {/* The whole section animates as one block, and it contains a blur-2xl
           glow + a 3D-transformed cover — both of which repaint while it moves.
           Shorter travel and duration keep that window small. */}
@@ -87,36 +170,26 @@ export function IsaacSpotlight() {
             onMouseLeave={handleMouseLeave}
             className="order-first lg:order-none perspective-[1000px] flex items-center justify-center py-12"
           >
-            <motion.div
-              style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-              className="relative w-full max-w-sm aspect-[16/25] rounded-sm group cursor-pointer"
-            >
-              {/* Glowing ring under */}
-              <div className="absolute inset-0 bg-[var(--border-active)] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-sm" />
-
-              {/* Real first-page cover, hotlinked from Drive. */}
-              <div className="absolute inset-0 bg-[var(--card-color)] border border-[var(--border-active)] shadow-2xl overflow-hidden">
-                <Image
-                  src={ISAAC_COVER_SRC}
-                  alt="ISAAC magazine — first page"
-                  fill
-                  draggable={false}
-                  sizes="(max-width: 1024px) 80vw, 24rem"
-                  className="pointer-events-none select-none object-cover"
-                />
-                {/* subtle inner sheen so the cover reads as a printed page */}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/5" />
-                {/* transparent guard: sits above the image so right-click/drag
-                    targets this layer, not the <img>, making casual "save image"
-                    harder. Events still bubble to the parent tilt handler. */}
-                <div
-                  className="absolute inset-0 z-10"
-                  onContextMenu={(e) => e.preventDefault()}
-                  onDragStart={(e) => e.preventDefault()}
-                  aria-hidden
-                />
-              </div>
-            </motion.div>
+            {readable ? (
+              <motion.button
+                ref={coverRef}
+                type="button"
+                onClick={openReader}
+                aria-haspopup="dialog"
+                aria-label="Open the ISAAC magazine reader"
+                style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+                className="relative w-full max-w-sm aspect-[16/25] rounded-sm group cursor-pointer appearance-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--border-active)]"
+              >
+                {coverArt}
+              </motion.button>
+            ) : (
+              <motion.div
+                style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+                className="relative w-full max-w-sm aspect-[16/25] rounded-sm group"
+              >
+                {coverArt}
+              </motion.div>
+            )}
           </div>
 
           {/* Right Stats */}
@@ -136,6 +209,13 @@ export function IsaacSpotlight() {
           </div>
         </div>
       </motion.div>
+
+      <IsaacReader
+        open={readerOpen}
+        onClose={() => setReaderOpen(false)}
+        pageCount={pageCount}
+        origin={origin}
+      />
     </section>
   );
 }

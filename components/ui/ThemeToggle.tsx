@@ -61,8 +61,14 @@ export function ThemeToggle({
   const showSaved =
     disabled && hydrated && (saved === "light" || saved === "dark");
 
+  // Gated on `hydrated` for the same reason the icon is, and it is easy to miss:
+  // this string feeds both the title attribute and the sr-only text, so reading
+  // `saved` here unguarded made the server render one label and the client
+  // render another — a hydration mismatch, even though the icon beside it was
+  // already handled. Server and first client render must agree; the setting is
+  // appended on the re-render straight after.
   const label = disabled
-    ? saved
+    ? hydrated && saved
       ? `${disabledReason}. Your saved setting: ${saved}.`
       : disabledReason
     : "Toggle theme";
