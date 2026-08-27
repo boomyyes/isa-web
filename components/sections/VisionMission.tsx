@@ -6,7 +6,7 @@ import { NeonFrame } from "@/components/ui/NeonFrame";
 
 export function VisionMission() {
   return (
-    <section id="vision" className="py-20 md:py-32 relative z-20 bg-[var(--bg-color)]">
+    <section id="vision" className="py-20 md:py-32 relative z-20">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}

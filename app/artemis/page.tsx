@@ -11,6 +11,7 @@ import { OracleQuotes } from "@/components/artemis/OracleQuotes";
 import { RegisterSection } from "@/components/artemis/RegisterSection";
 import { ArtemisFaq } from "@/components/artemis/ArtemisFaq";
 import { EpilogueNote } from "@/components/artemis/EpilogueNote";
+import { BackToTop } from "@/components/artemis/BackToTop";
 import { ARTEMIS } from "@/lib/artemis";
 
 /**
@@ -46,6 +47,10 @@ export default function ArtemisPage() {
         <RegisterSection />
         <ArtemisFaq />
         <EpilogueNote />
+
+        {/* Fixed to the viewport, so its position in the tree is only about
+            reading order — last, after the content it scrolls you back through. */}
+        <BackToTop />
       </main>
     </PageTransition>
   );

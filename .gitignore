@@ -46,6 +46,7 @@ yarn-error.log*
 /ADD-WORKSHOP.md
 /AGENTS.md
 /CLAUDE.md
+/mag.off
 
 # vercel
 .vercel

@@ -25,7 +25,15 @@ import { ARTEMIS } from "@/lib/artemis";
  */
 export function ArtemisHero() {
   return (
-    <section className="relative flex min-h-[92vh] flex-col items-center justify-center px-6 pb-20 pt-32 md:pt-40">
+    // id + tabIndex make the hero a scroll target like every other section, so
+    // the back-to-top control is an ordinary #top link and reuses the same
+    // animation. scroll-mt is deliberately absent: clamping in resolveTargetY
+    // takes the negative result to 0, which is the actual top of the page.
+    <section
+      id="top"
+      tabIndex={-1}
+      className="relative flex min-h-[92vh] flex-col items-center justify-center px-6 pb-20 pt-32 outline-none md:pt-40"
+    >
       {/* Astrolabe. Sized in vw so it stays a backdrop rather than colliding
           with the wordmark on narrow screens, and capped so it does not
           swallow the section on a wide desktop. */}
