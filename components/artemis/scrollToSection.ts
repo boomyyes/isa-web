@@ -1,7 +1,8 @@
 "use client";
 
-import { animate, type AnimationPlaybackControls } from "framer-motion";
+import { animate, type JSAnimation } from "animejs";
 import type * as React from "react";
+import { ARTEMIS_EASE } from "@/components/artemis/useArtemisAnime";
 
 /**
  * Click handler for the page's in-section links: an eased scroll to the target.
@@ -27,11 +28,11 @@ import type * as React from "react";
  *    scrolling and jump instead — which is exactly what it did when this used
  *    scrollIntoView.
  *
- * The animation itself is framer-motion's imperative `animate()`, already a
- * dependency and driving every other transition on the page. Animating progress
- * 0 -> 1 rather than a scroll position directly keeps the destination free to be
+ * The animation itself is anime.js animating a plain object — the same engine
+ * driving every other transition on the page. Animating a progress value 0 -> 1
+ * rather than a scroll position directly keeps the destination free to be
  * recomputed per frame (see onUpdate), and it means this scroll shares the exact
- * easing curve used by the scroll-reveals in components/artemis/tokens.ts.
+ * easing curve used by the reveals in components/artemis/reveal.ts.
  *
  * Navbar clearance comes from `scroll-mt-*` on the target section, read back
  * here via getComputedStyle so this and a native jump (someone opening
@@ -39,11 +40,11 @@ import type * as React from "react";
  */
 
 /** The in-flight scroll, if any. Module-level: only one can run at a time. */
-let activeScroll: AnimationPlaybackControls | null = null;
+let activeScroll: JSAnimation | null = null;
 let releaseInterrupts: (() => void) | null = null;
 
 function stopActiveScroll() {
-  activeScroll?.stop();
+  activeScroll?.pause();
   activeScroll = null;
   releaseInterrupts?.();
   releaseInterrupts = null;
@@ -94,8 +95,8 @@ export function scrollToSection(
   // focusing cannot fight the animation that just finished.
   const focusTarget = () => target.focus({ preventScroll: true });
 
-  // MotionConfig's reducedMotion only covers motion *components*; the imperative
-  // animate() below is not one, so the preference has to be read directly.
+  // Nothing in anime.js reads the motion preference on its own, so this does it
+  // directly — the same guard useArtemisAnime applies to the page's sections.
   const prefersReducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)"
   ).matches;
@@ -117,21 +118,25 @@ export function scrollToSection(
   releaseInterrupts = () =>
     events.forEach((type) => window.removeEventListener(type, interrupt));
 
-  activeScroll = animate(0, 1, {
-    // Seconds here, not milliseconds. Scaled by distance so a short hop is brisk
-    // and a full-page move still reads as travel, bounded at both ends so
-    // neither feels broken.
-    duration: Math.min(1.2, Math.max(0.45, Math.abs(distance) * 0.00055)),
-    // The same curve the page's scroll-reveals use — see fadeUp in tokens.ts.
-    ease: [0.33, 1, 0.68, 1],
-    onUpdate: (progress) => {
+  // anime.js animates the properties of a plain object as readily as those of an
+  // element, so the tween itself is this one number.
+  const progress = { value: 0 };
+
+  activeScroll = animate(progress, {
+    value: 1,
+    // Milliseconds. Scaled by distance so a short hop is brisk and a full-page
+    // move still reads as travel, bounded at both ends so neither feels broken.
+    duration: Math.min(1200, Math.max(450, Math.abs(distance) * 0.55)),
+    // The same curve the page's reveals use — see ARTEMIS_EASE.
+    ease: ARTEMIS_EASE,
+    onUpdate: () => {
       // Re-read the destination every frame rather than riding the distance
       // measured at click time. Layout can move under a scroll this long — a
       // font swapping in, an image arriving, a section revealing — and a fixed
       // target would land those pixels off. resolveTargetY returns an absolute
       // document position, so re-reading is self-correcting, not cumulative.
       const endY = resolveTargetY(target);
-      window.scrollTo(0, startY + (endY - startY) * progress);
+      window.scrollTo(0, startY + (endY - startY) * progress.value);
     },
     onComplete: () => {
       stopActiveScroll();
