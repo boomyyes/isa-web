@@ -303,6 +303,30 @@
     animation: artemis-twinkle 3.2s ease-in-out infinite;
   }
 
+  /* Pre-paint hidden states for the anime.js reveals in
+     components/artemis/reveal.ts.
+
+     anime.js writes its from-values from an effect, which runs after the first
+     paint, so without these the page would flash in fully drawn and then hide
+     itself. framer-motion covered this by server-rendering `initial` as an
+     inline style; these four attributes are the replacement, and each one pairs
+     with a helper of the same name. They are also the whole story under
+     reduced motion, where no scope is ever built — see the block below. */
+  .artemis [data-reveal],
+  .artemis [data-draw] {
+    opacity: 0;
+  }
+
+  .artemis [data-unroll] {
+    opacity: 0;
+    clip-path: inset(0% 50% 0% 50%);
+  }
+
+  .artemis [data-unfurl] {
+    opacity: 0;
+    clip-path: inset(0% 0% 100% 0%);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .animate-neon-breathe,
     .animate-neon-breathe-glow,
@@ -320,6 +344,18 @@
 
     [data-clamp-body] {
       transition: none;
+    }
+
+    /* Artemis again, and the important half: useArtemisAnime skips building a
+       scope entirely under this preference, so nothing will ever animate these
+       out of their hidden state. Undoing the states above is what leaves the
+       page rendered exactly as it would look once every animation had run. */
+    .artemis [data-reveal],
+    .artemis [data-draw],
+    .artemis [data-unroll],
+    .artemis [data-unfurl] {
+      opacity: 1;
+      clip-path: none;
     }
   }
 }

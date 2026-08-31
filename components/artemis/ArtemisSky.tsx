@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { animate, onScroll } from "animejs";
+import { useArtemisAnime } from "@/components/artemis/useArtemisAnime";
 
 /**
  * The Artemis night sky — the page's own background layer.
@@ -16,6 +18,12 @@ import { useEffect, useRef } from "react";
  * Conventions follow components/layout/GlobalBackground.tsx: DPR-aware backing
  * store, star coordinates kept in CSS units, and a single static frame under
  * prefers-reduced-motion instead of an animation loop.
+ *
+ * The canvas is left alone by anime.js — it is already a hand-tuned rAF loop
+ * with its own reduced-motion path, and there is nothing anime.js would do for
+ * it that it does not already do for itself. What anime.js adds is depth: the
+ * nebula wash is scrubbed against page scroll, so the sky drifts behind the
+ * content at a different rate from the stars in front of it.
  */
 
 type Star = {
@@ -177,17 +185,43 @@ function Starfield() {
   return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />;
 }
 
+/** How far the nebula travels, in pixels, over the whole page. */
+const NEBULA_DRIFT = 90;
+
 export function ArtemisSky() {
+  const root = useArtemisAnime<HTMLDivElement>(() => {
+    animate("[data-sky-nebula]", {
+      translateY: [0, -NEBULA_DRIFT],
+      // Scrubbed rather than triggered: `sync` ties the tween's progress to the
+      // scroll position itself, so the wash tracks the page in both directions.
+      // The thresholds map the full document travel onto 0 -> 1.
+      autoplay: onScroll({
+        sync: true,
+        target: document.documentElement,
+        enter: "top top",
+        leave: "bottom bottom",
+      }),
+    });
+  });
+
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div
+      ref={root}
+      aria-hidden
+      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+    >
       {/* Opaque ground. This is the layer that actually hides the site's grid
           and global starfield, so it must not be translucent. */}
       <div className="absolute inset-0 bg-[var(--artemis-void)]" />
 
       {/* Nebula wash — warm gold low, cool indigo high, so the page reads as
-          dawn breaking over a night sky from top to bottom. */}
+          dawn breaking over a night sky from top to bottom.
+
+          Overhangs the viewport by more than it can ever travel, so drifting it
+          upward never uncovers the ground layer along the bottom edge. */}
       <div
-        className="absolute inset-0"
+        data-sky-nebula
+        className="absolute -inset-y-32 inset-x-0"
         style={{
           background:
             "radial-gradient(ellipse 90% 55% at 50% 0%, rgba(36, 31, 61, 0.95), transparent 65%)," +

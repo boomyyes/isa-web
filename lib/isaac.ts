@@ -20,7 +20,7 @@
  *
  * The name is historical: it versions every page, not only the cover.
  */
-export const ISAAC_COVER_VERSION = "2026-08-27c";
+export const ISAAC_COVER_VERSION = "2026-08-27d";
 
 /** Same-origin proxy path used by the spotlight <Image>. Never the Drive URL. */
 export const ISAAC_COVER_SRC = `/api/isaac-cover?v=${ISAAC_COVER_VERSION}`;

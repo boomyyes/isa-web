@@ -1,10 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { FormEmbed } from "@/components/ui/FormEmbed";
 import { SectionHeading } from "@/components/artemis/SectionHeading";
 import { ParchmentPanel } from "@/components/artemis/ParchmentPanel";
-import { fadeUp } from "@/components/artemis/tokens";
+import {
+  revealHeadingOnScroll,
+  unfurlOnScroll,
+} from "@/components/artemis/reveal";
+import { useArtemisAnime } from "@/components/artemis/useArtemisAnime";
 import { ARTEMIS } from "@/lib/artemis";
 
 /**
@@ -15,30 +18,37 @@ import { ARTEMIS } from "@/lib/artemis";
  * redefines all of those for its subtree, so the embed re-skins itself. The one
  * thing that does not follow is the iframe's own contents — a Tally or Google
  * form renders in whatever theme it was authored in, which is out of our hands.
+ *
+ * The panel unrolls from its top edge rather than fading, so the last thing the
+ * page asks of a visitor arrives as a document being laid out in front of them.
  */
 export function RegisterSection() {
+  const root = useArtemisAnime<HTMLElement>((self) => {
+    revealHeadingOnScroll(self.root as HTMLElement);
+    unfurlOnScroll("[data-register-panel]", { delay: 170, duration: 780 });
+  });
+
   return (
     <section
+      ref={root}
       id="register"
       tabIndex={-1}
       className="relative scroll-mt-24 outline-none md:scroll-mt-28 mx-auto max-w-5xl px-6 py-16 md:py-24"
     >
-      <motion.div {...fadeUp}>
-        <SectionHeading
-          eyebrow="Cast Your Lot"
-          title="Enter the trials"
-          lead="Teams of up to four. Registration closes when the last seat goes."
-        />
-      </motion.div>
+      <SectionHeading
+        eyebrow="Cast Your Lot"
+        title="Enter the trials"
+        lead="Teams of up to four. Registration closes when the last seat goes."
+      />
 
-      <motion.div {...fadeUp} className="mt-12">
+      <div data-register-panel data-unfurl className="mt-12">
         <ParchmentPanel corners contentClassName="p-5 sm:p-8 md:p-10">
           <FormEmbed
             url={ARTEMIS.registerUrl}
             title={"Registration — " + ARTEMIS.title}
           />
         </ParchmentPanel>
-      </motion.div>
+      </div>
     </section>
   );
 }

@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValueEvent,
-  useScroll,
-} from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { animate, utils } from "animejs";
 import { ArrowUp } from "lucide-react";
 import { AstrolabeOuter } from "@/components/artemis/GreekOrnaments";
 import { scrollToSection } from "@/components/artemis/scrollToSection";
+import {
+  ARTEMIS_EASE,
+  prefersReducedMotion,
+} from "@/components/artemis/useArtemisAnime";
 
 /**
  * Back to the top of the page, bottom right, once there is enough page behind
@@ -17,14 +16,29 @@ import { scrollToSection } from "@/components/artemis/scrollToSection";
  *
  * It is a real anchor to #top — the hero carries that id — rather than a button
  * with a scroll handler. That means it reuses scrollToSection unchanged (same
- * eased framer-motion scroll, same repeat-press behaviour, same reduced-motion
- * fallback), it still works with scripting off, and it can be middle-clicked or
- * copied like any other link.
+ * eased scroll, same repeat-press behaviour, same reduced-motion fallback), it
+ * still works with scripting off, and it can be middle-clicked or copied like
+ * any other link.
  *
  * Focus is the reason the anchor points at a real element rather than scrolling
  * to a bare 0: the control hides once you reach the top, so a keyboard user who
  * activated it would be left with focus on a vanished element and no position in
  * the document. scrollToSection moves focus to the hero instead.
+ *
+ * Unlike every other control on this page it stays mounted at all times and is
+ * hidden in place. anime.js has no equivalent of framer's AnimatePresence — no
+ * way to hold an element in the tree long enough to animate it out — so the
+ * element outlives its own visibility and `inert` plus aria-hidden take it out
+ * of the tab order and the accessibility tree while it is invisible. That is a
+ * stricter guarantee than unmounting gave, not a weaker one.
+ *
+ * The hidden state is an inline style rather than a class or the page's
+ * [data-reveal] attribute. It has to be inline because anime.js writes to the
+ * same place and would outrank a class from the first transition onward, and it
+ * must not be [data-reveal] because that attribute's reduced-motion rule reveals
+ * what it hides — which for this control would mean pinning it on screen from
+ * the top of the page. Reduced motion is handled below instead, by jumping to
+ * the same end state without a tween.
  */
 
 /**
@@ -36,38 +50,67 @@ import { scrollToSection } from "@/components/artemis/scrollToSection";
 const SHOW_AFTER = 700;
 const HIDE_BELOW = 500;
 
-export function BackToTop() {
-  const [visible, setVisible] = useState(false);
-  const { scrollY } = useScroll();
+const HIDDEN = { opacity: 0, translateY: 16, scale: 0.9 };
+const SHOWN = { opacity: 1, translateY: 0, scale: 1 };
 
-  useMotionValueEvent(scrollY, "change", (y) => {
-    setVisible((wasVisible) => (wasVisible ? y > HIDE_BELOW : y > SHOW_AFTER));
-  });
+export function BackToTop() {
+  const ref = useRef<HTMLAnchorElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      setVisible((wasVisible) => (wasVisible ? y > HIDE_BELOW : y > SHOW_AFTER));
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const target = visible ? SHOWN : HIDDEN;
+
+    if (prefersReducedMotion()) {
+      utils.set(el, target);
+      return;
+    }
+
+    const animation = animate(el, {
+      ...target,
+      duration: 280,
+      ease: ARTEMIS_EASE,
+    });
+
+    // Paused rather than reverted: reverting would put the control back to
+    // whichever state it was in when this transition started, undoing the one
+    // that replaced it. A new animate() on the same properties supersedes this
+    // one anyway, so pausing is only here to stop a detached element ticking.
+    return () => {
+      animation.pause();
+    };
+  }, [visible]);
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.a
-          key="artemis-back-to-top"
-          href="#top"
-          onClick={(e) => scrollToSection(e, "top")}
-          aria-label="Back to top"
-          initial={{ opacity: 0, y: 16, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 16, scale: 0.9 }}
-          transition={{ duration: 0.28, ease: [0.33, 1, 0.68, 1] }}
-          // z-40 keeps it under the navbar island (z-50) but over the page.
-          className="group fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-[var(--artemis-gold)]/40 bg-[var(--artemis-night)]/80 text-[var(--artemis-gold-light)] backdrop-blur-sm transition-colors hover:border-[var(--artemis-gold)] hover:bg-[var(--artemis-nebula)]/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--artemis-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--artemis-void)] sm:bottom-8 sm:right-8"
-        >
-          {/* Engraved rim, echoing the hero's astrolabe. Only turns on hover, so
-              a control that sits on screen for most of the page is not a
-              permanent piece of motion in the corner of the eye. */}
-          <AstrolabeOuter
-            className="absolute inset-0 h-full w-full text-[var(--artemis-gold)] opacity-30 transition-opacity duration-500 group-hover:animate-artemis-orbit group-hover:opacity-70"
-          />
-          <ArrowUp className="relative h-5 w-5 transition-transform duration-300 group-hover:-translate-y-0.5" />
-        </motion.a>
-      )}
-    </AnimatePresence>
+    <a
+      ref={ref}
+      href="#top"
+      onClick={(e) => scrollToSection(e, "top")}
+      aria-label="Back to top"
+      aria-hidden={!visible}
+      inert={!visible}
+      style={{ opacity: 0, transform: "translateY(16px) scale(0.9)" }}
+      // z-40 keeps it under the navbar island (z-50) but over the page.
+      className="group fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-[var(--artemis-gold)]/40 bg-[var(--artemis-night)]/80 text-[var(--artemis-gold-light)] backdrop-blur-sm transition-colors hover:border-[var(--artemis-gold)] hover:bg-[var(--artemis-nebula)]/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--artemis-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--artemis-void)] sm:bottom-8 sm:right-8"
+    >
+      {/* Engraved rim, echoing the hero's astrolabe. Only turns on hover, so
+          a control that sits on screen for most of the page is not a
+          permanent piece of motion in the corner of the eye. */}
+      <AstrolabeOuter className="absolute inset-0 h-full w-full text-[var(--artemis-gold)] opacity-30 transition-opacity duration-500 group-hover:animate-artemis-orbit group-hover:opacity-70" />
+      <ArrowUp className="relative h-5 w-5 transition-transform duration-300 group-hover:-translate-y-0.5" />
+    </a>
   );
 }

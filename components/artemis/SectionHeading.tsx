@@ -10,6 +10,12 @@ import { StarGlyph } from "@/components/artemis/GreekOrnaments";
  * renders gold on the cosmic ground and oxblood inside a ParchmentPanel with no
  * prop — the panel's scope class swaps the vars underneath it.
  *
+ * The three `data-heading-*` attributes are the handles revealHeadingOnScroll
+ * in reveal.ts animates against. They live here rather than being passed in by
+ * each section so that all eleven headings enter identically, and so this stays
+ * a server component — the animation is declared by whichever client section
+ * wraps it.
+ *
  * Server component.
  */
 export function SectionHeading({
@@ -33,6 +39,8 @@ export function SectionHeading({
       {...props}
     >
       <p
+        data-heading-eyebrow
+        data-reveal
         className={cn(
           "flex items-center gap-2.5 font-cinzel text-[0.7rem] font-semibold uppercase tracking-[0.42em] text-[var(--accent-color)]",
           centered && "justify-center"
@@ -43,12 +51,18 @@ export function SectionHeading({
         <StarGlyph className="h-2.5 w-2.5 shrink-0" />
       </p>
 
-      <h2 className="mt-4 font-cinzel text-3xl font-bold tracking-tight text-[var(--text-primary)] sm:text-4xl md:text-5xl">
+      <h2
+        data-heading-title
+        data-reveal
+        className="mt-4 font-cinzel text-3xl font-bold tracking-tight text-[var(--text-primary)] sm:text-4xl md:text-5xl"
+      >
         {title}
       </h2>
 
       {lead && (
         <p
+          data-heading-lead
+          data-reveal
           className={cn(
             "mt-5 max-w-2xl font-cormorant text-lg leading-relaxed text-[var(--text-secondary)] sm:text-xl",
             !centered && "max-w-3xl"
