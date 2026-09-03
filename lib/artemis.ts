@@ -29,7 +29,7 @@ export const ARTEMIS = {
    * Registration form. Any Tally / Google Forms / Jotform link works — FormEmbed
    * handles the embed-parameter differences. Swap for the real one when it exists.
    */
-  registerUrl: "https://tally.so/r/gDVdZM",
+  registerUrl: "https://tally.so/r/RG905j",
 } as const;
 
 /* ------------------------------------------------------------------ *
