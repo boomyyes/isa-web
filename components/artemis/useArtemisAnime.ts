@@ -62,7 +62,8 @@ export function prefersReducedMotion(): boolean {
  *
  * `deps` follows the useEffect convention: leave it empty for a section that
  * animates once, or pass state for a scope that has to be rebuilt (see
- * ConstellationGrid, which re-runs on selection).
+ * TrialsSection, which re-runs when the embargo lifts and the problem
+ * statements replace the sealed panel).
  */
 export function useArtemisAnime<T extends HTMLElement = HTMLDivElement>(
   setup: (self: Scope) => void,

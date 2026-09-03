@@ -5,8 +5,14 @@
  * Latin for the real details is a single-file edit and never touches layout.
  * The section components import from this file and nothing else.
  *
- * Counts matter in a couple of places, noted per-export: the constellation grid
- * is laid out for exactly twelve entries and the boons for exactly three.
+ * Counts matter in one place, noted per-export: the boons are laid out for
+ * exactly three entries.
+ *
+ * One thing is deliberately NOT here. The problem statements are embargoed until
+ * the hackathon opens, and this file is committed to a public repository — so
+ * they live in lib/artemis-trials.ts, which reads them at runtime from an
+ * environment variable and is fenced off from client code. The release instant
+ * itself is below, and is public: the countdown needs something to count toward.
  */
 
 /* ------------------------------------------------------------------ *
@@ -32,6 +38,47 @@ export const ARTEMIS = {
   registerUrl: "https://tally.so/r/RG905j",
 } as const;
 
+/**
+ * When the problem statements are published: noon on the day, in Nerul.
+ *
+ * A fixed instant with an explicit +05:30 offset, not a local-time string — the
+ * seal has to break at the same moment for everyone, so a visitor reading the
+ * page from another timezone sees the same countdown as someone in the hall.
+ *
+ * Public on purpose. Only the statements are secret; the hour they arrive is
+ * already printed on the page. lib/artemis-trials.ts checks this server-side,
+ * which is the check that actually gates the content — this export exists so the
+ * countdown has something to count toward.
+ */
+export const ARTEMIS_RELEASE_AT = Date.parse("2026-09-26T12:00:00+05:30");
+
+/**
+ * The shape of a problem statement — but never one of them.
+ *
+ * The interface lives out here, in the public module, so the client components
+ * that render a statement can type their props without importing
+ * lib/artemis-trials.ts. That module carries `import "server-only"`, which turns
+ * a client import into a build error; keeping the type separate means the guard
+ * only ever fires on a real mistake, rather than on a component that legitimately
+ * needs to describe what it was handed.
+ */
+export interface ProblemStatement {
+  /** Also the deep-link anchor: #trial-i. */
+  id: string;
+  /** "I", "II", "III" — set large on the crest. */
+  numeral: string;
+  /** The Greek patron the trial is placed under. Framing only. */
+  patron: string;
+  /** One word: the patron's domain. "Healing", "Water", "Lightning". */
+  patronDomain: string;
+  /** The statement's own title, as the committee wrote it. */
+  title: string;
+  /** Each array is rendered as separate <p> blocks, in order. */
+  background: string[];
+  challenge: string[];
+  scope: string[];
+}
+
 /* ------------------------------------------------------------------ *
  * Prologue — the long-form opening note on parchment.
  * ------------------------------------------------------------------ */
@@ -52,83 +99,26 @@ export const PROLOGUE = {
 } as const;
 
 /* ------------------------------------------------------------------ *
- * Tracks — the four medallions.
+ * Guidelines — the rules of the trial.
+ *
+ * The problem statements these govern are not in this file; see the note at the
+ * top. The guidelines are, because they are not embargoed: rule 6 requires teams
+ * to submit their component requirements *before* the hackathon, so they are
+ * only useful if published well ahead of it.
  * ------------------------------------------------------------------ */
 
-export interface ArtemisTrack {
-  id: string;
-  /** Greek name, set in Cinzel caps on the medallion. */
-  name: string;
-  /** English subtitle under the name. */
-  domain: string;
-  blurb: string;
-}
-
-/** Laid out as a 4-up row on desktop, 2-up tablet, 1-up mobile. */
-export const TRACKS: ArtemisTrack[] = [
-  {
-    id: "track-daedalus",
-    name: "Daedalus",
-    domain: "Automation & Control",
-    blurb:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent felis leo, gravida et tincidunt nascetur.",
-  },
-  {
-    id: "track-athena",
-    name: "Athena",
-    domain: "Machine Intelligence",
-    blurb:
-      "Praesent felis leo, gravida et tincidunt. Faucibus neque interdum justo, curabitur vel sapien in dolor.",
-  },
-  {
-    id: "track-hephaestus",
-    name: "Hephaestus",
-    domain: "Embedded & Robotics",
-    blurb:
-      "Aenean ut enim ut odio porttitor efficitur. Nulla sollicitudo laoreet pretium, cras tempus odio nec.",
-  },
-  {
-    id: "track-hermes",
-    name: "Hermes",
-    domain: "Open Innovation",
-    blurb:
-      "Vehicula nibh ut diam auctor dignissim. Nunc aliquam matris, aliquam erat volutpat class aptent taciti.",
-  },
-];
-
-/* ------------------------------------------------------------------ *
- * Constellation grid — the signature visual.
- * ------------------------------------------------------------------ */
-
-export interface Constellation {
-  id: string;
-  /** Zodiac sign name. */
-  name: string;
-  /** The zodiac glyph, as a literal character — no icon font needed. */
-  glyph: string;
-  /** The date range, printed small under the name. */
-  span: string;
-  /** The challenge theme this sign stands for. */
-  theme: string;
-}
-
-/**
- * Exactly twelve — the grid is a 6x2 on desktop, 4x3 tablet, 3x4 mobile, and
- * anything other than twelve leaves a ragged last row.
- */
-export const CONSTELLATIONS: Constellation[] = [
-  { id: "aries", name: "Aries", glyph: "♈", span: "Mar 21 — Apr 19", theme: "Lorem ipsum dolor sit" },
-  { id: "taurus", name: "Taurus", glyph: "♉", span: "Apr 20 — May 20", theme: "Consectetur adipiscing" },
-  { id: "gemini", name: "Gemini", glyph: "♊", span: "May 21 — Jun 20", theme: "Sed do eiusmod tempor" },
-  { id: "cancer", name: "Cancer", glyph: "♋", span: "Jun 21 — Jul 22", theme: "Incididunt ut labore" },
-  { id: "leo", name: "Leo", glyph: "♌", span: "Jul 23 — Aug 22", theme: "Dolore magna aliqua" },
-  { id: "virgo", name: "Virgo", glyph: "♍", span: "Aug 23 — Sep 22", theme: "Ut enim ad minim" },
-  { id: "libra", name: "Libra", glyph: "♎", span: "Sep 23 — Oct 22", theme: "Quis nostrud exercitation" },
-  { id: "scorpio", name: "Scorpio", glyph: "♏", span: "Oct 23 — Nov 21", theme: "Ullamco laboris nisi" },
-  { id: "sagittarius", name: "Sagittarius", glyph: "♐", span: "Nov 22 — Dec 21", theme: "Aliquip ex ea commodo" },
-  { id: "capricorn", name: "Capricorn", glyph: "♑", span: "Dec 22 — Jan 19", theme: "Duis aute irure dolor" },
-  { id: "aquarius", name: "Aquarius", glyph: "♒", span: "Jan 20 — Feb 18", theme: "Velit esse cillum" },
-  { id: "pisces", name: "Pisces", glyph: "♓", span: "Feb 19 — Mar 20", theme: "Excepteur sint occaecat" },
+/** Verbatim from the committee's document, rendered as a numbered list. */
+export const GUIDELINES: string[] = [
+  "Participants are free to select their own technical approach and implementation methodology.",
+  "Teams may use hardware, software, mechanical design, automation logic, or a combination of multiple approaches to develop their solution.",
+  "The proposed solution must demonstrate a functional prototype at the end of the hackathon.",
+  "The solution should demonstrate meaningful automation and should not be limited to basic monitoring or indication.",
+  "Innovation may be demonstrated through technical design, automation methodology, software intelligence, mechanical design, system efficiency, reliability, cost optimisation, accessibility, or practical implementation.",
+  "Teams will be required to submit their proposed component requirements prior to the hackathon, as per the instructions provided by the organizing committee.",
+  "The approved components provided to each team shall form the basis of their hardware implementation during the hackathon.",
+  "The use of unauthorized or externally procured hardware components during the hackathon may result in disqualification, subject to the rules of the event.",
+  "Mechanical components and structures may be fabricated through the facilities and resources permitted by the organizing committee.",
+  "Final evaluation will be based on the functionality, innovation, automation capability, technical implementation, practical relevance, and overall effectiveness of the proposed solution.",
 ];
 
 /* ------------------------------------------------------------------ *
