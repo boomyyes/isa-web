@@ -1,20 +1,12 @@
 "use client";
 
-import {
-  animate,
-  createDrawable,
-  eases,
-  splitText,
-  spring,
-  stagger,
-  utils,
-} from "animejs";
+import { animate, createDrawable, eases, spring, stagger } from "animejs";
 import { CalendarDays, MapPin } from "lucide-react";
+import Image from "next/image";
 import { AngularButton } from "@/components/ui/AngularButton";
 import {
   AstrolabeInner,
   AstrolabeOuter,
-  CrescentBow,
   MeanderDivider,
   StarGlyph,
 } from "@/components/artemis/GreekOrnaments";
@@ -27,31 +19,26 @@ import {
 import { ARTEMIS } from "@/lib/artemis";
 
 /**
- * The opening. A counter-rotating astrolabe sits behind the wordmark, with the
- * crescent-and-bow mark above it.
+ * The opening. A counter-rotating astrolabe sits behind the logo lockup.
  *
  * The two astrolabe rings turn at different speeds in opposite directions — one
  * ring alone reads as a spinning graphic, two reads as an instrument. That
  * perpetual turn stays a CSS animation rather than anime.js so the existing
  * prefers-reduced-motion block in globals.css switches it off. What anime.js
- * adds is the arrival: the instrument scribes itself into existence, the mark
- * is drawn, and the wordmark is set a letter at a time.
+ * adds is the arrival: the instrument scribes itself into existence and the
+ * lockup settles onto it.
  *
  * Everything here is time-based rather than scroll-triggered, because the hero
  * is on screen the moment the page is. The rest of the page uses the scroll
  * helpers in reveal.ts instead.
  */
 
-/** Where the wordmark's letters start, in milliseconds after mount. */
-const WORDMARK_AT = 380;
+/** Where the lockup lands, in milliseconds after mount. */
+const LOGO_AT = 380;
 
 export function ArtemisHero() {
   const root = useArtemisAnime<HTMLElement>((self) => {
     const el = self.root as HTMLElement;
-
-    // Undo work done to the DOM itself. Everything anime.js creates is reverted
-    // by the scope; class changes made by hand are not.
-    const cleanups: (() => void)[] = [];
 
     /* ---- The instrument scribes itself ---- */
 
@@ -80,44 +67,11 @@ export function ArtemisHero() {
       // instead of being animated on its own: the two rose paths carry their
       // own opacity attributes (0.26 and 0.18) to sit back as a watermark, and
       // animating them to 1 would override those and blow the star out to full
-      // strength across the wordmark.
+      // strength behind the lockup.
       // The [data-draw] wrapper is faded up rather than set to 1 outright, so
       // there is no arrangement of frames in which the rings could be caught
-      // already scribed. Same for the mark and the wordmark below.
+      // already scribed. Same for the type and the lockup below.
       animate(rings, { opacity: [0, 1], duration: 240, ease: ARTEMIS_EASE });
-    }
-
-    /* ---- The mark ---- */
-
-    const mark = el.querySelector<HTMLElement>("[data-hero-mark]");
-    if (mark) {
-      // Moon first, bow drawn beneath it.
-      animate(mark.querySelectorAll("rect"), {
-        opacity: [0, 1],
-        delay: 220,
-        ease: spring({ stiffness: 92, damping: 14 }),
-      });
-      const bowStrokes = Array.from(
-        mark.querySelectorAll<SVGGeometryElement>("path")
-      );
-      animate(createDrawable(bowStrokes), {
-        draw: ["0 0", "0 1"],
-        duration: 550,
-        delay: stagger(90, { start: 300 }),
-        ease: eases.inOut(2),
-        onComplete: () => undash(bowStrokes),
-      });
-      animate(mark, {
-        scale: [0.86, 1],
-        delay: 220,
-        ease: spring({ stiffness: 92, damping: 14 }),
-      });
-      animate(mark, {
-        opacity: [0, 1],
-        duration: 300,
-        delay: 220,
-        ease: ARTEMIS_EASE,
-      });
     }
 
     /* ---- Type ---- */
@@ -130,115 +84,51 @@ export function ArtemisHero() {
       ease: ARTEMIS_EASE,
     });
 
-    const wordmark = el.querySelector<HTMLElement>("[data-hero-wordmark]");
-    if (wordmark) {
-      // `words: false` puts the character spans directly inside the <h1>. One
-      // word, so no word grouping is lost.
-      //
-      // Each letter carries its own copy of the gilt gradient rather than
-      // inheriting one clipped from the <h1>.
-      const { chars } = splitText(wordmark, {
-        words: false,
-        chars: { class: "artemis-gilt" },
-        accessible: true,
-      });
+    /* ---- The lockup ---- */
 
-      // ...and now the <h1> has to give its own gilt up. `background-clip:
-      // text` clips an element's background to its text, descendants included,
-      // but only while those descendants paint into the same layer. Each letter
-      // below takes a 3D transform and a filter, both of which promote it to a
-      // layer of its own, and at that point Chrome clips the h1's gradient to
-      // the span's *box* instead of its glyphs — painting a solid gold
-      // rectangle over the letter for as long as the entrance runs.
-      //
-      // The class stays in the markup because it is still correct for the two
-      // paths that never split the text: reduced motion, where no scope is
-      // built at all, and scripting disabled. It is only wrong once the letters
-      // exist, so it is dropped here and restored if this scope is torn down.
-      wordmark.classList.remove("artemis-gilt");
-
-      // Perspective per letter, not one on the <h1>. A shared perspective has a
-      // single vanishing point at the centre of the word, so letters out at the
-      // ends are sheared and scaled by their distance from it — mid-flight the
-      // A and the S came out visibly larger and slanted. Giving each glyph its
-      // own centred vanishing point keeps them upright and the same size.
-      // `perspective` is first in anime.js's transform order, so it composes
-      // ahead of the translate and rotate below, which is where it must be.
-      utils.set(chars, { perspective: 640 });
-
-      animate(chars, {
+    // The logo carries the mark, the wordmark and the "national level
+    // hackathon" line as one raster, so there is nothing here to draw or to
+    // split a letter at a time. It settles in as a single object instead: a
+    // shallow scale and a short rise, sprung so it overshoots by a hair and
+    // beds down onto the rings that have just finished scribing themselves.
+    const logo = el.querySelector<HTMLElement>("[data-hero-logo]");
+    if (logo) {
+      animate(logo, {
         opacity: [0, 1],
-        translateY: [55, 0],
-        // Deliberately shallow. A letter tipped much further than this is
-        // foreshortened hard enough to stop looking like itself — at -78 the
-        // trailing I and S read as a lowercase "is" while they were still on
-        // their way in, which is the wrong kind of surprise on a wordmark.
-        // Forty-odd degrees still catches the light as they land.
-        rotateX: [-42, 0],
-        duration: 800,
-        // Tight enough that the word arrives as a word rather than as seven
-        // letters at seven different sizes.
-        delay: stagger(26, { start: WORDMARK_AT }),
-        ease: spring({ stiffness: 58, damping: 12 }),
-        // Landed letters have no more use for a perspective transform, and
-        // leaving one on keeps all seven promoted to their own compositing
-        // layers for the life of the page. Clearing it hands them back to
-        // ordinary text rendering.
-        onComplete: () => {
-          chars.forEach((c) => {
-            (c as HTMLElement).style.transform = "";
-          });
-        },
-      });
-
-      // There is deliberately no perpetual glint on the wordmark.
-      //
-      // It was an animated `filter` over these letters, which is the most
-      // expensive thing that could run here and the least willing to stop: each
-      // letter carries a background-clip:text gradient and a 3D transform, so
-      // an animating filter keeps seven text-clipped gradient layers being
-      // re-rasterised on the compositor for as long as the tab is open, whether
-      // or not the hero is still on screen. The navbar pill already carries
-      // that idea with a plain CSS keyframe; the hero does not need a second.
-
-      animate(wordmark, {
-        opacity: [0, 1],
-        duration: 300,
-        delay: WORDMARK_AT,
+        duration: 620,
+        delay: LOGO_AT,
         ease: ARTEMIS_EASE,
       });
-
-      cleanups.push(() => wordmark.classList.add("artemis-gilt"));
+      animate(logo, {
+        scale: [0.92, 1],
+        translateY: [26, 0],
+        delay: LOGO_AT,
+        ease: spring({ stiffness: 62, damping: 14 }),
+        // A landed lockup has no more use for a transform, and leaving one on
+        // keeps a full-width image promoted to its own compositing layer for
+        // the life of the page. Clearing it hands the element back to ordinary
+        // painting.
+        onComplete: () => {
+          logo.style.transform = "";
+        },
+      });
     }
-
-    animate("[data-hero-subtitle]", {
-      opacity: [0, 1],
-      translateY: [16, 0],
-      duration: 540,
-      delay: WORDMARK_AT + 330,
-      ease: ARTEMIS_EASE,
-    });
 
     animate("[data-hero-rule]", {
       opacity: [0, 1],
       clipPath: ["inset(0% 50% 0% 50%)", "inset(0% 0% 0% 0%)"],
       duration: 640,
-      delay: WORDMARK_AT + 420,
+      delay: LOGO_AT + 420,
       ease: ARTEMIS_EASE,
     });
 
-    animate(
-      ["[data-hero-tagline]", "[data-hero-chips]", "[data-hero-cta]"],
-      {
-        opacity: [0, 1],
-        translateY: [18, 0],
-        duration: 560,
-        delay: stagger(90, { start: WORDMARK_AT + 520 }),
-        ease: ARTEMIS_EASE,
-      }
-    );
-
-    return () => cleanups.forEach((off) => off());
+    animate(["[data-hero-tagline]", "[data-hero-chips]", "[data-hero-cta]"], {
+      opacity: [0, 1],
+      translateY: [18, 0],
+      duration: 560,
+      delay: stagger(90, { start: LOGO_AT + 520 }),
+      ease: ARTEMIS_EASE,
+    });
   });
 
   return (
@@ -253,7 +143,7 @@ export function ArtemisHero() {
       className="relative flex min-h-[92vh] flex-col items-center justify-center px-6 pb-20 pt-32 outline-none md:pt-40"
     >
       {/* Astrolabe. Sized in vw so it stays a backdrop rather than colliding
-          with the wordmark on narrow screens, and capped so it does not
+          with the lockup on narrow screens, and capped so it does not
           swallow the section on a wide desktop. */}
       <div
         aria-hidden
@@ -266,49 +156,48 @@ export function ArtemisHero() {
       </div>
 
       <div className="relative flex flex-col items-center text-center">
-        {/* Mark */}
-        <span data-hero-mark data-draw className="block">
-          <CrescentBow
-            maskId="artemis-hero-crescent"
-            className="h-20 w-20 text-[var(--artemis-gold)] sm:h-24 sm:w-24"
-          />
-        </span>
-
         {/* Eyebrow */}
         <p
           data-hero-eyebrow
           data-reveal
-          className="mt-6 flex items-center gap-3 font-cinzel text-[0.68rem] font-semibold uppercase tracking-[0.5em] text-[var(--artemis-gold-light)]"
+          className="flex items-center gap-3 font-cinzel text-[0.68rem] font-semibold uppercase tracking-[0.5em] text-[var(--artemis-gold-light)]"
         >
           <StarGlyph className="animate-artemis-twinkle h-2 w-2" />
           {ARTEMIS.eyebrow}
           <StarGlyph className="animate-artemis-twinkle h-2 w-2" />
         </p>
 
-        {/* Wordmark. The tracking is wide enough that the trailing letter-space
-            would push the block visually off-centre, so the last letter carries
-            a negative margin to pull it back.
+        {/* The lockup, standing in for the three elements that used to sit
+            here — the crescent-and-bow mark, the ARTEMIS wordmark set a letter
+            at a time, and the "hackathon" line. The artwork carries all three.
+            This is still the page's <h1>; the heading text lives in the alt.
 
-            .artemis-gilt is correct here only until the text is split; see the
-            note in the setup above, which removes it and hands the gradient to
-            the individual letters. */}
-        <h1
-          data-hero-wordmark
-          data-reveal
-          className="artemis-gilt mt-4 font-cinzel text-[clamp(2.75rem,13vw,8.5rem)] font-bold leading-[0.95] tracking-[0.08em] [margin-right:-0.08em]"
-        >
-          ARTEMIS
+            The art arrived as a JPEG on a pure-black field, which is the one
+            thing that cannot go over the night sky. It is now a PNG with a real
+            alpha channel, recovered from that black and trimmed to the
+            artwork's own bounds — so this is an ordinary transparent image with
+            an intrinsic 1630x941, and it needs no blend mode and no cropping
+            box to sit on the astrolabe.
+
+            mix-blend-screen was doing that job, and it is deliberately gone:
+            the entrance below animates opacity and transform together, which
+            promotes this element to its own compositing layer, and a blend mode
+            against the backdrop is the first thing dropped when the compositor
+            takes a layer over. The black field flashed for the length of the
+            animation and vanished the moment the layer was released. */}
+        <h1 data-hero-logo data-reveal className="mt-4 block">
+          <Image
+            src="/artemis/logo.png"
+            alt={`${ARTEMIS.title} — National Level Hackathon`}
+            width={1630}
+            height={941}
+            priority
+            sizes="(min-width: 768px) 760px, 92vw"
+            className="h-auto w-[min(92vw,760px)]"
+          />
         </h1>
 
-        <p
-          data-hero-subtitle
-          data-reveal
-          className="font-cinzel text-lg uppercase tracking-[0.6em] text-[var(--text-primary)] [margin-right:-0.6em] sm:text-2xl"
-        >
-          Hackathon
-        </p>
-
-        <div data-hero-rule data-unroll className="mt-8 w-full">
+        <div data-hero-rule data-unroll className="mt-2 w-full">
           <MeanderDivider className="text-[var(--artemis-gold)] opacity-70" />
         </div>
 
