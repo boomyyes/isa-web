@@ -36,7 +36,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "projects", label: "Running Projects" },
   { id: "events", label: "Events" },
   { id: "achievements", label: "Achievements" },
-  { id: "articles", label: "ISA Articles" },
+  { id: "articles", label: "Blogs and Articles" },
 ];
 
 // Glowing status-badge styles keyed by project status.
@@ -171,33 +171,33 @@ export function InitiativesHub() {
           />
         ))}
 
-      <div className="inline-flex flex-wrap gap-1 rounded-xl border border-[var(--border-color)]/60 bg-[var(--card-color)] p-1">
-        {TABS.map((tab) => {
-          const isActive = active === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setPicked({ forHash: hash, tab: tab.id })}
-              className={cn(
-                "relative inline-flex min-h-11 items-center rounded-lg px-4 py-2 font-inter text-sm font-medium transition-colors",
-                isActive
-                  ? "text-[var(--text-primary)]"
-                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              )}
-            >
-              {isActive && (
-                <motion.span
-                  layoutId="initiatives-tab-pill"
-                  className="absolute inset-0 rounded-lg border border-[var(--border-active)]/40 bg-[var(--border-active)]/10"
-                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
-                />
-              )}
-              <span className="relative">{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+        <div className="inline-flex flex-wrap gap-1 rounded-xl border border-[var(--border-color)]/60 bg-[var(--card-color)] p-1">
+          {TABS.map((tab) => {
+            const isActive = active === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setPicked({ forHash: hash, tab: tab.id })}
+                className={cn(
+                  "relative inline-flex min-h-11 items-center rounded-lg px-4 py-2 font-inter text-sm font-medium transition-colors",
+                  isActive
+                    ? "text-[var(--text-primary)]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                )}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="initiatives-tab-pill"
+                    className="absolute inset-0 rounded-lg border border-[var(--border-active)]/40 bg-[var(--border-active)]/10"
+                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  />
+                )}
+                <span className="relative">{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Panels */}
@@ -410,37 +410,37 @@ function AchievementsPanel() {
                   {achievement.scope}
                 </span>
                 <Trophy className={cn("h-5 w-5 shrink-0", s.text)} />
-            </div>
+              </div>
 
-            <h3 className="mt-5 font-jetbrains text-lg font-bold text-[var(--text-primary)]">
-              {achievement.title}
-            </h3>
+              <h3 className="mt-5 font-jetbrains text-lg font-bold text-[var(--text-primary)]">
+                {achievement.title}
+              </h3>
 
-            <p className="mt-2 flex items-center gap-1.5 text-sm text-[var(--text-primary)]">
-              <Medal className="h-3.5 w-3.5 shrink-0 text-[var(--text-secondary)]" />
-              {achievement.awardedTo}
-            </p>
+              <p className="mt-2 flex items-center gap-1.5 text-sm text-[var(--text-primary)]">
+                <Medal className="h-3.5 w-3.5 shrink-0 text-[var(--text-secondary)]" />
+                {achievement.awardedTo}
+              </p>
 
-            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-              {/* dateLabel wins when the real precision is coarser than a day —
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                {/* dateLabel wins when the real precision is coarser than a day —
                   see Achievement.dateLabel. */}
-              <span className="font-jetbrains text-xs text-[var(--accent-color)]">
-                {achievement.dateLabel ?? formatEventDate(achievement.date)}
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-color)]/60 px-2 py-0.5 font-jetbrains text-[11px] text-[var(--text-secondary)]">
-                <Award className="h-3 w-3 shrink-0" />
-                {achievement.awardedBy}
-              </span>
-            </div>
+                <span className="font-jetbrains text-xs text-[var(--accent-color)]">
+                  {achievement.dateLabel ?? formatEventDate(achievement.date)}
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border-color)]/60 px-2 py-0.5 font-jetbrains text-[11px] text-[var(--text-secondary)]">
+                  <Award className="h-3 w-3 shrink-0" />
+                  {achievement.awardedBy}
+                </span>
+              </div>
 
-            {achievement.description && (
-              <ClampedText
-                text={achievement.description}
-                lines={6}
-                className="mt-3"
-                textClassName="text-sm leading-relaxed text-[var(--text-secondary)]"
-              />
-            )}
+              {achievement.description && (
+                <ClampedText
+                  text={achievement.description}
+                  lines={6}
+                  className="mt-3"
+                  textClassName="text-sm leading-relaxed text-[var(--text-secondary)]"
+                />
+              )}
             </div>
           </motion.article>
         );
