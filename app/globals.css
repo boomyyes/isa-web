@@ -84,6 +84,15 @@
     --artemis-gold-deep: #8C6A2A;
     --artemis-gold: #D9A94C;
     --artemis-gold-light: #F2D08A;
+    /* The other two metals, for the boon plinths. Each is a base and a
+       highlight, matching the gold pair above, so a rank can be recoloured by
+       swapping one variable rather than a dozen classes. Both are held slightly
+       desaturated: at full chroma the silver reads blue and the bronze reads
+       orange against the night ground, and neither looks like metal. */
+    --artemis-silver: #B8C1CE;
+    --artemis-silver-light: #E6EBF2;
+    --artemis-bronze: #B07948;
+    --artemis-bronze-light: #D9A277;
     --artemis-parchment-aged: #E4D5B8;
     --artemis-parchment: #EFE3CE;
     --artemis-parchment-high: #F6EEDF;

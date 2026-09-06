@@ -2,7 +2,6 @@
 
 import { animate, createDrawable, eases, spring, stagger } from "animejs";
 import { CalendarDays, MapPin } from "lucide-react";
-import Image from "next/image";
 import { AngularButton } from "@/components/ui/AngularButton";
 import {
   AstrolabeInner,
@@ -172,29 +171,49 @@ export function ArtemisHero() {
             at a time, and the "hackathon" line. The artwork carries all three.
             This is still the page's <h1>; the heading text lives in the alt.
 
-            The art arrived as a JPEG on a pure-black field, which is the one
-            thing that cannot go over the night sky. It is now a PNG with a real
-            alpha channel, recovered from that black and trimmed to the
-            artwork's own bounds — so this is an ordinary transparent image with
-            an intrinsic 1630x941, and it needs no blend mode and no cropping
-            box to sit on the astrolabe.
+            The art arrives as a GIF on a pure-black field, which is the one
+            thing that cannot go over the night sky — GIF carries a single bit
+            of transparency, so a soft-edged monogram has no way to ship
+            without one. scripts/artemis-logo.ts converts it ahead of time:
+            the field is black precisely because the artwork is premultiplied
+            against it, so alpha comes back exactly as max(r,g,b) and the soft
+            edges survive. Trimmed to the artwork's own bounds, what lands here
+            is an ordinary transparent image at an intrinsic 977x617, needing
+            no blend mode and no cropping box.
 
-            mix-blend-screen was doing that job, and it is deliberately gone:
-            the entrance below animates opacity and transform together, which
-            promotes this element to its own compositing layer, and a blend mode
-            against the backdrop is the first thing dropped when the compositor
-            takes a layer over. The black field flashed for the length of the
-            animation and vanished the moment the layer was released. */}
+            mix-blend-screen was doing that job once, and it is deliberately
+            gone: the entrance below animates opacity and transform together,
+            which promotes this element to its own compositing layer, and a
+            blend mode against the backdrop is the first thing dropped when the
+            compositor takes a layer over. The black field flashed for the
+            length of the animation and vanished the moment the layer was
+            released.
+
+            A plain <picture> rather than next/image: the optimizer passes
+            animated sources through untouched anyway, so it would add nothing
+            here, and only <picture> can hand a still to someone who has asked
+            for less motion — the loop is a five-second shimmer with no way to
+            pause it, which is exactly what that preference is about. Only the
+            matching source is ever fetched, so the still costs nothing to the
+            people who never see it. */}
         <h1 data-hero-logo data-reveal className="mt-4 block">
-          <Image
-            src="/artemis/logo.png"
-            alt={`${ARTEMIS.title} — National Level Hackathon`}
-            width={1630}
-            height={941}
-            priority
-            sizes="(min-width: 768px) 760px, 92vw"
-            className="h-auto w-[min(92vw,760px)]"
-          />
+          <picture>
+            <source
+              media="(prefers-reduced-motion: reduce)"
+              srcSet="/artemis/logo-still.png"
+              type="image/png"
+            />
+            {/* The fallback source, and the only one older browsers see. */}
+            <img
+              src="/artemis/logo.webp"
+              alt={`${ARTEMIS.title} — National Level Hackathon`}
+              width={977}
+              height={617}
+              fetchPriority="high"
+              decoding="async"
+              className="h-auto w-[min(92vw,760px)]"
+            />
+          </picture>
         </h1>
 
         <div data-hero-rule data-unroll className="mt-2 w-full">

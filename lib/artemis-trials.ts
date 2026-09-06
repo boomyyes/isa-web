@@ -2,28 +2,6 @@ import "server-only";
 
 import { ARTEMIS_RELEASE_AT, type ProblemStatement } from "@/lib/artemis";
 
-/**
- * The Artemis problem statements, and the embargo on them.
- *
- * These are held back until the hackathon opens, and "held back" has to mean
- * more than "not rendered": anyone can read a page's source, and this
- * repository is public. So the statements live nowhere in the tree — they are
- * read at runtime from ARTEMIS_TRIALS, and this is the only module that touches
- * that variable.
- *
- * `import "server-only"` is the load-bearing line above. It makes importing
- * this file from a component marked "use client" a *build* error rather than a
- * silent inclusion of the statements in the JS bundle, which is the one mistake
- * that would undo the whole arrangement. app/artemis/page.tsx is a server
- * component; it reads these and passes them down as props only once the embargo
- * has lifted, so before that there is nothing in the HTML or the RSC payload to
- * find.
- *
- * The variable is deliberately not NEXT_PUBLIC_-prefixed. That prefix inlines a
- * value into the client bundle at build time, which is exactly the leak this
- * module exists to prevent.
- */
-
 /** Every field a statement must carry to be rendered at all. */
 const STRING_FIELDS = [
   "id",
@@ -83,6 +61,50 @@ export function getProblemStatements(): ProblemStatement[] {
 }
 
 /**
+ * The instant the seal breaks — the real one, or a rehearsal.
+ *
+ * The moment is worth rehearsing: the build-up and the break only play for
+ * someone already on the page when the clock runs out, so there is exactly one
+ * chance to see it for real. ARTEMIS_RELEASE_AT_DEV moves the instant to
+ * whenever you like, which is what scripts/artemis-rehearse.ts sets.
+ *
+ * Two things keep that from being a way to publish the statements early:
+ *
+ * - It is ignored outright in a production build. The check is on NODE_ENV,
+ *   which Next fixes at build time and which no request can influence, so the
+ *   override cannot be switched on against a deployed site.
+ * - Setting it requires write access to the server's environment — and anyone
+ *   with that already has ARTEMIS_TRIALS itself, so it grants nothing new.
+ *
+ * A malformed value is ignored rather than guessed at: a typo here must not
+ * quietly move the release, in either direction.
+ */
+function releaseInstant(): number {
+  if (process.env.NODE_ENV === "production") return ARTEMIS_RELEASE_AT;
+
+  const override = process.env.ARTEMIS_RELEASE_AT_DEV;
+  if (!override) return ARTEMIS_RELEASE_AT;
+
+  // Epoch milliseconds, or anything Date can parse — the script writes the
+  // former, a human editing .env.local by hand will reach for the latter.
+  const parsed = /^\d+$/.test(override.trim())
+    ? Number(override.trim())
+    : Date.parse(override);
+
+  if (!Number.isFinite(parsed)) {
+    console.error(
+      "[artemis] ARTEMIS_RELEASE_AT_DEV is not a date or an epoch — ignoring it"
+    );
+    return ARTEMIS_RELEASE_AT;
+  }
+
+  console.warn(
+    "[artemis] rehearsal: release overridden to " + new Date(parsed).toISOString()
+  );
+  return parsed;
+}
+
+/**
  * Whether the embargo has lifted.
  *
  * Called on the server, against the server's clock. A visitor moving their own
@@ -90,7 +112,7 @@ export function getProblemStatements(): ProblemStatement[] {
  * statements are only ever sent by a server that agrees the hour has come.
  */
 export function trialsReleased(now: number = Date.now()): boolean {
-  return now >= ARTEMIS_RELEASE_AT;
+  return now >= releaseInstant();
 }
 
 /**
@@ -111,11 +133,18 @@ export function trialsReleased(now: number = Date.now()): boolean {
 export function readTrials(): {
   statements: ProblemStatement[] | null;
   serverNow: number;
+  releaseAt: number;
 } {
   const serverNow = Date.now();
+  // Resolved once and handed down, rather than imported directly by the
+  // countdown. That is what lets a rehearsal move the moment for the clock and
+  // the gate together — a client that read the constant for itself would go on
+  // counting to September while the server had already opened.
+  const releaseAt = releaseInstant();
 
   return {
-    statements: trialsReleased(serverNow) ? getProblemStatements() : null,
+    statements: serverNow >= releaseAt ? getProblemStatements() : null,
     serverNow,
+    releaseAt,
   };
 }
