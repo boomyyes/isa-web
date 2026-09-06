@@ -28,6 +28,24 @@ import { BOONS } from "@/lib/artemis";
  * you actually scroll past them in.
  */
 
+/**
+ * Gold, silver, bronze — the metals the three boons are actually named for.
+ *
+ * The row used to be gold throughout, which left "The Silver Arrow" and "The
+ * Bronze Aegis" painted the same brass as the Golden Bough and reading as
+ * nothing in particular. Each card sets its pair as --boon-metal /
+ * --boon-metal-light, and the laurels, numeral, amount and rim all read from
+ * those, so a rank is recoloured in one place.
+ *
+ * Indexed by position, matching BOONS' documented first/second/third order. A
+ * fourth entry would fall back to gold rather than render uncoloured.
+ */
+const METALS = [
+  { base: "var(--artemis-gold)", light: "var(--artemis-gold-light)" },
+  { base: "var(--artemis-silver)", light: "var(--artemis-silver-light)" },
+  { base: "var(--artemis-bronze)", light: "var(--artemis-bronze-light)" },
+] as const;
+
 /** Milliseconds between plinths. */
 const PLINTH_STEP = 85;
 
@@ -118,18 +136,30 @@ export function BoonsSection() {
       <div className="mt-14 grid grid-cols-1 items-end gap-6 md:grid-cols-3 md:gap-5">
         {BOONS.map((boon, i) => {
           const isFirst = i === 0;
+          const metal = METALS[i] ?? METALS[0];
 
           return (
             <article
               key={boon.id}
               data-boon
               data-reveal
-              style={{ boxShadow: ARTEMIS_CARD_SHADOW }}
+              // The metal is set as a custom property on the card and read by
+              // the laurels, numeral, amount and border below. Tailwind resolves
+              // arbitrary values at build time from literal class strings, so a
+              // class name assembled per rank would simply not be generated —
+              // one variable per card is what keeps every class literal.
+              style={
+                {
+                  boxShadow: ARTEMIS_CARD_SHADOW,
+                  "--boon-metal": metal.base,
+                  "--boon-metal-light": metal.light,
+                } as React.CSSProperties
+              }
               className={cn(
                 "relative flex flex-col items-center rounded-sm border bg-[var(--artemis-night)]/55 px-6 text-center backdrop-blur-sm transition-colors duration-300",
                 isFirst
-                  ? "border-[var(--artemis-gold)]/60 py-12 md:order-2 md:-translate-y-6 md:py-16"
-                  : "border-[var(--artemis-gold)]/25 py-10 hover:border-[var(--artemis-gold)]/45",
+                  ? "border-[var(--boon-metal)]/60 py-12 md:order-2 md:-translate-y-6 md:py-16"
+                  : "border-[var(--boon-metal)]/25 py-10 hover:border-[var(--boon-metal)]/45",
                 // Silver reads second, bronze third — the source order is
                 // first/second/third, so the flanks are reordered on desktop.
                 i === 1 && "md:order-1",
@@ -145,7 +175,7 @@ export function BoonsSection() {
                 <Laurel
                   side="left"
                   className={cn(
-                    "h-16 w-6 text-[var(--artemis-gold)]",
+                    "h-16 w-6 text-[var(--boon-metal)]",
                     isFirst ? "opacity-80" : "opacity-45"
                   )}
                 />
@@ -156,7 +186,7 @@ export function BoonsSection() {
                     "font-cinzel font-bold leading-none",
                     isFirst
                       ? "artemis-gilt text-6xl md:text-7xl"
-                      : "text-5xl text-[var(--artemis-gold)]/80"
+                      : "text-5xl text-[var(--boon-metal)]/85"
                   )}
                 >
                   {boon.rank}
@@ -164,7 +194,7 @@ export function BoonsSection() {
                 <Laurel
                   side="right"
                   className={cn(
-                    "h-16 w-6 text-[var(--artemis-gold)]",
+                    "h-16 w-6 text-[var(--boon-metal)]",
                     isFirst ? "opacity-80" : "opacity-45"
                   )}
                 />
@@ -184,8 +214,8 @@ export function BoonsSection() {
                 className={cn(
                   "mt-3 font-cinzel font-bold",
                   isFirst
-                    ? "text-3xl text-[var(--artemis-gold-light)]"
-                    : "text-2xl text-[var(--artemis-gold)]"
+                    ? "text-3xl text-[var(--boon-metal-light)]"
+                    : "text-2xl text-[var(--boon-metal)]"
                 )}
               >
                 {boon.amount}

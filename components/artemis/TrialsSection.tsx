@@ -1,6 +1,7 @@
 "use client";
 
-import { animate, spring } from "animejs";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { animate, eases, spring } from "animejs";
 import { SectionHeading } from "@/components/artemis/SectionHeading";
 import {
   AstrolabeOuter,
@@ -40,17 +41,47 @@ import type { ProblemStatement } from "@/lib/artemis";
  * rim that engraves itself on the way in — now crowning each statement.
  */
 
-/** Milliseconds between one statement panel and the next. */
-const PANEL_STEP = 130;
+/** Milliseconds between one statement landing and the next. */
+const PANEL_STEP = 175;
+
+/**
+ * How long the sealed view is held on screen once it starts breaking.
+ *
+ * The statements are asked for at zero, so the response can land a long way
+ * inside the burst — and a swap mid-flight would cut off the one moment the
+ * whole feature exists for. This holds the seal until the sequence has played
+ * out, with a beat of empty sky on the end before the statements arrive.
+ */
+const BREAK_HOLD_MS = 1350;
 
 export function TrialsSection({
   statements,
   serverNow,
+  releaseAt,
 }: {
   statements: ProblemStatement[] | null;
   serverNow: number;
+  releaseAt: number;
 }) {
-  const open = statements != null && statements.length > 0;
+  const released = statements != null && statements.length > 0;
+
+  // Only ever true for someone who was on the page as the clock ran out.
+  const [breaking, setBreaking] = useState(false);
+  const holdTimer = useRef<number | undefined>(undefined);
+
+  const beginBreak = useCallback(() => {
+    setBreaking(true);
+    holdTimer.current = window.setTimeout(
+      () => setBreaking(false),
+      BREAK_HOLD_MS
+    );
+  }, []);
+
+  useEffect(() => () => window.clearTimeout(holdTimer.current), []);
+
+  // Arriving after the release shows the statements immediately, with no
+  // countdown and no burst — the theatre is only for people who waited.
+  const open = released && !breaking;
 
   const root = useArtemisAnime<HTMLElement>(
     (self) => {
@@ -65,7 +96,17 @@ export function TrialsSection({
       el.querySelectorAll<HTMLElement>("[data-trial]").forEach((panel, i) => {
         const base = 90 + i * PANEL_STEP;
 
-        revealOnScroll(panel, { y: 34, duration: 560, delay: base });
+        // Landing rather than fading: a long throw and an underdamped spring,
+        // so each statement arrives with weight and the three read as three
+        // separate impacts instead of one block of text appearing.
+        animate(panel, {
+          opacity: [0, 1],
+          translateY: [72, 0],
+          scale: [0.94, 1],
+          delay: base,
+          ease: spring({ stiffness: 66, damping: 12 }),
+          autoplay: enterOnce(),
+        });
 
         drawOnScroll(
           panel.querySelector<HTMLElement>("[data-trial-rim]"),
@@ -73,21 +114,35 @@ export function TrialsSection({
           // would also catch a <rect> used as a mask fill elsewhere in
           // GreekOrnaments and blank the ornament instead of drawing it.
           "circle, line",
-          { duration: 600, each: 4, from: "center", delay: base + 80 }
+          { duration: 480, each: 3, from: "center", delay: base + 60 }
         );
 
+        // The numeral is stamped on — it turns into place off a stiff spring,
+        // which is the closest thing to an impact a single glyph can carry.
         animate(panel.querySelectorAll("[data-trial-numeral]"), {
           opacity: [0, 1],
-          scale: [0.62, 1],
+          scale: [0.5, 1],
+          rotate: [-75, 0],
+          delay: base + 200,
+          ease: spring({ stiffness: 120, damping: 11 }),
+          autoplay: enterOnce(),
+        });
+
+        // Gilt catching the light as the panel settles. One pass, left to
+        // right, clipped by the panel's own overflow.
+        animate(panel.querySelectorAll("[data-trial-sweep]"), {
+          translateX: ["-160%", "260%"],
+          opacity: [0, 0.9, 0],
+          duration: 950,
           delay: base + 220,
-          ease: spring({ stiffness: 78, damping: 13 }),
+          ease: eases.out(2),
           autoplay: enterOnce(),
         });
 
         revealOnScroll(panel.querySelectorAll("[data-trial-block]"), {
           y: 22,
           duration: 460,
-          delay: base + 260,
+          delay: base + 280,
           each: 70,
         });
       });
@@ -111,8 +166,8 @@ export function TrialsSection({
         title={open ? "Choose your trial" : "Sealed until the hour"}
         lead={
           open
-            ? "Three trials, one for each theme. Build against whichever you choose — your prototype is judged on the one you name."
-            : "Three trials, one for each theme. They are published the moment the hackathon opens, and not a minute before."
+            ? "Three trials, one for each theme."
+            : "Three trials, one for each theme. They will appear on the appointed day."
         }
       />
 
@@ -125,11 +180,23 @@ export function TrialsSection({
               data-trial
               data-reveal
               style={{ boxShadow: ARTEMIS_CARD_SHADOW }}
-              className="scroll-mt-24 rounded-sm border border-[var(--artemis-gold)]/25 bg-[var(--artemis-night)]/50 px-6 py-9 backdrop-blur-sm sm:px-10 sm:py-12 md:scroll-mt-28"
+              className="relative scroll-mt-24 overflow-hidden rounded-sm border border-[var(--artemis-gold)]/25 bg-[var(--artemis-night)]/50 px-6 py-9 backdrop-blur-sm sm:px-10 sm:py-12 md:scroll-mt-28"
             >
+              {/* The sweep. Skewed so the edge rakes rather than wipes, and
+                  taller than the panel so the skew never exposes a corner. */}
+              <span
+                aria-hidden
+                data-trial-sweep
+                className="pointer-events-none absolute -inset-y-1/2 left-0 w-1/3 -skew-x-12 opacity-0"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent, rgba(242,208,138,0.16), transparent)",
+                }}
+              />
+
               {/* Crest and title. Stacked on a narrow screen, side by side once
                   there is room for the medallion to sit beside the type. */}
-              <header className="flex flex-col items-center gap-6 text-center sm:flex-row sm:items-center sm:gap-7 sm:text-left">
+              <header className="relative flex flex-col items-center gap-6 text-center sm:flex-row sm:items-center sm:gap-7 sm:text-left">
                 <div className="relative h-24 w-24 shrink-0">
                   <span
                     aria-hidden
@@ -164,7 +231,7 @@ export function TrialsSection({
                 </div>
               </header>
 
-              <div data-trial-block data-reveal className="mt-8">
+              <div data-trial-block data-reveal className="relative mt-8">
                 <MeanderDivider className="text-[var(--artemis-gold)] opacity-45" />
               </div>
 
@@ -181,7 +248,7 @@ export function TrialsSection({
                   key={block.label}
                   data-trial-block
                   data-reveal
-                  className="mt-8"
+                  className="relative mt-8"
                 >
                   <h4 className="font-cinzel text-[0.68rem] font-semibold uppercase tracking-[0.3em] text-[var(--artemis-gold-light)]">
                     {block.label}
@@ -198,7 +265,11 @@ export function TrialsSection({
           ))}
         </div>
       ) : (
-        <SealedTrials serverNow={serverNow} />
+        <SealedTrials
+          serverNow={serverNow}
+          releaseAt={releaseAt}
+          onBreak={beginBreak}
+        />
       )}
     </section>
   );

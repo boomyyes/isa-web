@@ -50,7 +50,7 @@ export default function ArtemisPage() {
   // to find in the response. `serverNow` is read from the same clock, so the
   // countdown can never be calibrated against a different instant than the one
   // that made the decision.
-  const { statements, serverNow } = readTrials();
+  const { statements, serverNow, releaseAt } = readTrials();
 
   return (
     <PageTransition>
@@ -64,8 +64,14 @@ export default function ArtemisPage() {
         <ProloguePanel />
         {/* `serverNow` is what the countdown measures the visitor's clock
             against, so the seal breaks on the server's hour rather than on a
-            laptop that happens to be running fast. */}
-        <TrialsSection statements={statements} serverNow={serverNow} />
+            laptop that happens to be running fast. `releaseAt` is handed down
+            for the same reason: the clock and the gate have to be reading the
+            same instant, rehearsal or not. */}
+        <TrialsSection
+          statements={statements}
+          serverNow={serverNow}
+          releaseAt={releaseAt}
+        />
         <GuidelinesSection />
         <OdysseyTimeline />
         <BoonsSection />

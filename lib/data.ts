@@ -158,7 +158,7 @@ export const core: TeamMember[] = [
 export const subCore: TeamMember[] = [
   member("sub-pro", "Public Relations Officer", "Suhani Guralwar", { photo: "/team/suhani-guralwar.jpg", linkedin: "https://www.linkedin.com/in/suhani-guralwar-b43807421/" }),
   member("sub-sponsorship", "Sponsorship Officer", "Suhas Dongre", { photo: "/team/suhas-dongre.jpg", linkedin: "https://www.linkedin.com/in/suhasdongre/" }),
-  member("sub-cto", "Chief Technical Officer", "Chris Misquitta", { technical: true, photo: "/team/chris-misquitta.jpg", linkedin: "https://www.linkedin.com/in/chrismm31313/", github: "https://github.com/CMM31313" }),
+  // member("sub-cto", "Chief Technical Officer", "Chris Misquitta", { technical: true, photo: "/team/chris-misquitta.jpg", linkedin: "https://www.linkedin.com/in/chrismm31313/", github: "https://github.com/CMM31313" }),
 ];
 
 export interface JointCoreDomain {
@@ -214,7 +214,7 @@ export const jointCore: JointCoreDomain[] = [
       member("jc-media-1", "Media Head", "Mazen Zari", { photo: "/team/mazen-zari.jpg", linkedin: "https://www.linkedin.com/in/mazen-ejaj-zari-63968b243" }),
       member("jc-media-2", "Media Co-head", "Sayan Dutta", { photo: "/team/sayan-dutta.jpg" }),
       member("jc-media-3", "Media Co-head", "Vishesh Karot", { photo: "/team/vishesh-karot.jpg", linkedin: "https://www.linkedin.com/in/vishesh-karoth-0061273aa/" }),
-      member("jc-media-4", "Media Co-head", "Mayuri Varti", { photo: "/team/mayuri-varti.jpg" }),
+      member("jc-media-4", "Media Co-head", "Mayuri Varti", { photo: "/team/mayuri-varti.jpg", linkedin: "https://www.linkedin.com/in/mayuri-varti-25788b382" }),
     ],
   },
 ];
@@ -385,7 +385,7 @@ export const upcomingEvents: UpcomingEvent[] = [
   {
     id: "evt-up-artemis",
     title: "Artemis Hackathon",
-    when: "26 September 2026",
+    when: "26–27 September 2026",
     href: "/artemis",
   },
 ];
