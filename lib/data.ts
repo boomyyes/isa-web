@@ -180,6 +180,7 @@ export const jointCore: JointCoreDomain[] = [
     members: [
       member("jc-edit-1", "Historian", "Keyur Kulkarni", { photo: "/team/keyur-kulkarni.jpg", linkedin: "https://www.linkedin.com/in/keyur-anand-kulkarni-b89508333/" }),
       member("jc-edit-2", "Historian", "Aadya Bharde", { photo: "/team/aadya-bharde.jpg" }),
+      member("jc-edit-3", "Historian", "Rutu")
     ],
   },
   {
@@ -196,6 +197,7 @@ export const jointCore: JointCoreDomain[] = [
       member("jc-admin-1", "Administration Head", "Ayan Varekar", { photo: "/team/ayan-varekar.jpg", linkedin: "https://www.linkedin.com/in/ayanvarekar/" }),
       // member("jc-admin-3", "Administration Co-head", "Atharv Gharat", { linkedin: "https://www.linkedin.com/in/atharva-gharat-b12a6b306/" }),
       member("jc-admin-2", "Administration Co-head", "Atharv Bhoir", { technical: true, photo: "/team/atharv-bhoir.jpg", linkedin: "https://www.linkedin.com/in/atharv-bhoir-800352388", github: "https://github.com/AtharvKB" }),
+      member("jc-admin-3", "Administration Co-Head", "Ishan Hedao")
     ],
   },
   {
@@ -375,13 +377,6 @@ export interface UpcomingEvent {
  *   { id: "evt-up-plc", title: "PLC Bootcamp", when: "Mid-September 2026" },
  */
 export const upcomingEvents: UpcomingEvent[] = [
-  { id: "evt-up-ros", title: "ROS Bootcamp", when: "21 August 2026" },
-  {
-    id: "evt-up-3d-printing",
-    title: "3D Printing Workshop",
-    when: "5 September 2026",
-  },
-  { id: "evt-up-arvr", title: "AR/VR Workshop", when: "25 September 2026" },
   {
     id: "evt-up-artemis",
     title: "Artemis Hackathon",
@@ -399,7 +394,7 @@ export const mockEvents: EventItem[] = [
   {
     id: "evt-cvml-2026",
     date: "2026-08-14",
-    title: "Computer Vision & Machine Learning: From Data to Intelligence",
+    title: "Computer Vision & Machine Learning",
     type: "Workshop",
     venue: "RAIT",
     image: "/events/CVML_2026.jpg",
@@ -417,6 +412,17 @@ export const mockEvents: EventItem[] = [
     venue: "011 Lab",
     description:
       "ISA-RAIT organised AutomationX 2026, a two-day hands-on workshop on industrial automation, on 1st and 2nd August 2026. The workshop gave participants practical exposure to PLC programming and control, SCADA systems, Cyber-Physical Systems (CPS), IT-OT convergence and core industrial automation concepts through interactive sessions and laboratory-based learning, enabling students to gain valuable hands-on experience with industrial automation technologies. Guest speakers Mr. Lalit Bangera and Ms. Deepti Chacko Bangera shared their industry expertise and real-world insights into industrial automation, digital transformation, Industry 4.0 and manufacturing excellence. Dr. Supriya Bhuran, Dr. Vivek Kadam, Dr. Ramakant Patil and Mr. Abhay Pakhare conducted technical sessions, provided hands-on guidance and mentored participants throughout, making it a truly enriching learning experience. ISA-RAIT extends its gratitude to all participants for their enthusiasm and active involvement, and to the entire ISA-RAIT team for their dedication in organising the workshop.",
+    tenure: "2026-27",
+  },
+  {
+    id: "evt-ros-2026",
+    date: "2026-08-14",
+    title: "ROS2 Workshop",
+    type: "Workshop",
+    venue: "RAIT",
+    image: "",
+    description:
+      "",
     tenure: "2026-27",
   },
 
