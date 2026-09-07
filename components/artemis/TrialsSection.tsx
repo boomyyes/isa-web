@@ -20,7 +20,7 @@ import { useArtemisAnime } from "@/components/artemis/useArtemisAnime";
 import type { ProblemStatement } from "@/lib/artemis";
 
 /**
- * The three problem statements — or, before the hackathon opens, the sealed
+ * The problem statements — or, before the hackathon opens, the sealed
  * sheet standing in for them.
  *
  * Which of the two this renders is not its decision. `statements` arrives null
@@ -36,9 +36,10 @@ import type { ProblemStatement } from "@/lib/artemis";
  *
  * This replaces two sections that described an event that does not exist: a row
  * of four Greek "tracks" and a twelve-house zodiac wheel of themes. There are
- * three problem statements and each is its own theme, so there is one section.
- * The medallion visual is carried over from the tracks row — an AstrolabeOuter
- * rim that engraves itself on the way in — now crowning each statement.
+ * four problem statements, three of them themed and one open, so there is one
+ * section. The medallion visual is carried over from the tracks row — an
+ * AstrolabeOuter rim that engraves itself on the way in — now crowning each
+ * statement.
  */
 
 /** Milliseconds between one statement landing and the next. */
@@ -97,8 +98,8 @@ export function TrialsSection({
         const base = 90 + i * PANEL_STEP;
 
         // Landing rather than fading: a long throw and an underdamped spring,
-        // so each statement arrives with weight and the three read as three
-        // separate impacts instead of one block of text appearing.
+        // so each statement arrives with weight and they read as separate
+        // impacts instead of one block of text appearing.
         animate(panel, {
           opacity: [0, 1],
           translateY: [72, 0],
@@ -162,12 +163,12 @@ export function TrialsSection({
       className="relative scroll-mt-24 outline-none md:scroll-mt-28 mx-auto max-w-4xl px-6 py-16 md:py-24"
     >
       <SectionHeading
-        eyebrow="The Three Trials"
+        eyebrow="The Trials"
         title={open ? "Choose your trial" : "Sealed until the hour"}
         lead={
           open
-            ? "Three trials, one for each theme."
-            : "Three trials, one for each theme. They will appear on the appointed day."
+            ? "Four trials: three set, and one of your own making."
+            : "Four trials: three set, and one of your own making. They will appear on the appointed day."
         }
       />
 

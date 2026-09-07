@@ -48,7 +48,7 @@ export const ARTEMIS = {
  * which is the check that actually gates the content — this export exists so the
  * countdown has something to count toward.
  */
-export const ARTEMIS_RELEASE_AT = Date.parse("2026-09-09T18:00:00+05:30");
+export const ARTEMIS_RELEASE_AT = Date.parse("2026-09-07T16:40:00+05:30");
 
 /**
  * The shape of a problem statement — but never one of them.
@@ -63,11 +63,11 @@ export const ARTEMIS_RELEASE_AT = Date.parse("2026-09-09T18:00:00+05:30");
 export interface ProblemStatement {
   /** Also the deep-link anchor: #trial-i. */
   id: string;
-  /** "I", "II", "III" — set large on the crest. */
+  /** "I", "II", "III", "IV" — set large on the crest. */
   numeral: string;
   /** The Greek patron the trial is placed under. Framing only. */
   patron: string;
-  /** One word: the patron's domain. "Healing", "Water", "Lightning". */
+  /** One word: the patron's domain. "Healing", "Water", "Forge". */
   patronDomain: string;
   /** The statement's own title, as the committee wrote it. */
   title: string;
@@ -161,32 +161,51 @@ export const ODYSSEY: OdysseyDay[] = [
         id: "stop-1",
         time: "08:00",
         title: "The Gathering",
-        detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor.",
+        detail: "Reporting at the college, for the commencement of the event.",
       },
       {
         id: "stop-2",
-        time: "09:30",
-        title: "Reading of the Omens",
-        detail: "Incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam quis.",
+        time: "08:30",
+        title: "Early Feast",
+        detail: "Morning breakfast, before reading of the omens.",
       },
       {
         id: "stop-3",
-        time: "12:00",
-        title: "The Trials Begin",
-        detail: "Nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        time: "09:00",
+        title: "Reading of the Omens",
+        detail: "Orientation of the Hackathon in the auditorium, and distribution of hardware kits for each team.",
       },
       {
         id: "stop-4",
-        time: "16:00",
-        title: "First Augury",
-        detail: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.",
+        time: "11:00",
+        title: "Event Commences",
+        detail: "Official Hackathon starts.",
       },
       {
         id: "stop-5",
-        time: "23:00",
-        title: "The Long Night",
-        detail: "Excepteur sint occaecat cupidatat non proident sunt in culpa qui officia.",
+        time: "13:00",
+        title: "Mid-day Feast",
+        detail: "Lunch break between 1 and 2 pm.",
       },
+      {
+        id: "stop-6",
+        time: "18:00",
+        title: "Proespérisma",
+        detail: "Evening snacks break for 15 minutes.",
+      },
+      {
+        id: "stop-7",
+        time: "21:00",
+        title: "Late Night Feast",
+        detail: "Dinner between 9 to 11 pm.",
+      },
+      {
+        id: "stop-8",
+        time: "23:00",
+        title: "Labor Continues",
+        detail: "Keep working on your project.",
+      },
+
     ],
   },
   {
@@ -195,22 +214,34 @@ export const ODYSSEY: OdysseyDay[] = [
     date: "27 September",
     stops: [
       {
-        id: "stop-6",
-        time: "06:00",
-        title: "Second Augury",
-        detail: "Deserunt mollit anim id est laborum sed ut perspiciatis unde omnis iste.",
+        id: "stop-9",
+        time: "07:00",
+        title: "Sunrise Ceremonious Drinks and Meals",
+        detail: "Morning tea break and breakfast between 7 to 9 pm.",
       },
       {
-        id: "stop-7",
-        time: "10:00",
+        id: "stop-10",
+        time: "09:00",
+        title: "Work Continues",
+        detail: "PPT preparation period.",
+      },
+      {
+        id: "stop-11",
+        time: "11:00",
         title: "The Final Reckoning",
-        detail: "Natus error sit voluptatem accusantium doloremque laudantium totam rem.",
+        detail: "The final evaluation of your hackathon project will happen during this time, between 11 am to 2 pm.",
       },
       {
-        id: "stop-8",
-        time: "13:00",
+        id: "stop-12",
+        time: "14:00",
         title: "Crowning of the Laurels",
-        detail: "Aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto.",
+        detail: "Award ceremony for the winners, final goodbyes and farewell speeches.",
+      },
+      {
+        id: "stop-13",
+        time: "17:00",
+        title: "The Great Labour ends",
+        detail: "The Hackathon ends officially.",
       },
     ],
   },
@@ -273,23 +304,23 @@ export const ORACLE_QUOTES: OracleQuote[] = [
   {
     id: "quote-1",
     quote:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod nunc ut laoreet dictum, mi sapien vulputate quam in tincidunt arcu urna vitae leo.",
-    name: "Lorem Ipsum",
-    attribution: "T.E. Instrumentation",
+      "ISA is a platform where individuals from diverse, multidisciplinary engineering backgrounds come together and work as one team. Our goal is to create the best possible environment for collaboration, innovation, and collective development, where diverse ideas and expertise come together to create meaningful impact.",
+    name: "Arya Bhagwat",
+    attribution: "Treasurer, ISA-RAIT",
   },
   {
     id: "quote-2",
     quote:
-      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident.",
-    name: "Dolor Sit",
-    attribution: "B.E. Electronics",
+      "Artemis represents our collective effort to bring together ideas, innovation, and engineering to address some of the major challenges faced by society. We hope that through this initiative, we can create meaningful solutions, inspire collaboration, and contribute in our own way towards a shared purpose and a better future.",
+    name: "Yash Patil",
+    attribution: "President, ISA-RAIT",
   },
   {
     id: "quote-3",
     quote:
-      "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam eaque ipsa quae ab illo inventore.",
-    name: "Amet Consectetur",
-    attribution: "S.E. Computer Engineering",
+      "ISA RAIT is more than a committee it’s a community where students learn, build, compete, and grow together. Beyond achievements, it’s about teamwork, friendships, experiences, and memories. We don’t just build technology we build people, leaders, and a community for the future.",
+    name: "Jyotiraditya Patil",
+    attribution: "Vice President, ISA-RAIT",
   },
 ];
 
@@ -299,29 +330,24 @@ export const ORACLE_QUOTES: OracleQuote[] = [
 
 export const ARTEMIS_FAQS = [
   {
-    question: "Quis nostrud exercitation ullamco laboris?",
+    question: "Should the team members have to be from the same college?",
     answer:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud.",
+      "No, any discipline, any branch, any college students can participate in this hackathon.",
   },
   {
-    question: "Duis aute irure dolor in reprehenderit?",
+    question: "Does the solution have to be completely hardware?",
     answer:
-      "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum sed ut perspiciatis unde omnis iste natus.",
+      "No, your solution can be a mix between hardware and software, however pure software solutions are discouraged.",
   },
   {
-    question: "Sed ut perspiciatis unde omnis iste natus error?",
+    question: "Are traveling and stay allowances provided?",
     answer:
-      "Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo nemo enim ipsam voluptatem quia.",
+      "We don't provide traveling allowances, although stay provisions will be arranged on campus at 26 Sept night.",
   },
   {
-    question: "Nemo enim ipsam voluptatem quia voluptas?",
+    question: "Who do I contact if I have any inquiries?",
     answer:
-      "Aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt neque porro quisquam est qui dolorem.",
-  },
-  {
-    question: "Neque porro quisquam est qui dolorem ipsum?",
-    answer:
-      "Quia dolor sit amet consectetur adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.",
+      "You can contact +91-9082279815, +91-9321124869, +91-8459289769, +91-9167699039",
   },
 ];
 
@@ -332,8 +358,8 @@ export const ARTEMIS_FAQS = [
 export const EPILOGUE = {
   heading: "Epilogue",
   paragraphs: [
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
-    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, excepteur sint occaecat cupidatat non proident.",
+    "As the sacred fires of Artemis 2026 quiet into embers, the sparks of innovation endure. Over 24 intense hours, brilliant minds channeled divine focus to forge groundbreaking hardware from raw silicon and code.",
+    "Though the champions of The Golden Bough, The Silver Arrow, and The Bronze Aegis have claimed their glory, this odyssey is only the beginning. May the vision forged under the night sky guide your path until we gather again.",
   ],
   signature: "~ ISA-RAIT Student Chapter",
 } as const;

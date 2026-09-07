@@ -10,52 +10,20 @@ export interface FAQItem {
   answer: string;
 }
 
-/**
- * Placeholder FAQ content for the ISA RAIT student chapter. Questions are real;
- * answers are bracketed placeholders in the site's voice, ready to be filled in.
- */
-export const DEFAULT_FAQS: FAQItem[] = [
-  {
-    question: "How do I join the ISA RAIT student chapter?",
-    answer:
-      "[Placeholder answer — outline the recruitment window, the online form, and who to contact. Anyone enrolled at RAIT is welcome to apply.]",
-  },
-  {
-    question: "What are the benefits of an ISA membership?",
-    answer:
-      "[Placeholder answer — mention access to workshops, technical standards, industry mentorship, and the global ISA network of 40,000+ members.]",
-  },
-  {
-    question: "Do I need prior automation experience to participate?",
-    answer:
-      "[Placeholder answer — no prior experience required; sessions run from beginner primers to advanced project work.]",
-  },
-  {
-    question: "How can my company sponsor or collaborate with ISA RAIT?",
-    answer:
-      "[Placeholder answer — describe sponsorship tiers and collaboration formats, then point to the query form for a direct line to the team.]",
-  },
-  {
-    question: "When and where are events and workshops held?",
-    answer:
-      "[Placeholder answer — events run through the academic year on the RAIT campus; the schedule lives on the Initiatives page.]",
-  },
-  {
-    question: "How do I get my workshop certificate?",
-    answer:
-      "Head to the Certificates page and sign in with the UID and access code we emailed you when you were registered. If your attendance is recorded, you can download the digital copy straight away. Printed copies are requested through the form on this page — your first one is free of cost, and additional copies are chargeable. Lost your code? Ask here and we'll reissue it.",
-  },
-];
-
 interface AccordionProps {
-  items?: FAQItem[];
+  /**
+   * Required: this component carries no content of its own. Each page owns its
+   * own list — SUPPORT_FAQS in lib/data.ts, ARTEMIS_FAQS in lib/artemis.ts,
+   * CERTIFICATE_FAQS beside the page that asks the questions.
+   */
+  items: FAQItem[];
   className?: string;
   /** Index expanded on first render; pass null for all-collapsed. */
   defaultOpen?: number | null;
 }
 
 export function Accordion({
-  items = DEFAULT_FAQS,
+  items,
   className,
   defaultOpen = 0,
 }: AccordionProps) {
