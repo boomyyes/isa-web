@@ -48,7 +48,7 @@ export const ARTEMIS = {
  * which is the check that actually gates the content — this export exists so the
  * countdown has something to count toward.
  */
-export const ARTEMIS_RELEASE_AT = Date.parse("2026-09-07T16:40:00+05:30");
+export const ARTEMIS_RELEASE_AT = Date.parse("2026-09-07T16:00:00+05:30");
 
 /**
  * The shape of a problem statement — but never one of them.
@@ -217,7 +217,7 @@ export const ODYSSEY: OdysseyDay[] = [
         id: "stop-9",
         time: "07:00",
         title: "Sunrise Ceremonious Drinks and Meals",
-        detail: "Morning tea break and breakfast between 7 to 9 pm.",
+        detail: "Morning tea break and breakfast between 7 to 9 am.",
       },
       {
         id: "stop-10",
