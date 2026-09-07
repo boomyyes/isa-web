@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { Accordion } from "@/components/ui/Accordion";
 import { FormEmbed } from "@/components/ui/FormEmbed";
+import { SUPPORT_FAQS } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Support | ISA RAIT",
@@ -52,7 +53,7 @@ export default function HelpPage() {
             >
               Frequently Asked
             </h2>
-            <Accordion />
+            <Accordion items={SUPPORT_FAQS} />
           </section>
 
           {/* Query form — live Google Form embedded as a mini page */}

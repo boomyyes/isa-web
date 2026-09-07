@@ -617,3 +617,46 @@ export const GALLERY_IMAGES = [
     alt: "PCB Manufacturing",
   },
 ];
+
+// ---------------------------------------------------------------------------
+// Support page FAQ (/help) — passed to the shared Accordion, which takes
+// `items` directly and carries no content of its own. The other two lists live
+// with the pages that ask their questions: ARTEMIS_FAQS in lib/artemis.ts,
+// CERTIFICATE_FAQS in app/certificates/page.tsx.
+//
+// Questions are real; five of the six answers are still bracketed placeholders
+// in the site's voice, waiting on the committee.
+// ---------------------------------------------------------------------------
+
+export const SUPPORT_FAQS = [
+  {
+    question: "How do I join the ISA RAIT student chapter?",
+    answer:
+      "[Placeholder answer — outline the recruitment window, the online form, and who to contact. Anyone enrolled at RAIT is welcome to apply.]",
+  },
+  {
+    question: "What are the benefits of an ISA membership?",
+    answer:
+      "[Placeholder answer — mention access to workshops, technical standards, industry mentorship, and the global ISA network of 40,000+ members.]",
+  },
+  {
+    question: "Do I need prior automation experience to participate?",
+    answer:
+      "[Placeholder answer — no prior experience required; sessions run from beginner primers to advanced project work.]",
+  },
+  {
+    question: "How can my company sponsor or collaborate with ISA RAIT?",
+    answer:
+      "[Placeholder answer — describe sponsorship tiers and collaboration formats, then point to the query form for a direct line to the team.]",
+  },
+  {
+    question: "When and where are events and workshops held?",
+    answer:
+      "[Placeholder answer — events run through the academic year on the RAIT campus; the schedule lives on the Initiatives page.]",
+  },
+  {
+    question: "How do I get my workshop certificate?",
+    answer:
+      "Head to the Certificates page and sign in with the UID and access code we emailed you when you were registered. If your attendance is recorded, you can download the digital copy straight away. Printed copies are requested through the form on this page — your first one is free of cost, and additional copies are chargeable. Lost your code? Ask here and we'll reissue it.",
+  },
+];
