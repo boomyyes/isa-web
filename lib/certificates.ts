@@ -18,9 +18,9 @@ export interface WorkshopMeta {
  * folder name in R2. See ADD-WORKSHOP.md.
  */
 export const WORKSHOPS: WorkshopMeta[] = [
-  { id: "iaw", title: "Industrial Automation Workshop", date: "2026-08-01", sheetLabel: "IAW" }
-];
-
+  { id: "iaw", title: "Industrial Automation Workshop", date: "2026-08-01", sheetLabel: "IAW" },
+  { id: "ros", title: "ROS2 Bootcamp", date: "2026-08-21", sheetLabel: "ROS" }
+]
 export interface WorkshopRecord {
   /** Gates both the digital and the physical copy. */
   attended: boolean;
