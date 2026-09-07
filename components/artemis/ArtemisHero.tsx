@@ -261,7 +261,7 @@ export function ArtemisHero() {
             onClick={(e) => scrollToSection(e, "register")}
             className="font-cinzel tracking-[0.2em]"
           >
-            Claim your fate
+            Register
           </AngularButton>
           <AngularButton
             href="#prologue"
