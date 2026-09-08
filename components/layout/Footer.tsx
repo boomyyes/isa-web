@@ -102,7 +102,7 @@ export function Footer() {
             © 2026 ISA RAIT Student Chapter. All rights reserved.
           </p>
           <p className="font-jetbrains text-xs opacity-50 text-[var(--text-secondary)] sm:text-right">
-            [ SYS_HALT ]
+            [ Website WIP ]
           </p>
         </div>
       </div>
