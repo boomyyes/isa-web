@@ -15,12 +15,12 @@ const CERTIFICATE_FAQS: FAQItem[] = [
   {
     question: "Where do I find my UID and access code?",
     answer:
-      "They were emailed to you when you were registered onto the roster, in a message titled \"Your ISA-RAIT certificate access code\". Check your spam folder before anything else. The code isn't case-sensitive and the dash is optional — K7P2-9XQM and k7p29xqm both work.",
+      "They were emailed to you when you were registered onto the roster, in a message titled \"Your ISA-RAIT certificate access code\". Check your spam folder before anything else.",
   },
   {
     question: "I've lost the email. Can you resend it?",
     answer:
-      "The access code is stored scrambled, so nobody — including us — can look up what yours was. We can issue you a new one instead. Raise a query on the Support page with your name and UID, and we'll reissue and email it.",
+      "The access code is stored scrambled, so our team cannot tell you your code. We can issue you a new one instead. Consider resetting your code instead.",
   },
   {
     question: "I attended, but a workshop shows as not attended. What now?",
@@ -30,12 +30,12 @@ const CERTIFICATE_FAQS: FAQItem[] = [
   {
     question: "How do I get a printed certificate?",
     answer:
-      "Anyone who attended can request one from the Support page. Your first physical copy is free of cost. If you've already collected one, additional copies are chargeable.",
+      "Anyone who attended can request one from the Support page. Your first physical copy is free. If you've already collected one, additional copies are chargeable.",
   },
   {
     question: "Can I download my certificate more than once?",
     answer:
-      "Yes — the digital copy is always available once your attendance is recorded. Download links expire after a couple of minutes for security, so just sign in again to get a fresh one.",
+      "You can download your digital certificates as many times as you want. If it gives you an error, refresh the page and relogin.",
   },
 ];
 

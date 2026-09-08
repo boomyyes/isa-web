@@ -139,7 +139,7 @@ export function IsaacSpotlight({ pageCount }: IsaacSpotlightProps) {
       >
         <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6">
           <h2 className="text-4xl md:text-5xl font-black font-inter tracking-tighter uppercase">
-            ISAAC Magazine (In Progress)
+            ISAAC Magazine
           </h2>
           <div className="flex flex-wrap gap-4">
             <StatusBlock value="ISSUE: #26" />
@@ -157,9 +157,9 @@ export function IsaacSpotlight({ pageCount }: IsaacSpotlightProps) {
               <p className="text-sm text-[var(--text-secondary)]">Latest Company: Siemens</p>
             </div>
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular">
-              <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">UPCOMING WORKSHOP</p>
-              <p className="text-xl font-bold font-inter text-[var(--text-primary)]">ROS- Robotic Operating Systems</p>
-              <p className="text-sm text-[var(--text-secondary)] mt-1">Coming Soon.</p>
+              <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">UPCOMING EVENT</p>
+              <p className="text-xl font-bold font-inter text-[var(--text-primary)]">Artemis Hackathon</p>
+              <p className="text-sm text-[var(--text-secondary)] mt-1">Coming soon.</p>
             </div>
           </div>
 
@@ -203,7 +203,7 @@ export function IsaacSpotlight({ pageCount }: IsaacSpotlightProps) {
             </div>
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular-reverse">
               <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">COMMITTEE MEMBERS</p>
-              <p className="text-xl font-bold font-inter text-[var(--text-primary)]">29</p>
+              <p className="text-xl font-bold font-inter text-[var(--text-primary)]">30</p>
               <p className="text-sm text-[var(--text-secondary)] mt-1">Students and Faculty.</p>
             </div>
           </div>

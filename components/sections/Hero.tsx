@@ -37,7 +37,11 @@ export function Hero() {
   const headline = "INTERNATIONAL SOCIETY OF AUTOMATION, RAIT";
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+    // pt clears the floating nav island rather than the old flat pt-20: the
+    // island sits at top-3/sm:top-4 with an h-16/sm:h-20 row while the page is
+    // at the top, so its bottom edge lands at 76px / 96px. At 80px the boot
+    // line tucked under the logo on desktop.
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 sm:pt-32">
       {/* Background Layer */}
       <div
         className="absolute inset-0 pointer-events-none z-10 opacity-10 dark:opacity-20"
