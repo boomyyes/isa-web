@@ -632,31 +632,31 @@ export const SUPPORT_FAQS = [
   {
     question: "How do I join the ISA RAIT student chapter?",
     answer:
-      "[Placeholder answer — outline the recruitment window, the online form, and who to contact. Anyone enrolled at RAIT is welcome to apply.]",
+      "Send us a query on the support form. Anyone enrolled at RAIT is welcome to apply.",
   },
   {
     question: "What are the benefits of an ISA membership?",
     answer:
-      "[Placeholder answer — mention access to workshops, technical standards, industry mentorship, and the global ISA network of 40,000+ members.]",
+      "All the benefits are listed on https://www.isarait.in/membership.",
   },
   {
     question: "Do I need prior automation experience to participate?",
     answer:
-      "[Placeholder answer — no prior experience required; sessions run from beginner primers to advanced project work.]",
+      "You don't, you can be a fresher or a veteran, and still be able to equally learn.",
   },
   {
     question: "How can my company sponsor or collaborate with ISA RAIT?",
     answer:
-      "[Placeholder answer — describe sponsorship tiers and collaboration formats, then point to the query form for a direct line to the team.]",
+      "Send us a query on the support form, or if you require a direct line, contact us at isa.rait@rait.ac.in",
   },
   {
     question: "When and where are events and workshops held?",
     answer:
-      "[Placeholder answer — events run through the academic year on the RAIT campus; the schedule lives on the Initiatives page.]",
+      "Event timelines are listed on https://www.isarait.in/initiatives, and all of them take place in Ramrao Adik Institute of Technology, DY Patil University Sector 7. Nerul, Navi Mumbai 400706.",
   },
   {
     question: "How do I get my workshop certificate?",
     answer:
-      "Head to the Certificates page and sign in with the UID and access code we emailed you when you were registered. If your attendance is recorded, you can download the digital copy straight away. Printed copies are requested through the form on this page — your first one is free of cost, and additional copies are chargeable. Lost your code? Ask here and we'll reissue it.",
+      "Head to the https://www.isarait.in/certificates and sign in with the UID and access code we emailed you when you were registered. If your attendance is recorded, you can download the digital copy straight away. Printed copies are requested through the form on this page, your first one is free, and additional copies are chargeable.",
   },
 ];
