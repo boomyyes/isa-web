@@ -180,7 +180,7 @@ export const jointCore: JointCoreDomain[] = [
     members: [
       member("jc-edit-1", "Historian", "Keyur Kulkarni", { photo: "/team/keyur-kulkarni.jpg", linkedin: "https://www.linkedin.com/in/keyur-anand-kulkarni-b89508333/" }),
       member("jc-edit-2", "Historian", "Aadya Bharde", { photo: "/team/aadya-bharde.jpg" }),
-      member("jc-edit-3", "Historian", "Rutu")
+      member("jc-edit-3", "Historian", "Rutu Mahadev", { photo: "/team/rutu-mahadev.jpg" })
     ],
   },
   {
