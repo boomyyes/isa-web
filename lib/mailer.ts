@@ -118,6 +118,43 @@ ${button(`${url}/certificates`, "Collect your certificates")}
   });
 }
 
+/** Fills {name}, {firstName} and {uid}. Unknown placeholders are left as written. */
+export function personalize(template: string, vars: { name: string; uid: string }) {
+  const values: Record<string, string> = {
+    name: vars.name || "there",
+    firstName: firstNameOf(vars.name),
+    uid: vars.uid,
+  };
+  return template.replace(/\{(\w+)\}/g, (match, key: string) => values[key] ?? match);
+}
+
+/**
+ * A one-off message written by hand — announcements, corrections, follow-ups.
+ * `body` is plain text; blank lines separate paragraphs, and bare URLs become links.
+ */
+export async function sendCustomEmail(opts: { to: string; subject: string; body: string }) {
+  const text = `${opts.body.trim()}\n\n— ISA RAIT Student Chapter`;
+
+  const paragraphs = opts.body
+    .trim()
+    .split(/\r?\n\s*\r?\n/)
+    .map(
+      (paragraph) =>
+        `  <p>${escapeHtml(paragraph)
+          .replace(/https?:\/\/[^\s<]+/g, (href) => `<a href="${href}" style="color:#00A3C4">${href}</a>`)
+          .replace(/\r?\n/g, "<br>")}</p>`
+    )
+    .join("\n");
+
+  await mailer().sendMail({
+    from: process.env.MAIL_FROM,
+    to: opts.to,
+    subject: opts.subject,
+    text,
+    html: shell(paragraphs),
+  });
+}
+
 /**
  * Carries a link, not a new code: the existing code keeps working until the link
  * is opened, so a stranger spamming resets can't lock a student out.
