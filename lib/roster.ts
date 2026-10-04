@@ -7,7 +7,12 @@ import {
   type CertRecord,
   type WorkshopRecord,
 } from "./certificates";
-import { DEFAULT_ACCESS_CODE, hashPassword, redisKey } from "./certificates.server";
+import {
+  DEFAULT_ACCESS_CODE,
+  generatePassword,
+  hashPassword,
+  redisKey,
+} from "./certificates.server";
 import { mailerConfigured, sendAccessCodeEmail } from "./mailer";
 
 /** Every `cert:*` key the last sync wrote, so a re-sync can delete removals. */
@@ -378,4 +383,34 @@ export async function deliverPendingCodes(
   }
 
   return result;
+}
+
+// ------------------------------------------------------- resend access codes
+
+/**
+ * Codes are stored hashed, so an existing one can't be looked up and sent again.
+ * "Resending" issues a fresh random code, emails it, then replaces the old one.
+ *
+ * Send before storing, as above: a failed send leaves the old code working
+ * instead of locking the student out with one they never received. Throws on
+ * failure; the record is untouched in that case.
+ */
+export async function resendAccessCode(redis: Redis, record: CertRecord): Promise<void> {
+  if (!record.email) throw new Error("no email address on the roster");
+
+  const password = generatePassword();
+  const passwordHash = await hashPassword(password);
+  await sendAccessCodeEmail({
+    to: record.email,
+    name: record.name,
+    uid: record.uid,
+    password,
+  });
+  await redis.set(redisKey(record.uid), {
+    ...record,
+    passwordHash,
+    passwordEmailedAt: new Date().toISOString(),
+  } satisfies CertRecord);
+  // Out of the queue, or the next sync would send them a second code.
+  await redis.srem(PENDING_KEY, record.uid);
 }
