@@ -29,7 +29,7 @@ export const THEME_LOCKS: ThemeLock[] = [
   {
     prefix: "/artemis",
     theme: "dark",
-    reason: "Artemis is always dark — your theme is restored when you leave",
+    reason: "Artemis is always dark. Your theme is restored when you leave",
   },
 ];
 

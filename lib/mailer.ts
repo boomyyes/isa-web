@@ -39,7 +39,7 @@ export function mailer(): Transporter {
 }
 
 export function siteUrl(): string {
-  return (process.env.SITE_URL ?? "https://isarait.org").replace(/\/+$/, "");
+  return (process.env.SITE_URL ?? "https://www.isarait.in").replace(/\/+$/, "");
 }
 
 const escapeHtml = (value: string) =>

@@ -51,7 +51,7 @@ export function GuidelinesSection() {
       <SectionHeading
         eyebrow="Rules of the Trial"
         title="Before you begin"
-        lead="Ten rules govern every entry, whichever trial you take. Two of them bind before the day itself — read six and eight twice."
+        lead="Ten rules govern every entry, whichever trial you take. Two of them bind before the day itself, so read six and eight twice."
       />
 
       <div data-guidelines-panel data-unfurl className="mt-14">

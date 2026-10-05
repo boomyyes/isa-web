@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { Accordion } from "@/components/ui/Accordion";
 import { FormEmbed } from "@/components/ui/FormEmbed";
 import { SUPPORT_FAQS } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Support | ISA RAIT",
-  description:
-    "Help desk and support for the ISA RAIT student chapter — browse the FAQ or send us a query about membership, events, and sponsorships.",
+  ...pageMetadata({
+    path: "/help",
+    title: "Support",
+    description:
+      "Help desk and support for the ISA RAIT student chapter. Browse the FAQ or send us a query about membership, events, and sponsorships.",
+  }),
 };
 
 // Public Tally form link for the query section.
@@ -26,7 +30,7 @@ export default function HelpPage() {
             style={{ background: "var(--accent-color)" }}
           />
           <p className="relative font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
-            [ Section 04 // Support ]
+            Support
           </p>
           <h1 className="relative mt-4 font-jetbrains text-4xl font-bold tracking-tight text-[var(--text-primary)] sm:text-5xl md:text-6xl">
             Help Desk &amp;{" "}

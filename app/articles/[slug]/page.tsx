@@ -5,6 +5,7 @@ import { ArrowLeft, Clock, PenLine } from "lucide-react";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { ArticleBody } from "@/components/sections/ArticleBody";
 import { articles, getArticleBySlug, readingMinutes } from "@/lib/articles";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * Every article is known at build time, so all reader pages are prerendered and
@@ -20,11 +21,15 @@ export async function generateMetadata(
   const { slug } = await props.params;
   const article = getArticleBySlug(slug);
 
-  if (!article) return { title: "Article Not Found | ISA RAIT" };
+  if (!article) return { title: "Article Not Found" };
 
   return {
-    title: `${article.title} | ISA RAIT`,
-    description: article.summary,
+    ...pageMetadata({
+      path: `/articles/${article.slug}`,
+      title: article.title,
+      description: article.summary,
+      type: "article",
+    }),
     authors: article.author ? [{ name: article.author }] : undefined,
   };
 }
@@ -54,7 +59,7 @@ export default async function ArticlePage(props: PageProps<"/articles/[slug]">) 
             style={{ background: "var(--accent-color)" }}
           />
           <p className="relative font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
-            [ ISA Articles ]
+            ISA Articles
           </p>
           <h1 className="relative mt-4 font-jetbrains text-3xl font-bold tracking-tight text-[var(--text-primary)] sm:text-4xl md:text-5xl">
             {article.title}

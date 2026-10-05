@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SvgPipelines } from "@/components/layout/SvgPipelines";
 import { Hero } from "@/components/sections/Hero";
 import { VisionMission } from "@/components/sections/VisionMission";
@@ -6,6 +7,10 @@ import { PhotoGallery } from "@/components/sections/PhotoGallery";
 import { SponsorTicker } from "@/components/sections/SponsorTicker";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { isaacPageCount } from "@/lib/isaac.server";
+
+// Declared here, not in the root layout, so 404s and any page that forgets its
+// own don't inherit a canonical pointing at the home page.
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function Home() {
   // Resolved here rather than inside the client component: the Drive file IDs

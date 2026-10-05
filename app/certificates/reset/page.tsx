@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -6,8 +7,12 @@ import { PageTransition } from "@/components/layout/PageTransition";
 import { CertificateReset } from "@/components/sections/CertificateReset";
 
 export const metadata: Metadata = {
-  title: "Reset Access Code | ISA RAIT",
-  description: "Request a new access code for your ISA RAIT certificates.",
+  ...pageMetadata({
+    path: "/certificates/reset",
+    title: "Reset Access Code",
+    description:
+      "Request a new access code for your ISA RAIT certificates.",
+  }),
   // A reset link should never end up in a search index.
   robots: { index: false, follow: false },
 };
@@ -23,7 +28,7 @@ export default function CertificateResetPage() {
             style={{ background: "var(--accent-color)" }}
           />
           <p className="relative font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
-            [ Section 06 // Recovery ]
+            Recovery
           </p>
           <h1 className="relative mt-4 font-jetbrains text-3xl font-bold tracking-tight text-[var(--text-primary)] sm:text-4xl">
             Reset Your{" "}

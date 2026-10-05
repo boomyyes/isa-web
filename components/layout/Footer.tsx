@@ -82,7 +82,7 @@ export function Footer() {
                 <a
                   key={label}
                   href={href}
-                  aria-label={`[${label} Placeholder]`}
+                  aria-label={`ISA RAIT on ${label}`}
                   className="inline-flex h-11 w-11 items-center justify-center rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]/60 hover:border-[var(--accent-color)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]"
                 >
                   <Icon className="h-4 w-4" />
@@ -101,8 +101,13 @@ export function Footer() {
           <p className="font-jetbrains text-xs text-[var(--text-secondary)]">
             © 2026 ISA RAIT Student Chapter. All rights reserved.
           </p>
-          <p className="font-jetbrains text-xs opacity-50 text-[var(--text-secondary)] sm:text-right">
-            [ Website Work In Progress ]
+          <p className="flex justify-center gap-4 font-jetbrains text-xs text-[var(--text-secondary)] sm:justify-end">
+            <Link href="/privacy" className="hover:text-[var(--text-primary)] transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-[var(--text-primary)] transition-colors">
+              Terms
+            </Link>
           </p>
         </div>
       </div>

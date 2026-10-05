@@ -18,14 +18,8 @@ interface HolographicCardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const HolographicCard = React.forwardRef<HTMLDivElement, HolographicCardProps>(
   ({ children, className, disableBackdropBlur = false, ...props }, ref) => {
-    // We need an internal ref for mouse glare if external ref isn't provided, 
-    // but a combined ref is better. For simplicity, we just create our own internal ref
-    // for the hook and merge it. Or just use a local ref and pass the external ref to the div.
-    // Let's use a local ref for the hook, and pass the forwarded ref as well using a callback ref or mergeRefs.
-    // Actually, simplest is to use the local ref for the div, and sync it to the forwarded ref if needed.
-    // Or just use the local ref for the mouse glare hook, and attach it to the outer div.
-    // Wait, the `useInView` hook in TerminalShell requires the ref to be attached to the root element.
-    // So we need to merge refs.
+    // The glare hook needs its own ref, and callers (TerminalShell's useInView)
+    // need theirs on the same root element, so the two are merged below.
     
     const internalRef = useRef<HTMLDivElement>(null);
     const { glarePosition, isHovered } = useMouseGlare(internalRef);
