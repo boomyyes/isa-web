@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { GlobalBackground } from "@/components/layout/GlobalBackground";
+import { SITE_NAME, SITE_ORIGIN } from "@/lib/seo";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -16,9 +17,24 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+const HOME_DESCRIPTION =
+  "The International Society of Automation student chapter at Ramrao Adik Institute of Technology, Navi Mumbai: workshops, projects, and the ISAAC magazine.";
+
 export const metadata: Metadata = {
-  title: "RAIT",
-  description: "INTERNATIONAL SOCIETY OF AUTOMATION, RAIT.",
+  metadataBase: new URL(SITE_ORIGIN),
+  // `default` is the home page's title; every other page sets a bare title and
+  // the template adds the suffix.
+  title: { default: SITE_NAME, template: "%s | ISA RAIT" },
+  description: HOME_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: SITE_NAME,
+    locale: "en_IN",
+    title: SITE_NAME,
+    description: HOME_DESCRIPTION,
+  },
+  twitter: { card: "summary_large_image" },
   // The circular ISA mark, in both inks. Declared here rather than via the
   // app/icon.png file convention because only the metadata form supports
   // `media` — the mark is a knockout, so the black one vanishes on a dark tab

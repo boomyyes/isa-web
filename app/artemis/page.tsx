@@ -13,6 +13,7 @@ import { ArtemisFaq } from "@/components/artemis/ArtemisFaq";
 import { EpilogueNote } from "@/components/artemis/EpilogueNote";
 import { BackToTop } from "@/components/artemis/BackToTop";
 import { ARTEMIS } from "@/lib/artemis";
+import { pageMetadata } from "@/lib/seo";
 import { readTrials } from "@/lib/artemis-trials";
 
 /**
@@ -41,8 +42,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   // Deliberately the tagline and nothing else. Statement text must not reach
   // the description, the OG tags or the sitemap.
-  title: ARTEMIS.title + " | ISA RAIT",
-  description: ARTEMIS.tagline,
+  ...pageMetadata({ path: "/artemis", title: ARTEMIS.title, description: ARTEMIS.tagline }),
 };
 
 export default function ArtemisPage() {

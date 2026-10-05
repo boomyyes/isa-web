@@ -85,7 +85,7 @@ export function validateAccessCode(code: unknown): string | null {
     return `Keep it under ${MAX_CODE_LENGTH} characters.`;
   }
   if (normalizePassword(code).length < MIN_CODE_LENGTH) {
-    return `Use at least ${MIN_CODE_LENGTH} letters or numbers — spaces and punctuation are ignored.`;
+    return `Use at least ${MIN_CODE_LENGTH} letters or numbers. Spaces and punctuation are ignored.`;
   }
   return null;
 }

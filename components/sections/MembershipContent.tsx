@@ -131,7 +131,7 @@ export function MembershipContent() {
           {/* Left: headline + copy */}
           <motion.div {...fadeUp}>
             <p className="font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
-              [ Section 03 // Membership ]
+              Membership
             </p>
 
             <p className="mt-6 font-jetbrains text-sm font-bold uppercase tracking-[0.25em] text-[var(--text-secondary)]">
@@ -194,7 +194,7 @@ export function MembershipContent() {
                 className="text-[var(--border-active)] [filter:drop-shadow(0_0_18px_var(--border-active))]"
               />
               <blockquote className="mt-5 font-inter text-2xl font-semibold leading-snug tracking-tight text-[var(--text-primary)] md:text-3xl">
-                Empowering students today to lead the automation future. For the students, by the students.
+                For the students, by the students.
               </blockquote>
               <figcaption className="mt-6 font-jetbrains text-xs uppercase tracking-[0.25em] text-[var(--text-secondary)]">
                 &mdash; ISA-RAIT Student Section

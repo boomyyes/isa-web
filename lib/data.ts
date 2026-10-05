@@ -268,7 +268,7 @@ export const mockProjects: Project[] = [
   {
     id: "proj-ignite",
     title: "Project IGNITE",
-    tagline: "Experimental rocketry — design, simulation, fabrication and instrumentation",
+    tagline: "Experimental rocketry: design, simulation, fabrication and instrumentation",
     description:
       "Project IGNITE is the rocketry programme of the ISA RAIT Student Chapter, focused on the design, simulation, fabrication and instrumentation of experimental rockets. The project covers the development of the rocket from initial analysis and CAD design through to physical fabrication, avionics integration and testing. It is divided into three technical verticals, each handling a specific part of the rocket development process and contributing to the design and testing of the overall vehicle.",
     status: "In Progress",
@@ -570,7 +570,7 @@ export const mockAchievements: Achievement[] = [
     scope: "State",
     image: "/achievements/solaris.jpg",
     description:
-      "Awarded at the India Automation Competition held during the PPPA Meet on 10 and 11 April 2026. SOLARIS — an autonomous space weather intelligence system for CME detection, classification and incident response — links space weather forecasting to real infrastructure protection, spotting solar storm events and triggering automated responses for high-risk systems such as power grids. It pairs solar wind telemetry analysis with computer-vision CME detection, running an ensemble of XGBoost and Isolation Forest models into a low-latency control pipeline that fires protective action for grid infrastructure. Guided by Dr. Sharad P. Jadhav and Dr. Supriya Bhuran (Yadav).",
+      "Awarded at the India Automation Competition held during the PPPA Meet on 10 and 11 April 2026. SOLARIS, an autonomous space weather intelligence system for CME detection, classification and incident response, links space weather forecasting to real infrastructure protection, spotting solar storm events and triggering automated responses for high-risk systems such as power grids. It pairs solar wind telemetry analysis with computer-vision CME detection, running an ensemble of XGBoost and Isolation Forest models into a low-latency control pipeline that fires protective action for grid infrastructure. Guided by Dr. Sharad P. Jadhav and Dr. Supriya Bhuran (Yadav).",
   },
   {
     id: "ach-best-student-leader-2026",
@@ -590,31 +590,28 @@ export const mockAchievements: Achievement[] = [
 // kept out of this file. The initiatives hub and /articles/[slug] both read
 // from there.
 
-// Unsplash is asked for display-sized renders, not native resolution. The grid
-// cells top out around 640px wide (the 2x2 hero) / 320px (the rest); w= here
-// targets ~2x DPR so the browser decodes a few hundred KB per image instead of
-// several MB. Without w=, Unsplash serves the full ~5000px source (the hero was
-// 8 MB), and decoding all four on the main thread stalls the entrance animation.
+// Chapter photos only. Order matters: the first cell is 2x2 (square-ish, so the
+// workshop collage), the fourth spans two columns (the wide rocket shot).
 export const GALLERY_IMAGES = [
   {
-    id: "img1", // 2x2 hero — widest cell
-    url: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=75&w=1280",
-    alt: "Automation Lab 1",
+    id: "cvml-2026",
+    url: "/events/CVML_2026.jpg",
+    alt: "Computer Vision & Machine Learning workshop",
   },
   {
-    id: "img2",
-    url: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=75&w=800",
-    alt: "Robotics Workshop",
+    id: "solaris",
+    url: "/achievements/solaris.jpg",
+    alt: "SOLARIS, 2nd runner-up",
   },
   {
-    id: "img3",
-    url: "https://images.unsplash.com/photo-1581092335397-9583eb92d232?auto=format&fit=crop&q=75&w=800",
-    alt: "Industrial Control Systems",
+    id: "ignite-felicitation",
+    url: "/achievements/ignite-felicitation.jpeg",
+    alt: "Felicitation by the Chairman, ISRO",
   },
   {
-    id: "img4", // spans 2 columns — wider than the single cells
-    url: "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?auto=format&fit=crop&q=75&w=1280",
-    alt: "PCB Manufacturing",
+    id: "ignite",
+    url: "/projects/ignite.jpeg",
+    alt: "Project IGNITE",
   },
 ];
 

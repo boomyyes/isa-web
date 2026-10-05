@@ -139,7 +139,7 @@ export function InitiativesHub() {
           style={{ background: "var(--accent-color)" }}
         />
         <p className="relative font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
-          [ Initiatives ]
+          Initiatives
         </p>
         <h1 className="relative mt-4 font-jetbrains text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-[var(--text-primary)]">
           Initiatives{" "}
@@ -471,7 +471,7 @@ function EventsPanel() {
 
         {upcomingEvents.length === 0 ? (
           <p className="mt-6 font-jetbrains text-sm text-[var(--text-secondary)]">
-            No upcoming events scheduled — check back soon.
+            No upcoming events scheduled. Check back soon.
           </p>
         ) : (
           /* One panel, rows flush against each other and separated by hairlines,

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Live embedded form (Tally, Google Forms, Jotform, …) inside a themed "mini
- * browser" frame. The chrome (window dots, address bar, ambient glow) matches
- * the site; the form renders the provider's own UI since it's a cross-origin
+ * Live embedded form (Tally, Google Forms, Jotform, …) in a plain bordered
+ * card; the form renders the provider's own UI since it's a cross-origin
  * iframe. For Tally, set a transparent/dark theme in the form's own settings and
  * it'll blend with this frame. Google Forms links get `embedded=true` appended.
  */
@@ -26,11 +26,14 @@ function toEmbedUrl(url: string): string {
   }
 }
 
-function hostLabel(url: string): string {
+function providerName(url: string): string {
   try {
-    return new URL(url).host;
+    const host = new URL(url).hostname;
+    if (host.endsWith("tally.so")) return "Tally";
+    if (host.endsWith("google.com")) return "Google Forms";
+    return host;
   } catch {
-    return "";
+    return "a third party";
   }
 }
 
@@ -51,26 +54,7 @@ export function FormEmbed({
 
   return (
     <div className={cn("relative", className)}>
-      {/* ambient accent glow behind the frame */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -inset-4 -z-10 rounded-[2rem] opacity-20 blur-3xl"
-        style={{ background: "var(--border-active)" }}
-      />
-
-      <div className="overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--card-color)]/60 backdrop-blur-md">
-        {/* faux browser chrome */}
-        <div className="flex items-center gap-3 border-b border-[var(--border-color)] px-4 py-2.5">
-          <div className="flex items-center gap-1.5">
-            <span className="h-3 w-3 bg-red-500 clip-angular" />
-            <span className="h-3 w-3 bg-yellow-500 clip-angular" />
-            <span className="h-3 w-3 bg-green-500 clip-angular" />
-          </div>
-          <div className="min-w-0 flex-1 truncate rounded-md border border-[var(--border-color)] bg-[var(--bg-color)]/60 px-3 py-1 text-center font-jetbrains text-[11px] text-[var(--text-secondary)]">
-            {hostLabel(url)}/…
-          </div>
-        </div>
-
+      <div className="overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--card-color)]/60">
         {/* form viewport */}
         <div className="relative h-[70vh] min-h-[540px] w-full">
           {!loaded && (
@@ -96,8 +80,17 @@ export function FormEmbed({
         </div>
       </div>
 
+      {/* Collection notice at the point of collection (DPDP Act s.5). */}
+      <p className="mt-3 text-center text-xs text-[var(--text-secondary)]">
+        This form is hosted by {providerName(url)}. See our{" "}
+        <Link href="/privacy" className="text-[var(--accent-color)] underline underline-offset-2">
+          Privacy Policy
+        </Link>{" "}
+        for how we use what you submit.
+      </p>
+
       {/* Fallback for anyone whose browser blocks the embed. */}
-      <p className="mt-3 text-center font-jetbrains text-xs text-[var(--text-secondary)]">
+      <p className="mt-2 text-center font-jetbrains text-xs text-[var(--text-secondary)]">
         Form not loading?{" "}
         <a
           href={src}

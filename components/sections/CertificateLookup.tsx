@@ -271,6 +271,10 @@ export function CertificateLookup() {
               className="text-[var(--accent-color)] transition-opacity hover:opacity-80"
             >
               Lost your code?
+            </Link>{" "}
+            ·{" "}
+            <Link href="/privacy" className="text-[var(--accent-color)] transition-opacity hover:opacity-80">
+              How we use your data
             </Link>
           </p>
         </form>
@@ -324,7 +328,7 @@ export function CertificateLookup() {
         <section className="mt-12">
           <header>
             <p className="font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
-              [ Record matched ]
+              Record matched
             </p>
             {/* Wraps rather than squashing a long name on narrow screens. */}
             <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
@@ -576,7 +580,7 @@ function WorkshopCard({
             <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
               <FileWarning className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
               <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
-                Your digital certificate hasn&apos;t been uploaded yet — your
+                Your digital certificate hasn&apos;t been uploaded yet. Your
                 attendance is recorded, so it&apos;s on the way.{" "}
                 <Link
                   href={SUPPORT_HREF}
@@ -594,7 +598,7 @@ function WorkshopCard({
             <span>
               {physical === "chargeable" ? (
                 <>
-                  You&apos;ve already collected a physical copy — any{" "}
+                  You&apos;ve already collected a physical copy, so any{" "}
                   <strong className="font-semibold text-[var(--text-primary)]">
                     additional copy is chargeable
                   </strong>

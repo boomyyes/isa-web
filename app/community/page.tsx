@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Image from "next/image";
 import { UserRound } from "lucide-react";
 import { PageTransition } from "@/components/layout/PageTransition";
@@ -18,9 +19,12 @@ import {
 import { isRealImage } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Community | ISA RAIT",
-  description:
-    "Meet the faculty, core, sub-core, and joint-core team behind the ISA RAIT student chapter.",
+  ...pageMetadata({
+    path: "/community",
+    title: "Community",
+    description:
+      "Meet the faculty, core, sub-core, and joint-core team behind the ISA RAIT student chapter.",
+  }),
 };
 
 /**
@@ -181,7 +185,7 @@ export default function CommunityPage() {
             mentor's note beside the principal's; stacked below that. */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <BlogNote
-            eyebrow="[ Principal's Blog ]"
+            eyebrow="Principal's Blog"
             name={principal.name}
             title={principal.title}
             photo={principal.photo}
@@ -190,7 +194,7 @@ export default function CommunityPage() {
             footer={<BlogNoteLinkedin href={principalLinkedin} />}
           />
           <BlogNote
-            eyebrow="[ Faculty Mentor's Blog ]"
+            eyebrow="Faculty Mentor's Blog"
             name={facultyMentor.name}
             title={facultyMentor.title}
             photo={facultyMentor.photo}
@@ -201,7 +205,7 @@ export default function CommunityPage() {
 
         {/* Faculty */}
         <section className="mt-20">
-          <SectionHeading eyebrow="[ Guidance ]" title="Faculty" />
+          <SectionHeading eyebrow="Guidance" title="Faculty" />
           {/* auto-fit + justify-center so the row stays centred whatever the
               count: one card sits in the middle rather than hugging the left,
               and adding faculty back fills the second column automatically. */}
@@ -223,19 +227,19 @@ export default function CommunityPage() {
 
         {/* Core */}
         <section className="mt-20">
-          <SectionHeading eyebrow="[ Leadership ]" title="Core Team" />
+          <SectionHeading eyebrow="Leadership" title="Core Team" />
           <ProfileGrid members={core} />
         </section>
 
         {/* Sub-Core */}
         <section className="mt-20">
-          <SectionHeading eyebrow="[ Operations ]" title="Sub-Core Team" />
+          <SectionHeading eyebrow="Operations" title="Sub-Core Team" />
           <ProfileGrid members={subCore} />
         </section>
 
         {/* Joint-Core */}
         <section className="mt-20">
-          <SectionHeading eyebrow="[ Domains ]" title="Joint-Core Team" />
+          <SectionHeading eyebrow="Domains" title="Joint-Core Team" />
           <div className="space-y-12">
             {jointCore.map((domain) => (
               <div key={domain.domain}>

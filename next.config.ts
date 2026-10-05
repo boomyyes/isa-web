@@ -1,6 +1,48 @@
 import type { NextConfig } from "next";
 
+// 'unsafe-inline' for scripts is deliberate: a nonce-based policy needs
+// middleware and forces every page to render dynamically, which throws away the
+// static prerendering the site depends on. This still blocks third-party
+// scripts, exfiltration via connect-src, framing and <base> hijacking.
+// Production only — `next dev` needs 'unsafe-eval' for fast refresh.
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  // The support and Artemis forms are embedded from these.
+  "frame-src https://tally.so https://docs.google.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const SECURITY_HEADERS = [
+  // No `preload`: getting off the preload list takes months, and nothing needs it.
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+  },
+  ...(process.env.NODE_ENV === "production"
+    ? [{ key: "Content-Security-Policy", value: CSP }]
+    : []),
+];
+
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+
+  async headers() {
+    return [{ source: "/:path*", headers: SECURITY_HEADERS }];
+  },
+
   // pdfjs-dist and the native canvas that renders the magazine PDF are both
   // loaded at runtime on the server. Bundling either breaks them — the canvas
   // ships a platform binary, and pdfjs reads its font data off disk.

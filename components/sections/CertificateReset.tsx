@@ -121,8 +121,11 @@ function RequestLink() {
       )}
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[var(--text-secondary)]">
-        We can&apos;t look up your existing code — it&apos;s stored scrambled. This
-        issues a brand-new one, which replaces the old.
+        We can&apos;t look up your existing code, because it&apos;s stored scrambled. This
+        issues a brand-new one, which replaces the old.{" "}
+        <Link href="/privacy" className="text-[var(--accent-color)] transition-opacity hover:opacity-80">
+          How we use your data
+        </Link>
       </p>
     </form>
   );
@@ -219,7 +222,7 @@ function RedeemLink({ token }: { token: string }) {
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
           Pick something you&apos;ll remember. It replaces your current code, and
-          it&apos;s stored scrambled — so we won&apos;t be able to read it back to you.
+          it&apos;s stored scrambled, so we won&apos;t be able to read it back to you.
         </p>
 
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -307,7 +310,7 @@ function RedeemLink({ token }: { token: string }) {
         Here&apos;s your new access code
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
-        Save it now — this is the only time it will be shown. Your previous code no
+        Save it now. This is the only time it will be shown. Your previous code no
         longer works.
       </p>
 

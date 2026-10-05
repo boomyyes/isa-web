@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PageTransition } from "@/components/layout/PageTransition";
@@ -6,9 +7,12 @@ import { CertificateLookup } from "@/components/sections/CertificateLookup";
 import { Accordion, type FAQItem } from "@/components/ui/Accordion";
 
 export const metadata: Metadata = {
-  title: "Certificates | ISA RAIT",
-  description:
-    "Look up and download your ISA RAIT workshop participation certificates, or request a printed copy.",
+  ...pageMetadata({
+    path: "/certificates",
+    title: "Certificates",
+    description:
+      "Look up and download your ISA RAIT workshop participation certificates, or request a printed copy.",
+  }),
 };
 
 const CERTIFICATE_FAQS: FAQItem[] = [
@@ -52,7 +56,7 @@ export default function CertificatesPage() {
             style={{ background: "var(--accent-color)" }}
           />
           <p className="relative font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
-            [ Section 06 // Certificates ]
+            Certificates
           </p>
           <h1 className="relative mt-4 font-jetbrains text-4xl font-bold tracking-tight text-[var(--text-primary)] sm:text-5xl md:text-6xl">
             Certi
@@ -75,7 +79,7 @@ export default function CertificatesPage() {
         {/* FAQs */}
         <section className="mt-16">
           <h2 className="font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
-            [ Common Questions ]
+            Common Questions
           </h2>
           <Accordion items={CERTIFICATE_FAQS} defaultOpen={null} className="mt-6" />
 
