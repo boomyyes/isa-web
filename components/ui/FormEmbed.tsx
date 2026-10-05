@@ -26,17 +26,6 @@ function toEmbedUrl(url: string): string {
   }
 }
 
-function providerName(url: string): string {
-  try {
-    const host = new URL(url).hostname;
-    if (host.endsWith("tally.so")) return "Tally";
-    if (host.endsWith("google.com")) return "Google Forms";
-    return host;
-  } catch {
-    return "a third party";
-  }
-}
-
 interface FormEmbedProps {
   /** Public share/embed link for the form. */
   url: string;
@@ -82,7 +71,7 @@ export function FormEmbed({
 
       {/* Collection notice at the point of collection (DPDP Act s.5). */}
       <p className="mt-3 text-center text-xs text-[var(--text-secondary)]">
-        This form is hosted by {providerName(url)}. See our{" "}
+        This form is hosted by a third-party form service. See our{" "}
         <Link href="/privacy" className="text-[var(--accent-color)] underline underline-offset-2">
           Privacy Policy
         </Link>{" "}
