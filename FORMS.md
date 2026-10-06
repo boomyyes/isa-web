@@ -90,5 +90,62 @@ daily. Both match section 9 of the privacy policy. Change them together.
 
 ## Erasure requests
 
-Until the admin area exists: delete the person's rows in the sheet, and in the
-Upstash console delete the matching `sub:<ref>` keys.
+Owners: **Admin area → Erasure**. Enter the address twice. It deletes every
+submission made with that address from Upstash, and the next sheet sync deletes
+the matching rows. Confirm the request came from that person first. Rows from
+the old Tally and Google forms are not covered: delete those by hand.
+
+---
+
+## Admin area
+
+**Where:** `https://admin.isarait.in` on the live site. Off production
+(previews, `isa-web-six.vercel.app`, localhost) it is also at `/admin`. On the
+live www site, `/admin` returns 404.
+
+The subdomain is not a secret. Every HTTPS certificate is published in public
+logs, so assume people can find it. The sign-in is what protects it.
+
+**Signing in:** enter your email and you get a link that works once and
+expires in 10 minutes. Opening the link shows a *Sign in* button, so mail
+scanners that open links can't use it up. Sessions last 8 hours. Removing an
+admin signs them out at once.
+
+**Roles**
+
+| Role | Can |
+|---|---|
+| Viewer | Read the inbox and submissions |
+| Editor | Also change status and add notes (both appear in the sheet) |
+| Owner | Also add and remove admins, handle erasure, read the audit log |
+
+Admins are stored in Upstash and managed on the **Team** page, so there is no
+limit and no redeploy when the committee changes. Owners listed in
+`ADMIN_OWNERS` always exist and can't be changed from the Team page. That way a
+mistake on the page can't lock everyone out. Keep one or two there.
+
+**Audit log:** every sign-in, status change, note, team change and erasure,
+kept for one year.
+
+### Admin environment variables
+
+| Variable | Value |
+|---|---|
+| `ADMIN_OWNERS` | Comma-separated owner emails, e.g. `a@x.com,b@y.com` |
+| `ADMIN_SMTP_USER` | `isarait.forms@gmail.com` |
+| `ADMIN_SMTP_PASS` | A Gmail app password for that account (below) |
+
+Sign-in emails come from isarait.forms@gmail.com, never from the account that
+sends certificate mail.
+
+**Gmail app password:** signed in as isarait.forms@gmail.com, turn on 2-Step
+Verification (Google Account → Security), then open
+<https://myaccount.google.com/apppasswords>, create one named "ISA admin", and
+paste the 16 characters (without spaces) into `ADMIN_SMTP_PASS`.
+
+### Sheet columns
+
+Each tab now has *Status* and *Notes* columns. The script updates a row in
+place when an editor changes it. If a tab was created before these columns
+existed, delete that tab once. The next sync rebuilds it from submissions still
+waiting, but not from ones already acknowledged, so only do this with test data.
