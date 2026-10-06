@@ -627,11 +627,6 @@ export const GALLERY_IMAGES = [
 
 export const SUPPORT_FAQS = [
   {
-    question: "How do I join the ISA RAIT student chapter?",
-    answer:
-      "Send us a query on the support form. Anyone enrolled at RAIT is welcome to apply.",
-  },
-  {
     question: "What are the benefits of an ISA membership?",
     answer:
       "All the benefits are listed on https://www.isarait.in/membership.",

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { Accordion } from "@/components/ui/Accordion";
-import { FormEmbed } from "@/components/ui/FormEmbed";
+import { QueryForm } from "@/components/forms/QueryForm";
 import { SUPPORT_FAQS } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -13,9 +13,6 @@ export const metadata: Metadata = {
       "Help desk and support for the ISA RAIT student chapter. Browse the FAQ or send us a query about membership, events, and sponsorships.",
   }),
 };
-
-// Public Tally form link for the query section.
-const FORM_EMBED_URL = "https://tally.so/r/gDVdZM";
 
 export default function HelpPage() {
   return (
@@ -60,7 +57,7 @@ export default function HelpPage() {
             <Accordion items={SUPPORT_FAQS} />
           </section>
 
-          {/* Query form — live Google Form embedded as a mini page */}
+          {/* Query form. Submissions go to /api/forms/query. */}
           <section aria-labelledby="query-heading">
             <h2
               id="query-heading"
@@ -68,7 +65,7 @@ export default function HelpPage() {
             >
               Send a Query
             </h2>
-            <FormEmbed url={FORM_EMBED_URL} />
+            <QueryForm />
           </section>
         </div>
       </main>

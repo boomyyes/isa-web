@@ -84,6 +84,35 @@ export function resetUidLimiter(): Ratelimit {
   return resetUid;
 }
 
+let formIp: Ratelimit | null = null;
+let formEmail: Ratelimit | null = null;
+
+/** Public forms. Loose per IP for the same NAT reason as sign-in. */
+export function formIpLimiter(): Ratelimit {
+  if (formIp) return formIp;
+  formIp = new Ratelimit({
+    redis: redis(),
+    limiter: Ratelimit.slidingWindow(10, "1 h"),
+    prefix: "rl:form-ip",
+    ephemeralCache: new Map(),
+    analytics: false,
+  });
+  return formIp;
+}
+
+/** Keyed by form + email, so one address can't flood a form from many IPs. */
+export function formEmailLimiter(): Ratelimit {
+  if (formEmail) return formEmail;
+  formEmail = new Ratelimit({
+    redis: redis(),
+    limiter: Ratelimit.slidingWindow(3, "1 d"),
+    prefix: "rl:form-email",
+    ephemeralCache: new Map(),
+    analytics: false,
+  });
+  return formEmail;
+}
+
 /** `NextRequest.ip` was removed in Next 15. */
 export function clientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
