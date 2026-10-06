@@ -8,7 +8,6 @@ import {
   type WorkshopRecord,
 } from "./certificates";
 import {
-  DEFAULT_ACCESS_CODE,
   generatePassword,
   hashPassword,
   redisKey,
@@ -359,7 +358,9 @@ export async function deliverPendingCodes(
       continue;
     }
 
-    const password = DEFAULT_ACCESS_CODE;
+    // Random per student. A shared starting code plus a guessable UID would let
+    // anyone open anyone's certificates.
+    const password = generatePassword();
     try {
       const passwordHash = await hashPassword(password);
       // Send before storing, so a failed send leaves them queued for a clean
