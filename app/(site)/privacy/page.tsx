@@ -177,17 +177,22 @@ export default function PrivacyPage() {
 
       <h3>3.4 Support and enquiry submissions</h3>
       <p>
-        The Website provides a Support/Query form hosted through a third-party online form
-        service.
+        The Website provides a Support/Query form operated by ISA-RAIT on the Website.
       </p>
-      <p>Information submitted through this form may include:</p>
+      <p>Information submitted through this form includes:</p>
       <ul>
         <li>name;</li>
         <li>email address;</li>
-        <li>contact information, where requested;</li>
-        <li>the contents of the enquiry or communication; and</li>
-        <li>any additional information or attachments voluntarily submitted.</li>
+        <li>the subject and contents of the enquiry; and</li>
+        <li>
+          the submitter&apos;s confirmation of consent to this Privacy Policy and that they are 18
+          years of age or older.
+        </li>
       </ul>
+      <p>
+        Each submission is given a reference number, which is shown to the submitter and may be
+        quoted in correspondence about the enquiry.
+      </p>
       <p>
         Such information is processed for the purpose of responding to and managing the relevant
         enquiry or request.
@@ -249,14 +254,18 @@ export default function PrivacyPage() {
 
       <h3>3.6 IP address and technical security information</h3>
       <p>
-        When certificate sign-in or access-code reset functionality is used, the Website may
-        temporarily process the user&apos;s IP address.
+        When certificate sign-in, access-code reset, or a form on the Website is used, the Website
+        temporarily processes the user&apos;s IP address and, for form submissions, the email
+        address submitted.
       </p>
       <p>
         Such information is processed solely for security purposes, including rate-limiting, abuse
-        prevention, and detection of repeated or automated authentication attempts.
+        prevention, detection of repeated or automated submissions, and detection of repeated or
+        automated authentication attempts.
       </p>
-      <p>IP-address counters are automatically discarded within approximately one hour.</p>
+      <p>
+        The counters used for these purposes are automatically deleted within two days at most.
+      </p>
 
       <h2>4. Purposes of processing</h2>
       <p>ISA-RAIT processes personal data only for specified and legitimate purposes.</p>
@@ -433,13 +442,18 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>Online form services.</strong> Categories of information: membership and
-          committee-application information, Artemis registration information, payment proof, and
-          Support/Query submissions. Purpose: hosting and processing the relevant forms.
+          committee-application information, Artemis registration information, and payment proof.
+          Purpose: hosting and processing the relevant forms.
         </li>
         <li>
           <strong>Database services.</strong> Categories of information: UID, name, college, email,
-          and attendance information. Purpose: database infrastructure supporting the certificate
-          portal.
+          and attendance information; Support/Query submissions; and rate-limiting counters.
+          Purpose: database infrastructure supporting the certificate portal, the Support/Query
+          form, and the Website&apos;s security controls.
+        </li>
+        <li>
+          <strong>Spreadsheet services.</strong> Categories of information: Support/Query
+          submissions. Purpose: making submissions available to authorised committee members.
         </li>
         <li>
           <strong>Cloud file storage.</strong> Categories of information: certificate files.
@@ -453,11 +467,9 @@ export default function PrivacyPage() {
       </p>
       <p>
         Third-party service providers may process technical information, including IP addresses,
-        when their services are accessed or loaded.
-      </p>
-      <p>
-        To reduce unnecessary third-party processing, embedded third-party forms are not loaded
-        until the user affirmatively chooses to load the relevant form.
+        when their services are accessed or loaded. Where a third-party form is embedded in a page
+        of the Website, the relevant provider may process such information when that page is
+        loaded.
       </p>
       <p>
         Third-party providers may process information in jurisdictions outside India. Any such
@@ -539,8 +551,8 @@ export default function PrivacyPage() {
           relevant event or activity.
         </li>
         <li>
-          <strong>IP-address counters used for rate-limiting:</strong> less than one hour,
-          automatically.
+          <strong>Rate-limiting counters:</strong> automatically deleted within two days at
+          most.
         </li>
         <li>
           <strong>Records relating to access or processing activity:</strong> one year.
@@ -636,9 +648,9 @@ export default function PrivacyPage() {
         be prescribed under applicable law.
       </p>
       <p>
-        Where applicable law provides a statutory mechanism for escalation of an unresolved
-        grievance, the Data Principal may exercise such mechanism in accordance with the
-        applicable law and procedure.
+        A Data Principal who is not satisfied with the response to a grievance may make a complaint
+        to the Data Protection Board of India in accordance with the DPDP Act and the rules made
+        under it.
       </p>
 
       <h2>12. Technical and organisational security measures</h2>
@@ -672,6 +684,10 @@ export default function PrivacyPage() {
         </li>
         <li>The Website is served using HTTPS.</li>
         <li>
+          Access to Support/Query submissions is restricted to authorised committee members, who
+          sign in individually, and actions taken on submissions are logged.
+        </li>
+        <li>
           Access to membership credentials is restricted to persons authorised to process the
           relevant membership request.
         </li>
@@ -693,23 +709,20 @@ export default function PrivacyPage() {
       <h2>13. Cookies, local storage and similar technologies</h2>
       <p>
         The Website does not set first-party cookies for advertising, behavioural tracking, or
-        analytics.
+        analytics. A strictly necessary sign-in cookie is set only for authorised committee members
+        when they sign in to the Website&apos;s administration area.
       </p>
       <p>ISA-RAIT does not operate an analytics or advertising-tracking system.</p>
       <p>
-        The Website may store limited preference information locally in the user&apos;s browser,
-        including:
+        The Website stores the user&apos;s selected light or dark theme locally in the user&apos;s
+        browser.
       </p>
-      <ul>
-        <li>the user&apos;s selected light or dark theme; and</li>
-        <li>whether the user has previously chosen to load an embedded third-party form.</li>
-      </ul>
       <p>
-        Such browser-local information remains on the user&apos;s device and is not used by
+        This browser-local information remains on the user&apos;s device and is not used by
         ISA-RAIT to identify or profile the user.
       </p>
       <p>
-        Such information may generally be removed by clearing the browser&apos;s stored Website
+        It may be removed by clearing the browser&apos;s stored Website
         data.
       </p>
       <p>
@@ -724,8 +737,8 @@ export default function PrivacyPage() {
         college students and other eligible participants.
       </p>
       <p>
-        Where applicable, registration processes require participants to confirm that they are 18
-        years of age or older.
+        Forms that ask for confirmation of age require the submitter to confirm that they are 18
+        years of age or older before the form can be submitted.
       </p>
       <p>
         ISA-RAIT does not knowingly seek to collect personal data from individuals below 18 years
