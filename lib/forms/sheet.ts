@@ -36,6 +36,8 @@ export function toRow(sub: StoredSubmission): string[] {
     ...columns.map(([key]) => safeCell(sub.data[key])),
     sub.data.consent === true ? "yes" : "no",
     sub.data.adult === true ? "yes" : "no",
+    sub.status ?? "new",
+    safeCell((sub.notes ?? []).map((n) => `${n.at.slice(0, 10)} ${n.by}: ${n.text}`).join(" | ")),
     sub.retainUntil,
   ];
 }
@@ -47,6 +49,8 @@ export function headerFor(form: FormName): string[] {
     ...SHEET_LAYOUT[form].columns.map(([, title]) => title),
     "Consent",
     "18+",
+    "Status",
+    "Notes",
     "Delete after",
   ];
 }

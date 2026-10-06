@@ -1,14 +1,17 @@
 // Pulled by the Apps Script in the submissions sheet.
 //
 // GET, Authorization: Bearer <FORMS_SYNC_SECRET>
-// -> { tabs: { [tab]: header[] }, items: [{ id, tab, row }], expired: id[] }
+// -> { tabs: { [tab]: header[] }, items: [{ id, tab, row }], expired: id[], erase: id[] }
+//
+// `items` are new or edited rows (the script appends or updates by ref);
+// `erase` are refs whose rows must be deleted (DPDP erasure requests).
 //
 // Read-only: nothing leaves the queue until the script acks it, so a crash
 // between append and ack duplicates a row (the script skips known refs) but
 // never loses one.
 
 import { isFormName } from "@/lib/forms/schemas";
-import { PENDING_KEY, subKey, type StoredSubmission } from "@/lib/forms/server";
+import { ERASE_KEY, PENDING_KEY, subKey, type StoredSubmission } from "@/lib/forms/server";
 import { SHEET_LAYOUT, headerFor, syncAuthorised, toRow } from "@/lib/forms/sheet";
 import { redis } from "@/lib/redis";
 
@@ -23,7 +26,10 @@ export async function GET(request: Request) {
   }
 
   const db = redis();
-  const ids = await db.lrange<string>(PENDING_KEY, 0, BATCH - 1);
+  const [ids, erase] = await Promise.all([
+    db.lrange<string>(PENDING_KEY, 0, BATCH - 1),
+    db.lrange<string>(ERASE_KEY, 0, BATCH - 1),
+  ]);
   const records = ids.length
     ? await db.mget<(StoredSubmission | null)[]>(...ids.map(subKey))
     : [];
@@ -48,5 +54,8 @@ export async function GET(request: Request) {
     ])
   );
 
-  return Response.json({ tabs, items, expired }, { headers: PRIVATE_HEADERS });
+  // The same ref can be queued twice (submitted, then edited); one row write is enough.
+  const unique = [...new Map(items.map((item) => [item.id, item])).values()];
+
+  return Response.json({ tabs, items: unique, expired, erase }, { headers: PRIVATE_HEADERS });
 }

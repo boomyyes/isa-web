@@ -8,6 +8,7 @@ import { createHash, randomInt } from "node:crypto";
 import { resolveMx } from "node:dns/promises";
 import { clientIp, formEmailLimiter, formIpLimiter, redis } from "@/lib/redis";
 import { mailerConfigured, sendCustomEmail } from "@/lib/mailer";
+import { sameOrigin } from "@/lib/security";
 import {
   FORMS,
   HONEYPOT_FIELD,
@@ -16,8 +17,15 @@ import {
   type FormName,
 } from "./schemas";
 
+/** Refs the sheet hasn't seen in their current state (new or edited). */
 export const PENDING_KEY = "subs:pending";
+/** Refs the sheet must delete rows for (erasure requests). */
+export const ERASE_KEY = "subs:erase";
+/** Every live ref, scored by receipt time, for the admin inbox. */
+export const INDEX_KEY = "subs:index";
 export const subKey = (id: string) => `sub:${id}`;
+/** Refs per submitter, for search and erasure by email. */
+export const emailKey = (email: string) => `subs:email:${email}`;
 
 /** Retention, enforced by Redis expiry. Mirrors section 9 of the privacy policy. */
 const RETENTION_SECONDS: Record<FormName, number> = {
@@ -33,7 +41,13 @@ export type StoredSubmission = {
   receivedAt: string;
   retainUntil: string;
   data: Record<string, unknown>;
+  /** Set by editors in the admin area; mirrored to the sheet. */
+  status?: SubmissionStatus;
+  notes?: { by: string; at: string; text: string }[];
 };
+
+export const SUBMISSION_STATUSES = ["new", "in progress", "resolved", "spam"] as const;
+export type SubmissionStatus = (typeof SUBMISSION_STATUSES)[number];
 
 const PRIVATE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -50,18 +64,6 @@ function newId(prefix: string): string {
 
 /** A believable reference for a submission we threw away. */
 const decoy = (prefix: string) => json({ ok: true, ref: newId(prefix) });
-
-/** Browsers always send Origin on a cross- or same-origin POST from fetch. */
-function sameOrigin(request: Request): boolean {
-  const origin = request.headers.get("origin");
-  const host = request.headers.get("host");
-  if (!origin || !host) return false;
-  try {
-    return new URL(origin).host === host;
-  } catch {
-    return false;
-  }
-}
 
 /** Free-text spam tells. Returns a message for the person, or null. */
 function spamReason(text: string): string | null {
@@ -177,6 +179,7 @@ export async function handleSubmission(request: Request, form: FormName): Promis
     retainUntil: new Date(now.getTime() + ttl * 1000).toISOString(),
     // Declarations are stored as given: proof of consent is the fiduciary's burden (s.6(10)).
     data: { ...fields, consent: true, adult: true },
+    status: "new",
   };
 
   try {
@@ -188,7 +191,15 @@ export async function handleSubmission(request: Request, form: FormName): Promis
       return json({ ok: true, ref: existing ?? id });
     }
 
-    await db.multi().set(subKey(id), record, { ex: ttl }).rpush(PENDING_KEY, id).exec();
+    await db
+      .multi()
+      .set(subKey(id), record, { ex: ttl })
+      .rpush(PENDING_KEY, id)
+      .zadd(INDEX_KEY, { score: now.getTime(), member: id })
+      .sadd(emailKey(data.email), id)
+      // Lives as long as the person's newest submission.
+      .expire(emailKey(data.email), ttl)
+      .exec();
   } catch {
     return json({ error: "Submissions are unavailable right now. Please try again later." }, 503);
   }
