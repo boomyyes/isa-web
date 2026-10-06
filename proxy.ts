@@ -12,6 +12,9 @@ import { isAdminHost, pathModeAllowed } from "@/lib/admin/config";
 
 const PRIVATE = { "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" };
 
+/** The only public files the admin pages use: the tab icons from app/layout.tsx. */
+const ADMIN_HOST_FILES = new Set(["/favicon.ico", "/icon-light.png", "/icon-dark.png", "/apple-icon.png"]);
+
 const isAdminPath = (path: string) =>
   path === "/admin" || path.startsWith("/admin/") || path.startsWith("/api/admin/");
 
@@ -24,9 +27,20 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (isAdminHost(request.headers.get("host"))) {
-    // Admin API and static files (icons, fonts) pass straight through.
-    if (pathname.startsWith("/api/admin/") || /\.[a-z0-9]+$/i.test(pathname)) {
+    // Crawlers get told to stay out, rather than seeing the public site's robots.txt.
+    if (pathname === "/robots.txt") {
+      return withPrivateHeaders(
+        new NextResponse("User-agent: *\nDisallow: /\n", {
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+        })
+      );
+    }
+    if (pathname.startsWith("/api/admin/") || ADMIN_HOST_FILES.has(pathname)) {
       return withPrivateHeaders(NextResponse.next());
+    }
+    // Any other file (sitemap, public images, security.txt) belongs to www.
+    if (/\.[a-z0-9]+$/i.test(pathname)) {
+      return withPrivateHeaders(new NextResponse("Not found", { status: 404 }));
     }
     const url = request.nextUrl.clone();
     url.pathname = `/admin${pathname === "/" ? "" : pathname}`;
