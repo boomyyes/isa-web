@@ -12,10 +12,8 @@ export const metadata: Metadata = {
 };
 
 const CONTACT = "isa.rait@rait.ac.in";
-const PORTAL = "https://isa-web-six.vercel.app/data-request";
 
 const Mail = () => <a href={`mailto:${CONTACT}`}>{CONTACT}</a>;
-const Portal = () => <a href={PORTAL}>{PORTAL}</a>;
 
 function Address() {
   return (
@@ -39,7 +37,7 @@ function Address() {
 // Keep the two in sync, and change both dates whenever the substance changes.
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" effective="9 September 2026" updated="9 September 2026">
+    <LegalPage title="Privacy Policy" effective="7 October 2026" updated="7 October 2026">
       <h2>1. Identity of the Data Fiduciary</h2>
       <p>
         This Website (&ldquo;Website&rdquo;) is operated by the ISA-RAIT Student Chapter, the
@@ -618,21 +616,14 @@ export default function PrivacyPage() {
       <h2>11. Exercise of rights and grievance redressal</h2>
       <p>
         Data Principals may submit requests concerning access, correction, updating, erasure,
-        withdrawal of consent, or other applicable rights through the ISA-RAIT Data Request
-        Portal:
-      </p>
-      <p>
-        <strong>Data Request Portal:</strong> <Portal />
-      </p>
-      <p>
-        Questions or grievances concerning the processing of personal data may also be
-        communicated to ISA-RAIT Student Chapter through:
+        withdrawal of consent, or other applicable rights, and questions or grievances concerning
+        the processing of personal data, to ISA-RAIT Student Chapter by email:
       </p>
       <p>
         <strong>Email:</strong> <Mail />
       </p>
       <p>
-        Requests and grievances received through these channels shall be reviewed and addressed by
+        Requests and grievances received through this channel shall be reviewed and addressed by
         ISA-RAIT Student Chapter in accordance with applicable law.
       </p>
       <p>
@@ -805,9 +796,6 @@ export default function PrivacyPage() {
       <Address />
       <p>
         <strong>Email:</strong> <Mail />
-      </p>
-      <p>
-        <strong>Data Request Portal:</strong> <Portal />
       </p>
     </LegalPage>
   );
