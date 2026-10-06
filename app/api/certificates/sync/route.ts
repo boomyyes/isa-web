@@ -8,7 +8,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { redis } from "@/lib/redis";
 import { deliverPendingCodes, parseSheet, reconcile } from "@/lib/roster";
-import { mailerConfigured } from "@/lib/mailer";
+import { MAIL_HELD_MESSAGE, OFFICIAL_MAIL_HELD, mailerConfigured } from "@/lib/mailer";
 
 /** nodemailer needs a TCP socket, so this must not run on the edge. */
 export const runtime = "nodejs";
@@ -124,7 +124,13 @@ export async function POST(request: Request) {
       registered: result.registered,
       emails: delivery,
       ...(deliveryError ? { deliveryError } : {}),
-      ...(mailerConfigured() ? {} : { warning: "SMTP is not configured — no codes can be sent." }),
+      ...(mailerConfigured()
+        ? {}
+        : {
+            warning: OFFICIAL_MAIL_HELD
+              ? `${MAIL_HELD_MESSAGE} New students stay queued.`
+              : "SMTP is not configured — no codes can be sent.",
+          }),
       warnings: parsed.warnings,
     },
     { headers: PRIVATE_HEADERS }

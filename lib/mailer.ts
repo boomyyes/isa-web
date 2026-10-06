@@ -5,7 +5,27 @@ import nodemailer, { type Transporter } from "nodemailer";
 
 let transport: Transporter | null = null;
 
+/**
+ * Hold on ALL mail from the official account (MAIL_FROM, isa.rait@rait.ac.in),
+ * set 7 Oct 2026 at the chapter's request. Lift it only when they say so.
+ * A constant rather than an env var, so a dashboard edit can't release it.
+ *
+ * While held: welcome codes stay queued and go out once lifted; reset requests
+ * answer "unavailable"; form pings are skipped; scripts refuse to send.
+ * Admin sign-in links use a different account (lib/admin/mail.ts) and are not held.
+ */
+export const OFFICIAL_MAIL_HELD = true;
+export const MAIL_HELD_MESSAGE =
+  "Outgoing mail from the official account is on hold (OFFICIAL_MAIL_HELD in lib/mailer.ts).";
+
+let warned = false;
+
 export function mailerConfigured(): boolean {
+  if (OFFICIAL_MAIL_HELD) {
+    if (!warned) console.warn(MAIL_HELD_MESSAGE);
+    warned = true;
+    return false;
+  }
   return Boolean(
     process.env.SMTP_HOST &&
       process.env.SMTP_USER &&
@@ -15,6 +35,8 @@ export function mailerConfigured(): boolean {
 }
 
 export function mailer(): Transporter {
+  // Second line of defence, for any caller that skips mailerConfigured().
+  if (OFFICIAL_MAIL_HELD) throw new Error(MAIL_HELD_MESSAGE);
   if (transport) return transport;
 
   const host = process.env.SMTP_HOST;
