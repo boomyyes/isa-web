@@ -226,6 +226,22 @@
     50% { opacity: 0.6; }
   }
 
+  /* Rows sliding in as they scroll into view (components/fx/TeamList.tsx).
+     A CSS view timeline: no JS, transform only. Browsers without
+     animation-timeline skip the block and simply show the rows. */
+  @supports (animation-timeline: view()) {
+    @keyframes fx-row-in {
+      from { transform: translateY(24px); }
+      to { transform: translateY(0); }
+    }
+
+    .fx-row-in {
+      animation: fx-row-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+
   /* Set by COOKIE_NOTICE_SCRIPT (components/layout/CookieNotice.tsx). */
   [data-cookie-dismissed] [data-cookie-notice] {
     display: none;
@@ -483,7 +499,8 @@
     .animate-hero-rise,
     .animate-hero-nudge,
     .animate-page-enter,
-    .fx-flicker-grid > span {
+    .fx-flicker-grid > span,
+    .fx-row-in {
       animation: none;
     }
 
