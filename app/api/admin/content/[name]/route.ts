@@ -52,7 +52,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ nam
   try {
     const commit = await writeFile(
       collection.file,
-      toJsonText(result.data),
+      // The validated input, not result.data: the schema would reorder keys and churn every diff.
+      toJsonText(data),
       `content(${collection.name}): ${summary} — via admin`,
       body.sha
     );

@@ -28,12 +28,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ nam
   try {
     const [old, current] = await Promise.all([readFile(collection.file, ref), readFile(collection.file)]);
     // Old versions must still pass today's rules, or the build would reject them.
-    const parsed = collectionSchema(collection).safeParse(JSON.parse(old.text));
+    const oldData: unknown = JSON.parse(old.text);
+    const parsed = collectionSchema(collection).safeParse(oldData);
     if (!parsed.success) return adminRedirect(request, `/content/${name}?error=restore-invalid`);
 
     const commit = await writeFile(
       collection.file,
-      toJsonText(parsed.data),
+      // Byte-for-byte the old version (keys in their original order), not the schema output.
+      toJsonText(oldData),
       `content(${collection.name}): restore version ${ref.slice(0, 7)} — via admin`,
       current.sha
     );
