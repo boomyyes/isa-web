@@ -422,7 +422,7 @@ function ListEditor({
   );
 }
 
-function ImageField({
+export function ImageField({
   field,
   id,
   value,

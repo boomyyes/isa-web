@@ -77,7 +77,65 @@ export async function writeFile(
   return { commitSha: body.commit.sha, commitUrl: body.commit.html_url, fileSha: body.content.sha };
 }
 
-export type HistoryEntry = { sha: string; message: string; date: string; url: string };
+/**
+ * Several text files in ONE commit, so a change spanning files (moving an event
+ * from upcoming to past) can't half-happen. `expected` pins each file to the
+ * version the editor read; the branch update is a fast-forward only, so a
+ * publish that lands in between makes this fail rather than overwrite it.
+ */
+export async function writeFiles(
+  files: { path: string; text: string }[],
+  message: string,
+  expected: { path: string; sha: string }[]
+): Promise<CommitResult> {
+  const branch = contentBranch();
+  const refRes = await gh(`/git/ref/heads/${encodeURIComponent(branch)}`);
+  if (!refRes.ok) throw new Error(`GitHub ref ${branch} -> ${refRes.status}`);
+  const head = ((await refRes.json()) as { object: { sha: string } }).object.sha;
+
+  for (const { path, sha } of expected) {
+    if ((await readFile(path, head)).sha !== sha) {
+      throw new ConflictError("This was changed by someone else since you opened it.");
+    }
+  }
+
+  const commitRes = await gh(`/git/commits/${head}`);
+  if (!commitRes.ok) throw new Error(`GitHub commit ${head} -> ${commitRes.status}`);
+  const baseTree = ((await commitRes.json()) as { tree: { sha: string } }).tree.sha;
+
+  const post = async <T>(path: string, body: unknown): Promise<T> => {
+    const res = await gh(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`GitHub POST ${path} -> ${res.status}`);
+    return (await res.json()) as T;
+  };
+
+  const tree = await post<{ sha: string }>("/git/trees", {
+    base_tree: baseTree,
+    tree: files.map((f) => ({ path: f.path, mode: "100644", type: "blob", content: f.text })),
+  });
+  const commit = await post<{ sha: string; html_url: string }>("/git/commits", {
+    message,
+    tree: tree.sha,
+    parents: [head],
+  });
+
+  const update = await gh(`/git/refs/heads/${encodeURIComponent(branch)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sha: commit.sha, force: false }),
+  });
+  // 422: the branch moved since `head` was read, so this isn't a fast-forward.
+  if (update.status === 422) throw new ConflictError("Someone published at the same moment. Try again.");
+  if (!update.ok) throw new Error(`GitHub ref update -> ${update.status}`);
+
+  return { commitSha: commit.sha, commitUrl: commit.html_url, fileSha: "" };
+}
+
+export type HistoryEntry ={ sha: string; message: string; date: string; url: string };
 
 export async function fileHistory(path: string, limit = 15): Promise<HistoryEntry[]> {
   const response = await gh(
