@@ -1,0 +1,33 @@
+[
+  {
+    "id": "ach-ignite-isro-felicitation",
+    "date": "2025-10-01",
+    "dateLabel": "October 2025",
+    "title": "Felicitation by the Chairman, ISRO",
+    "awardedTo": "Team IGNITE",
+    "awardedBy": "Dr. V. Narayanan, Chairman, ISRO",
+    "scope": "State",
+    "image": "/achievements/ignite-felicitation.jpeg",
+    "description": "Team IGNITE was felicitated by Dr. V. Narayanan, Chairman of the Indian Space Research Organisation, at the Conquer Space Inter-Collegiate Exhibition organised by the Navi Mumbai Tamil Sangam. The team was recognised for its work on a solid fuel rocket prototype developed under Project IGNITE, a significant step in its pursuit of practical rocketry and aerospace engineering. The team showcased the complete technical development of the rocket, including its CAD-based structural design, propulsion modelling, flight simulations and performance analysis. The exhibition also featured the rocket's flight computer and avionics architecture, with a dedicated sensor bay integrating flight sensors for the measurement of acceleration, altitude and orientation, developed to support onboard data acquisition and flight monitoring. Presenting the project on a platform associated with the Indian space sector and receiving felicitation from the Chairman of ISRO marked a notable achievement for Team IGNITE and the ISA RAIT Student Chapter, highlighting the team's efforts in integrating rocket propulsion, structural engineering, computational simulation and avionics into a single student-developed rocketry system."
+  },
+  {
+    "id": "ach-solaris",
+    "date": "2026-04-10",
+    "title": "2nd Runner-Up — SOLARIS",
+    "awardedTo": "Yash Patil",
+    "awardedBy": "India Automation Competition, PPPA Meet 2026",
+    "scope": "State",
+    "image": "/achievements/solaris.jpg",
+    "description": "Awarded at the India Automation Competition held during the PPPA Meet on 10 and 11 April 2026. SOLARIS, an autonomous space weather intelligence system for CME detection, classification and incident response, links space weather forecasting to real infrastructure protection, spotting solar storm events and triggering automated responses for high-risk systems such as power grids. It pairs solar wind telemetry analysis with computer-vision CME detection, running an ensemble of XGBoost and Isolation Forest models into a low-latency control pipeline that fires protective action for grid infrastructure. Guided by Dr. Sharad P. Jadhav and Dr. Supriya Bhuran (Yadav)."
+  },
+  {
+    "id": "ach-best-student-leader-2026",
+    "date": "2026-04-10",
+    "title": "Best Student Leader 2026",
+    "awardedTo": "Shreya Srivastava",
+    "awardedBy": "ISA Maharashtra Section, PPPA Meet 2026",
+    "scope": "State",
+    "image": "/achievements/shreya-srivastava.jpg",
+    "description": "Awarded at the PPPA Meet held on 10 and 11 April 2026 at the CIDCO Exhibition Centre, Vashi, organised by the ISA Maharashtra Section. As President of the ISA-RAIT Student Chapter through the 2025-26 tenure, Shreya Srivastava drove the chapter's student-led initiatives, kept the committee aligned and held its programme of activity steady across the year while balancing the role alongside her academics."
+  }
+]

@@ -14,6 +14,10 @@ const NAV: { title: string; items: NavItem[] }[] = [
     items: [{ path: "/", label: "Inbox" }],
   },
   {
+    title: "Website",
+    items: [{ path: "/content", label: "Content", cap: "content" }],
+  },
+  {
     title: "Administration",
     items: [
       { path: "/team", label: "Team", role: "owner" },
