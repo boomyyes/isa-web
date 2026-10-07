@@ -51,17 +51,21 @@ const NAV: { title: string; items: NavItem[] }[] = [
 
 /** The glowing pill (admin-glow in globals.css). The one primary action per view. */
 export const buttonClass =
-  "admin-glow inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[var(--border-active)]/50 px-5 py-2.5 text-sm font-medium text-[var(--text-primary)] transition hover:border-[var(--border-active)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)] disabled:opacity-50";
+  "admin-glow admin-press admin-press-burst inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[var(--border-active)]/50 px-5 py-2.5 text-sm font-medium text-[var(--text-primary)] hover:border-[var(--border-active)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)] disabled:opacity-50";
 
 /** Outline pill, for secondary actions and tab rows. */
 export const pillClass =
-  "inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm text-[var(--text-secondary)] transition hover:border-white/30 hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]";
+  "admin-press inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm text-[var(--text-secondary)] hover:border-white/30 hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]";
+
+/** A round 40px icon button (bell, menu). */
+export const iconButtonClass =
+  "admin-press admin-press-tilt relative inline-grid size-10 shrink-0 place-items-center rounded-full border border-white/15 text-[var(--text-secondary)] hover:border-white/30 hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]";
 
 /** The selected tab in a pill row. */
 export const pillActiveClass = `${pillClass} admin-glow border-[var(--border-active)]/50 text-[var(--text-primary)]`;
 
 export const dangerButtonClass =
-  "inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-red-500/50 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400";
+  "admin-press admin-press-shake inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-red-500/50 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400";
 
 /** Rounded panel with a top highlight (admin-panel in globals.css). */
 export const cardClass = "admin-panel p-5 md:p-6";
@@ -154,10 +158,10 @@ export async function AdminShell({
           </span>
         </span>
       </Link>
-      <div className="mt-8 flex-1">
+      <div className="mt-6 flex-1">
         <AdminNav sections={sections} home={base} />
       </div>
-      <div className="mt-8 space-y-0.5 border-t border-white/[0.06] pt-4 text-sm text-[var(--text-secondary)]">
+      <div className="mt-6 space-y-0.5 border-t border-white/[0.06] pt-4 text-sm text-[var(--text-secondary)]">
         <Link
           href={`${base}/notice`}
           className="flex min-h-10 items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-white/[0.04] hover:text-[var(--text-primary)]"
@@ -176,7 +180,7 @@ export async function AdminShell({
   return (
     <div className="admin-canvas min-h-screen p-3 md:p-5">
       <div className="mx-auto flex min-h-[calc(100vh-1.5rem)] max-w-[1680px] gap-5 md:min-h-[calc(100vh-2.5rem)]">
-        <aside className="admin-panel sticky top-5 hidden h-[calc(100vh-2.5rem)] w-64 shrink-0 flex-col overflow-y-auto p-5 lg:flex">
+        <aside className="admin-panel sticky top-5 hidden h-[calc(100vh-2.5rem)] w-64 shrink-0 flex-col overflow-y-auto p-5 lg:flex [scrollbar-width:thin] [scrollbar-color:rgb(255_255_255/0.12)_transparent]">
           {sidebar}
         </aside>
 
@@ -187,9 +191,9 @@ export async function AdminShell({
             <details className="lg:hidden">
               <summary
                 aria-label="Menu"
-                className={`${pillClass} size-10 cursor-pointer list-none p-0 [&::-webkit-details-marker]:hidden`}
+                className={`${iconButtonClass} cursor-pointer list-none [&::-webkit-details-marker]:hidden`}
               >
-                <Menu aria-hidden className="size-4" />
+                <Menu aria-hidden className="size-5" />
               </summary>
               <div aria-hidden className="fixed inset-0 z-40 bg-black/60" />
               <div className="admin-panel fixed inset-y-3 left-3 z-50 flex w-72 flex-col overflow-y-auto p-5">
@@ -207,14 +211,14 @@ export async function AdminShell({
             <Link
               href={`${base}/announcements`}
               aria-label={unread ? `Announcements, ${unread} unread` : "Announcements"}
-              className={`${pillClass} relative size-10 p-0`}
+              className={iconButtonClass}
             >
-              <Bell aria-hidden className="size-4" />
-              {unread > 0 && <span className="absolute right-2 top-2 size-2 rounded-full bg-[var(--accent-color)]" />}
+              <Bell aria-hidden className="size-5" />
+              {unread > 0 && <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-[var(--accent-color)] ring-2 ring-[var(--card-color)]" />}
             </Link>
             <Link
-              href={`${base}/notice#name`}
-              title="Change your name"
+              href={`${base}/profile`}
+              title="Your profile"
               className="flex items-center gap-3 rounded-full py-1 pl-1 pr-3 transition hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]"
             >
               <span className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-[var(--border-active)]/40 to-[var(--accent-color)]/40 text-sm font-bold text-[var(--text-primary)]">

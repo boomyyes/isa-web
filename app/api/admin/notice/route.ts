@@ -1,6 +1,6 @@
 // POST action=ack, name? -> records that the signed-in member has read the
 // current internal notice, and saves their display name if they gave one.
-// POST action=name, name -> sets or (when blank) clears their display name.
+// Later changes to the name go through /api/admin/profile.
 
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
 import { acknowledge } from "@/lib/admin/notice";
@@ -18,10 +18,6 @@ export async function POST(request: Request) {
   const name = cleanName(form?.get("name"));
 
   try {
-    if (form?.get("action") === "name") {
-      await setName(session.email, name);
-      return adminRedirect(request, "/notice?named=1#name");
-    }
     // On first acknowledgement a blank name just means "none given".
     if (name) await setName(session.email, name);
     await acknowledge(session.email);

@@ -14,11 +14,11 @@ const h2 = "font-jetbrains text-sm font-bold uppercase tracking-widest text-[var
 export default async function NoticePage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; named?: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const session = await requireAdmin("jointcore", { notice: false });
   const { base } = session;
-  const { error, named } = await searchParams;
+  const { error } = await searchParams;
   let acked: Date | null = null;
   try {
     acked = await ackedAt(session.email);
@@ -29,7 +29,6 @@ export default async function NoticePage({
   return (
     <AdminShell session={session} base={base} title="Notice to committee members">
       {error && <Notice tone="error">That couldn&apos;t be saved. Try again in a moment.</Notice>}
-      {named && <Notice>Your name is saved.</Notice>}
       {!acked && (
         <Notice>Please read this before using the workspace. It explains what the workspace holds about you.</Notice>
       )}
@@ -45,9 +44,10 @@ export default async function NoticePage({
           <h2 className={h2}>What is held about you, and for how long</h2>
           <ul className="list-disc space-y-2 pl-5">
             <li>
-              <strong className="text-[var(--text-primary)]">Your account:</strong> your email address, the name
-              you or the President chose to show (optional, and you can change or remove it below), role and
-              domain, who added you and when. Kept while you are a member of the workspace and deleted when you are
+              <strong className="text-[var(--text-primary)]">Your account:</strong> your email address, role and
+              domain, and if you give them, a display name and a phone number (you can change or remove both
+              on your Profile page; your phone number is visible only to Faculty, the President and Admins, for
+              urgent committee contact), who added you and when. Kept while you are a member of the workspace and deleted when you are
               removed from it.
             </li>
             <li>
@@ -134,20 +134,7 @@ export default async function NoticePage({
       </div>
 
       {acked ? (
-        <>
-          <p className="text-sm text-[var(--text-secondary)]">You acknowledged this notice on {formatTime(acked.toISOString())}.</p>
-          {/* Linked from the avatar block in the admin top bar. */}
-          <form id="name" method="post" action="/api/admin/notice" className={`${cardClass} flex flex-wrap items-end gap-3`}>
-            <input type="hidden" name="action" value="name" />
-            <div className="min-w-0 flex-1">
-              <label htmlFor="display-name" className={labelClass}>
-                Your name
-              </label>
-              <input id="display-name" name="name" type="text" maxLength={NAME_MAX} defaultValue={session.name ?? ""} autoComplete="name" placeholder="Leave blank to show only your email" className={fieldClass} />
-            </div>
-            <button className={buttonClass}>Save name</button>
-          </form>
-        </>
+        <p className="text-sm text-[var(--text-secondary)]">You acknowledged this notice on {formatTime(acked.toISOString())}.</p>
       ) : (
         <form method="post" action="/api/admin/notice" className={`${cardClass} space-y-4`}>
           <input type="hidden" name="action" value="ack" />

@@ -29,6 +29,10 @@ const isRange = (v: unknown): v is Range => typeof v === "string" && v in RANGES
 const DAY = 24 * 60 * 60 * 1000;
 const isoDay = (d: Date) => d.toISOString().slice(0, 10);
 
+/** "Fri 10 Oct" from "2026-10-10". Read as a calendar date, not a UTC instant. */
+const friendlyDate = (iso: string) =>
+  new Date(`${iso}T00:00:00`).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+
 /** The dates this page works from, read once per request. */
 function clock() {
   const now = Date.now();
@@ -203,7 +207,7 @@ export default async function DashboardPage({
             <div className="admin-panel col-span-1 p-4">
               <p className="truncate text-base font-bold">{next ? next.title : "Nothing planned"}</p>
               <p className="mt-1 font-jetbrains text-[11px] text-[var(--border-active)]">
-                {next ? `${next.date}${next.startTime ? ` · ${next.startTime}` : ""}` : "next 60 days"}
+                {next ? `${friendlyDate(next.date)}${next.startTime ? ` · ${next.startTime}` : ""}` : "next 60 days"}
               </p>
               <Link href={`${base}/calendar`} className="mt-4 block text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                 Next event
