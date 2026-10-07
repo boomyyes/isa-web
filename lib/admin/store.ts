@@ -279,12 +279,21 @@ export async function createSession(email: string): Promise<string> {
 }
 
 /** The role is re-read every time, so a demotion applies on the next click. */
-export async function readSession(id: string | undefined): Promise<Session | null> {
+/** The email a session cookie belongs to, or null. One Redis round trip. */
+export async function sessionEmail(id: string | undefined): Promise<string | null> {
   if (!id || !/^[A-Za-z0-9_-]{43}$/.test(id)) return null;
-  const stored = await redis().get<{ email: string }>(sessionKey(id));
-  if (!stored) return null;
-  const [access, name] = await Promise.all([accessOf(stored.email), nameOf(stored.email)]);
-  return access ? { email: stored.email, name, ...access } : null;
+  return (await redis().get<{ email: string }>(sessionKey(id)))?.email ?? null;
+}
+
+/** Access and display name for a signed-in email, fetched together. */
+export async function sessionFor(email: string): Promise<Session | null> {
+  const [access, name] = await Promise.all([accessOf(email), nameOf(email)]);
+  return access ? { email, name, ...access } : null;
+}
+
+export async function readSession(id: string | undefined): Promise<Session | null> {
+  const email = await sessionEmail(id);
+  return email ? sessionFor(email) : null;
 }
 
 export async function destroySession(id: string | undefined) {

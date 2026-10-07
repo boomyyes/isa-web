@@ -5,7 +5,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SESSION_COOKIE, SESSION_TTL_SECONDS, adminBase } from "./config";
 import { needsNotice } from "./notice";
-import { can, hasAnyCap, hasCap, readSession, type Capability, type Role, type Session } from "./store";
+import { can, hasAnyCap, hasCap, readSession, sessionEmail, sessionFor, type Capability, type Role, type Session } from "./store";
 
 /**
  * For pages: the session, or a redirect to the login page. Members who haven't
@@ -16,9 +16,14 @@ export async function requireAdmin(
   { notice = true }: { notice?: boolean } = {}
 ): Promise<Session & { base: string }> {
   const base = adminBase((await headers()).get("host"));
-  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
+  // Two round trips, not three: once the cookie gives the email, access, name
+  // and the notice check go out together. Every admin page waits on this, and
+  // Redis and the database sit in different regions, so each hop counts.
+  const email = await sessionEmail((await cookies()).get(SESSION_COOKIE)?.value);
+  if (!email) redirect(`${base}/login`);
+  const [session, mustAck] = await Promise.all([sessionFor(email), notice ? needsNotice(email) : false]);
   if (!session) redirect(`${base}/login`);
-  if (notice && (await needsNotice(session.email))) redirect(`${base}/notice`);
+  if (mustAck) redirect(`${base}/notice`);
   if (!can(session.role, min)) redirect(`${base}/?denied=1`);
   return { ...session, base };
 }

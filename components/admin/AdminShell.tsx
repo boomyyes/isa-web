@@ -5,7 +5,8 @@ import { can, hasAnyCap, hasCap, ROLE_LABELS, type Capability, type Role, type S
 import { unreadCount } from "@/lib/admin/announcements";
 import { countBills } from "@/lib/admin/finance";
 import { dbConfigured } from "@/lib/db";
-import { AdminNav, type AdminNavSection, type NavIcon } from "./AdminNav";
+import { Suspense } from "react";
+import { AdminNav, BellDot, type AdminNavSection, type NavCounts, type NavIcon } from "./AdminNav";
 
 type NavItem = { path: string; label: string; icon: NavIcon; role?: Role; cap?: Capability; anyCap?: Capability[] };
 
@@ -116,15 +117,15 @@ export async function AdminShell({
 }) {
   const canApprove = hasCap(session, "finance.approve");
 
-  // Badges, not blockers: if the database is down, pages still render.
-  let unread = 0;
-  let awaiting = 0;
-  if (dbConfigured()) {
-    [unread, awaiting] = await Promise.all([
-      unreadCount(session.email).catch(() => 0),
-      canApprove ? countBills("submitted").catch(() => 0) : 0,
-    ]);
-  }
+  // Badges, not blockers. Started here but never awaited: the promise goes to
+  // the client nav, which shows each count when it arrives, so the page itself
+  // never waits on these queries. A failure just means no badge.
+  const counts: Promise<NavCounts> = dbConfigured()
+    ? Promise.all([
+        unreadCount(session.email).catch(() => 0),
+        canApprove ? countBills("submitted").catch(() => 0) : 0,
+      ]).then(([unread, awaiting]) => ({ unread, awaiting }))
+    : Promise.resolve({ unread: 0, awaiting: 0 });
 
   const visible = (item: NavItem) =>
     (!item.role || can(session.role, item.role)) &&
@@ -137,8 +138,7 @@ export async function AdminShell({
       href: item.path === "/" ? base || "/" : `${base}${item.path}`,
       label: item.label,
       icon: item.icon,
-      badge:
-        item.path === "/announcements" ? unread : item.path === "/finance/bills" && canApprove ? awaiting : undefined,
+      badge: item.path === "/announcements" ? ("unread" as const) : item.path === "/finance/bills" && canApprove ? ("awaiting" as const) : undefined,
     })),
   })).filter((section) => section.items.length > 0);
 
@@ -159,7 +159,7 @@ export async function AdminShell({
         </span>
       </Link>
       <div className="mt-6 flex-1">
-        <AdminNav sections={sections} home={base} />
+        <AdminNav sections={sections} home={base} counts={counts} />
       </div>
       <div className="mt-6 space-y-0.5 border-t border-white/[0.06] pt-4 text-sm text-[var(--text-secondary)]">
         <Link
@@ -210,11 +210,13 @@ export async function AdminShell({
 
             <Link
               href={`${base}/announcements`}
-              aria-label={unread ? `Announcements, ${unread} unread` : "Announcements"}
               className={iconButtonClass}
             >
               <Bell aria-hidden className="size-5" />
-              {unread > 0 && <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-[var(--accent-color)] ring-2 ring-[var(--card-color)]" />}
+              <span className="sr-only">Announcements</span>
+              <Suspense>
+                <BellDot counts={counts} />
+              </Suspense>
             </Link>
             <Link
               href={`${base}/profile`}
