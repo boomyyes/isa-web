@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AdminShell, buttonClass, formatTime, Notice } from "@/components/admin/AdminShell";
+import { AdminShell, buttonClass, formatTime, Notice, tableHeadClass, tableRowClass, tableWrapClass } from "@/components/admin/AdminShell";
 import { BillStatus } from "@/components/admin/BillStatus";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import { requireAnyCapability } from "@/lib/admin/session";
@@ -68,9 +68,9 @@ export default async function BillsPage({
       {rows.length === 0 ? (
         <p className="text-sm text-[var(--text-secondary)]">No bills match.</p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-[var(--border-color)]">
+        <div className={tableWrapClass}>
           <table className="w-full text-left text-sm">
-            <thead className="bg-[var(--card-color)] font-jetbrains text-xs uppercase tracking-widest text-[var(--text-secondary)]">
+            <thead className={tableHeadClass}>
               <tr>
                 <th className="px-4 py-3">Bill date</th>
                 <th className="px-4 py-3">Vendor</th>
@@ -82,7 +82,7 @@ export default async function BillsPage({
             </thead>
             <tbody>
               {rows.map(({ bill: b, budgetName, receipts }) => (
-                <tr key={b.id} className="border-t border-[var(--border-color)] text-[var(--text-primary)]">
+                <tr key={b.id} className={tableRowClass}>
                   <td className="whitespace-nowrap px-4 py-3">{b.billDate}</td>
                   <td className="px-4 py-3">
                     <Link href={`${base}/finance/bills/${b.id}`} className="underline underline-offset-2">{b.vendor}</Link>

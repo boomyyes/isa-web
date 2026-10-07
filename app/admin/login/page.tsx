@@ -18,7 +18,7 @@ export default async function LoginPage({
   const { error } = await searchParams;
 
   return (
-    <div className="mx-auto max-w-md px-4 py-16 md:py-24">
+    <main className="mx-auto max-w-md px-4 py-16 md:py-24">
       <p className="font-jetbrains text-xs font-bold uppercase tracking-[0.3em] text-[var(--accent-color)]">
         ISA-RAIT Admin
       </p>
@@ -37,6 +37,6 @@ export default async function LoginPage({
           </button>
         </form>
       </div>
-    </div>
+    </main>
   );
 }

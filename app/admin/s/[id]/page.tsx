@@ -34,7 +34,7 @@ export default async function SubmissionPage({
       <AdminShell session={session} base={base} title="Not found">
         <p className="text-sm text-[var(--text-secondary)]">
           No submission {id}. It may have passed its retention date or been erased.{" "}
-          <Link href={`${base}/`} className="text-[var(--accent-color)] underline">
+          <Link href={`${base}/inbox`} className="text-[var(--accent-color)] underline">
             Back to the inbox
           </Link>
         </p>

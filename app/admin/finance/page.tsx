@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AdminShell, buttonClass, cardClass, Notice } from "@/components/admin/AdminShell";
+import { AdminShell, buttonClass, cardClass, Notice, tableHeadClass, tableRowClass, tableWrapClass } from "@/components/admin/AdminShell";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import { requireAnyCapability } from "@/lib/admin/session";
 import { budgetSummary, formatPaise } from "@/lib/admin/finance";
@@ -46,9 +46,9 @@ export default async function FinanceOverviewPage({
         Remaining = allocated − spent − approved but unpaid.
       </p>
 
-      <div className="overflow-x-auto rounded-2xl border border-[var(--border-color)]">
+      <div className={tableWrapClass}>
         <table className="w-full text-right text-sm">
-          <thead className="bg-[var(--card-color)] font-jetbrains text-xs uppercase tracking-widest text-[var(--text-secondary)]">
+          <thead className={tableHeadClass}>
             <tr>
               <th className="px-4 py-3 text-left">Budget</th>
               <th className="px-4 py-3">Allocated</th>
@@ -61,7 +61,7 @@ export default async function FinanceOverviewPage({
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id} className={`border-t border-[var(--border-color)] text-[var(--text-primary)] ${r.archived ? "opacity-60" : ""}`}>
+              <tr key={r.id} className={`${tableRowClass} ${r.archived ? "opacity-60" : ""}`}>
                 <td className="px-4 py-3 text-left">
                   <Link href={`${base}/finance/ledger?budget=${r.id}`} className="underline underline-offset-2">{r.name}</Link>
                   {r.over && <span className="ml-2 rounded-full bg-red-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-red-400">Over budget</span>}
@@ -75,7 +75,7 @@ export default async function FinanceOverviewPage({
               </tr>
             ))}
             {rows.length > 0 && (
-              <tr className="border-t-2 border-[var(--border-color)] font-semibold text-[var(--text-primary)]">
+              <tr className="border-t-2 border-white/10 font-semibold text-[var(--text-primary)] [&_td]:px-5 [&_td]:py-4">
                 <td className="px-4 py-3 text-left">Total</td>
                 <td className="px-4 py-3">{formatPaise(total.allocated)}</td>
                 <td className="px-4 py-3">{formatPaise(total.income)}</td>
