@@ -5,7 +5,7 @@ import { UserRound } from "lucide-react";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { LinkedinIcon } from "@/components/ui/BrandIcons";
 import { ClampedText } from "@/components/ui/ClampedText";
-import { ProfileCard } from "@/components/ui/ProfileCard";
+import { TeamList } from "@/components/fx/TeamList";
 import {
   core,
   faculty,
@@ -14,7 +14,6 @@ import {
   principal,
   subCore,
   type SocialLink,
-  type TeamMember,
 } from "@/lib/data";
 import { isRealImage } from "@/lib/utils";
 
@@ -126,29 +125,6 @@ function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) 
   );
 }
 
-function ProfileGrid({
-  members,
-  type = "student",
-}: {
-  members: TeamMember[];
-  type?: "faculty" | "student";
-}) {
-  return (
-    <div className="grid grid-cols-2 items-start gap-4 md:grid-cols-4 lg:grid-cols-5">
-      {members.map((m) => (
-        <ProfileCard
-          key={m.id}
-          role={m.role}
-          name={m.name}
-          type={type}
-          photo={m.photo}
-          socials={m.socials}
-        />
-      ))}
-    </div>
-  );
-}
-
 /**
  * The corner LinkedIn link on a leader's note. One definition, used by both
  * cards, so the two can never drift apart in styling or focus treatment.
@@ -203,60 +179,21 @@ export default function CommunityPage() {
           />
         </div>
 
-        {/* Faculty */}
+        {/* The whole roster as one grouped list (components/fx/TeamList.tsx). */}
         <section className="mt-20">
-          <SectionHeading eyebrow="Guidance" title="Faculty" />
-          {/* auto-fit + justify-center so the row stays centred whatever the
-              count: one card sits in the middle rather than hugging the left,
-              and adding faculty back fills the second column automatically. */}
-          <div className="mx-auto max-w-2xl">
-            <div className="grid grid-cols-1 justify-center gap-6 sm:grid-cols-[repeat(auto-fit,minmax(0,16rem))]">
-              {faculty.map((m) => (
-                <ProfileCard
-                  key={m.id}
-                  role={m.role}
-                  name={m.name}
-                  type="faculty"
-                  photo={m.photo}
-                  socials={m.socials}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Core */}
-        <section className="mt-20">
-          <SectionHeading eyebrow="Leadership" title="Core Team" />
-          <ProfileGrid members={core} />
-        </section>
-
-        {/* Sub-Core */}
-        <section className="mt-20">
-          <SectionHeading eyebrow="Operations" title="Sub-Core Team" />
-          <ProfileGrid members={subCore} />
-        </section>
-
-        {/* Joint-Core */}
-        <section className="mt-20">
-          <SectionHeading eyebrow="Domains" title="Joint-Core Team" />
-          <div className="space-y-12">
-            {jointCore.map((domain) => (
-              <div key={domain.domain}>
-                <div className="mb-5 flex items-center gap-4">
-                  <h3 className="font-jetbrains text-lg font-bold text-[var(--text-primary)]">
-                    {domain.domain}
-                  </h3>
-                  <span className="font-jetbrains text-xs text-[var(--text-secondary)]">
-                    {domain.members.length} member
-                    {domain.members.length > 1 ? "s" : ""}
-                  </span>
-                  <div className="h-px flex-1 bg-[var(--border-color)]/60" />
-                </div>
-                <ProfileGrid members={domain.members} />
-              </div>
-            ))}
-          </div>
+          <SectionHeading eyebrow="The people" title="Meet the Team" />
+          <TeamList
+            groups={[
+              { label: "Faculty", tag: "Faculty", members: faculty },
+              { label: "Core", tag: "Core", members: core },
+              { label: "Sub-Core", tag: "Sub-Core", members: subCore },
+              ...jointCore.map((domain) => ({
+                label: `Joint-Core · ${domain.domain}`,
+                tag: "Joint-Core",
+                members: domain.members,
+              })),
+            ]}
+          />
         </section>
       </main>
     </PageTransition>

@@ -49,9 +49,9 @@ export interface ClampedTextProps {
  * framer-motion is avoided for the same reason it is used everywhere else in
  * this codebase: it writes animated values as an inline style attribute, and an
  * inline height would beat `md:` utilities and leak the mobile clamp onto
- * desktop. The CSS transition below reuses the exact easing curve from
- * ProfileCard's revealTransition so the reveal still feels like the rest of the
- * site.
+ * desktop. The CSS transition below uses the easing curve the old team
+ * ProfileCard's reveal used, cubic-bezier(0.22, 1, 0.36, 1), so it still feels
+ * like the rest of the site.
  */
 export function ClampedText({
   text,
