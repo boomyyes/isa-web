@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { COOKIE_NOTICE_SCRIPT } from "@/lib/cookieNotice";
 import { SITE_NAME, SITE_ORIGIN } from "@/lib/seo";
 
 const inter = Inter({
@@ -72,6 +73,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Before first paint, so a dismissed cookie notice never flashes. */}
+        <script dangerouslySetInnerHTML={{ __html: COOKIE_NOTICE_SCRIPT }} />
+      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased min-h-screen relative dark:bg-grid-dark bg-grid-light`}
       >

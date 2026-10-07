@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import Image from "next/image";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { m, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { BookOpen } from "lucide-react";
 import { StatusBlock } from "@/components/ui/StatusBlock";
 import { IsaacReader, type ReaderOrigin } from "@/components/isaac/IsaacReader";
@@ -130,7 +130,7 @@ export function IsaacSpotlight({ pageCount }: IsaacSpotlightProps) {
       {/* The whole section animates as one block, and it contains a blur-2xl
           glow + a 3D-transformed cover — both of which repaint while it moves.
           Shorter travel and duration keep that window small. */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.1 }}
@@ -171,7 +171,7 @@ export function IsaacSpotlight({ pageCount }: IsaacSpotlightProps) {
             className="order-first lg:order-none perspective-[1000px] flex items-center justify-center py-12"
           >
             {readable ? (
-              <motion.button
+              <m.button
                 ref={coverRef}
                 type="button"
                 onClick={openReader}
@@ -181,14 +181,14 @@ export function IsaacSpotlight({ pageCount }: IsaacSpotlightProps) {
                 className="relative w-full max-w-sm aspect-[16/25] rounded-sm group cursor-pointer appearance-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--border-active)]"
               >
                 {coverArt}
-              </motion.button>
+              </m.button>
             ) : (
-              <motion.div
+              <m.div
                 style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
                 className="relative w-full max-w-sm aspect-[16/25] rounded-sm group"
               >
                 {coverArt}
-              </motion.div>
+              </m.div>
             )}
           </div>
 
@@ -208,7 +208,7 @@ export function IsaacSpotlight({ pageCount }: IsaacSpotlightProps) {
             </div>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       <IsaacReader
         open={readerOpen}

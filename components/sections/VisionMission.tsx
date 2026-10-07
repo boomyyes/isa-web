@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { NeonFrame } from "@/components/ui/NeonFrame";
 
 const MISSION = [
@@ -34,7 +34,7 @@ function Statement({ heading, children }: { heading: string; children: ReactNode
 export function VisionMission() {
   return (
     <section id="vision" className="py-20 md:py-32 relative z-20">
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.1 }}
@@ -92,7 +92,7 @@ export function VisionMission() {
             </Statement>
           </NeonFrame>
         </div>
-      </motion.div>
+      </m.div>
     </section>
   );
 }

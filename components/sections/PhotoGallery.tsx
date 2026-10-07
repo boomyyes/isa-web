@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { GALLERY_IMAGES } from "@/lib/data";
 import { HolographicCard } from "@/components/ui/HolographicCard";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,7 @@ export function PhotoGallery() {
   return (
     <section id="gallery" className="py-20 md:py-32 relative z-20 bg-[var(--bg-color)] border-t border-[var(--border-color)]">
       <div className="container mx-auto px-6">
-        <motion.h2 
+        <m.h2 
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
@@ -17,11 +17,11 @@ export function PhotoGallery() {
           className="text-4xl md:text-5xl font-black font-inter tracking-tighter uppercase mb-16"
         >
           Gallery
-        </motion.h2>
+        </m.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[300px]">
           {GALLERY_IMAGES.map((img, i) => (
-            <motion.div
+            <m.div
               key={img.id}
               // Short travel + a tight stagger: every frame of this animation
               // repaints a filtered, blended, image-backed card, so keeping the
@@ -67,7 +67,7 @@ export function PhotoGallery() {
                   <p className="font-jetbrains text-sm font-bold text-white uppercase tracking-widest">{img.alt}</p>
                 </div>
               </HolographicCard>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>

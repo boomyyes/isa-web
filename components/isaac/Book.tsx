@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import {
-  animate,
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useReducedMotion,
-  useTransform,
-} from "framer-motion";
+import { animate, AnimatePresence, m, useMotionValue, useReducedMotion, useTransform,  } from "framer-motion";
 import { BookPage } from "./BookPage";
 
 /*
@@ -84,7 +77,7 @@ export function Book({
       className="relative"
       style={{ width: pageW * 2, height: pageH, perspective: pageH * 2.2 }}
     >
-      <motion.div
+      <m.div
         className="absolute inset-0"
         animate={{ x: shift }}
         transition={{ duration: TURN_DURATION, ease: [0.65, 0, 0.35, 1] }}
@@ -113,7 +106,7 @@ export function Book({
             onPrev={onPrev}
           />
         ))}
-      </motion.div>
+      </m.div>
     </div>
   );
 }
@@ -174,7 +167,7 @@ function Leaf({
   const loadImage = distance <= PRELOAD_RADIUS;
 
   return (
-    <motion.div
+    <m.div
       className="absolute top-0 left-1/2"
       style={{
         width: pageW,
@@ -195,7 +188,7 @@ function Leaf({
           pageW={pageW}
           priority={index === 0}
         />
-        <motion.div
+        <m.div
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-black"
           style={{ opacity: shade }}
@@ -216,13 +209,13 @@ function Leaf({
           loadImage={loadImage}
           pageW={pageW}
         />
-        <motion.div
+        <m.div
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-black"
           style={{ opacity: shade }}
         />
       </Face>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -303,7 +296,7 @@ function SinglePage({
       style={{ width: pageW, height: pageH, perspective: pageH * 2.2 }}
     >
       <AnimatePresence initial={false} custom={direction}>
-        <motion.div
+        <m.div
           key={page}
           custom={direction}
           variants={singleVariants}
@@ -338,7 +331,7 @@ function SinglePage({
             pageW={pageW}
             priority={page === 0}
           />
-        </motion.div>
+        </m.div>
       </AnimatePresence>
     </div>
   );

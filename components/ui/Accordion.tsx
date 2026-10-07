@@ -2,7 +2,7 @@
 
 import { Fragment, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -139,7 +139,7 @@ export function Accordion({
 
             <AnimatePresence initial={false}>
               {isOpen && (
-                <motion.div
+                <m.div
                   key="content"
                   id={panelId}
                   role="region"
@@ -156,7 +156,7 @@ export function Accordion({
                   <p className="px-5 pb-5 text-sm leading-relaxed text-[var(--text-secondary)]">
                     {linkify(item.answer)}
                   </p>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </div>

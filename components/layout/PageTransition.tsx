@@ -1,21 +1,15 @@
-"use client";
-
 import * as React from "react";
-import { motion } from "framer-motion";
 
 /**
- * Wraps a page's content so it fades in and slides up slightly on mount.
- * Apply this inside individual page components (not the root layout) to
- * avoid hydration mismatches.
+ * Wraps a page's content so it slides up slightly on mount.
+ *
+ * CSS (animate-page-enter in globals.css), not framer-motion. The old version
+ * started every page at opacity 0 and waited for hydration to fade it in, so
+ * nothing painted until the JS bundle had run: 1.4s unthrottled, 5s+ on a
+ * mid-range phone, and it set LCP for every page that used it. Transform only,
+ * so the content is painted from the first frame. It still replays on each
+ * navigation, because each page mounts a fresh wrapper.
  */
 export function PageTransition({ children }: { children: React.ReactNode }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className="animate-page-enter">{children}</div>;
 }

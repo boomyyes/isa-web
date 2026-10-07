@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { UserRound } from "lucide-react";
 import type { SocialLink, SocialPlatform } from "@/lib/data";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/BrandIcons";
@@ -144,7 +144,7 @@ export function ProfileCard({ role, name, type, photo, socials }: ProfileCardPro
         ) : (
           <AnimatePresence initial={false}>
             {isExpanded && (
-              <motion.div
+              <m.div
                 key="details"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
@@ -156,7 +156,7 @@ export function ProfileCard({ role, name, type, photo, socials }: ProfileCardPro
                   {name}
                 </p>
                 <Socials socials={socials} />
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
         )}

@@ -2,10 +2,13 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
-import { MotionConfig } from "framer-motion";
+import { LazyMotion, MotionConfig } from "framer-motion";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { type ThemeProviderProps } from "next-themes";
 import { themeLockFor } from "@/lib/themeLock";
+
+const loadMotionFeatures = () =>
+  import("@/lib/motionFeatures").then((mod) => mod.default);
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   const pathname = usePathname();
@@ -23,7 +26,11 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
           animation on the site at once — transforms and opacity stop animating,
           layout-critical values still apply. CSS animations are handled
           separately, in the prefers-reduced-motion block in globals.css. */}
-      <MotionConfig reducedMotion="user">{children}</MotionConfig>
+      {/* strict: a stray `motion.div` (which bundles every feature eagerly)
+          throws in dev instead of quietly undoing the lazy load. Use `m.div`. */}
+      <LazyMotion features={loadMotionFeatures} strict>
+        <MotionConfig reducedMotion="user">{children}</MotionConfig>
+      </LazyMotion>
     </NextThemesProvider>
   );
 }

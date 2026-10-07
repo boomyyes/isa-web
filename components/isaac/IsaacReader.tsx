@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Book } from "./Book";
 import { useReaderSize } from "./useReaderSize";
@@ -203,7 +203,7 @@ function ReaderOverlay({
   const rightPage = current;
 
   return (
-    <motion.div
+    <m.div
       ref={dialogRef}
       role="dialog"
       aria-modal="true"
@@ -225,7 +225,7 @@ function ReaderOverlay({
       />
 
       {measured ? (
-        <motion.div
+        <m.div
           className="relative"
           initial={{ opacity: 0, ...fromCover }}
           animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
@@ -243,7 +243,7 @@ function ReaderOverlay({
             onNext={next}
             onPrev={prev}
           />
-        </motion.div>
+        </m.div>
       ) : null}
 
       {/* ---- chrome ---------------------------------------------------- */}
@@ -276,7 +276,7 @@ function ReaderOverlay({
         </div>
       </div>
 
-    </motion.div>
+    </m.div>
   );
 }
 

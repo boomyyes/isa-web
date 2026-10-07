@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { AnimatePresence, m, useMotionValueEvent, useScroll } from "framer-motion";
 import { Menu, Star, X } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
@@ -69,7 +69,7 @@ export function Navbar() {
     // Floating wrapper: fixed so the island persists on scroll, centered, and
     // pointer-events-none so the empty area around the pill stays click-through.
     <header className="pointer-events-none fixed inset-x-0 top-3 z-50 flex justify-center px-4 sm:top-4">
-      <motion.div
+      <m.div
         layout
         initial={{ y: -24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -93,7 +93,7 @@ export function Navbar() {
               the island once you scroll — width included, so the links slide over
               rather than leaving a hole. `inert` keeps the invisible link out of
               the tab order; the "Home" nav link is the standing affordance. */}
-          <motion.div
+          <m.div
             initial={false}
             animate={atTop ? "shown" : "hidden"}
             variants={{
@@ -141,7 +141,7 @@ export function Navbar() {
             {/* Divider lives in the brand, not the nav, so it collapses with it
                 instead of being left dangling at the island's edge. */}
             <div className="ml-2 hidden h-5 w-px bg-[var(--border-color)]/70 sm:ml-3 md:block" />
-          </motion.div>
+          </m.div>
 
           {/* Desktop links */}
           <nav className="hidden items-center gap-0.5 md:flex">
@@ -196,7 +196,7 @@ export function Navbar() {
                   )}
                 >
                   {active && (
-                    <motion.span
+                    <m.span
                       layoutId="island-active-pill"
                       className="absolute inset-0 rounded-full border border-[var(--border-active)]/30 bg-[var(--border-active)]/10"
                       transition={{ type: "spring", stiffness: 400, damping: 32 }}
@@ -228,7 +228,7 @@ export function Navbar() {
         {/* Mobile expansion — grows the island (layout animates its height) */}
         <AnimatePresence initial={false}>
           {isOpen && (
-            <motion.nav
+            <m.nav
               key="mobile-links"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -276,10 +276,10 @@ export function Navbar() {
                   </Link>
                 );
               })}
-            </motion.nav>
+            </m.nav>
           )}
         </AnimatePresence>
-      </motion.div>
+      </m.div>
     </header>
   );
 }

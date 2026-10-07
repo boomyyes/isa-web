@@ -4,7 +4,7 @@ import * as React from "react";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import {
   ArrowUpRight,
   Award,
@@ -187,7 +187,7 @@ export function InitiativesHub() {
                 )}
               >
                 {isActive && (
-                  <motion.span
+                  <m.span
                     layoutId="initiatives-tab-pill"
                     className="absolute inset-0 rounded-lg border border-[var(--border-active)]/40 bg-[var(--border-active)]/10"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
@@ -203,7 +203,7 @@ export function InitiativesHub() {
       {/* Panels */}
       <div className="mt-8">
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={active}
             variants={panelVariants}
             initial="initial"
@@ -215,7 +215,7 @@ export function InitiativesHub() {
             {active === "events" && <EventsPanel />}
             {active === "achievements" && <AchievementsPanel />}
             {active === "articles" && <ArticlesPanel />}
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
     </div>
@@ -244,7 +244,7 @@ function ProjectsPanel() {
       {mockProjects.map((project, i) => {
         const s = STATUS_STYLES[project.status];
         return (
-          <motion.article
+          <m.article
             key={project.id}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -342,7 +342,7 @@ function ProjectsPanel() {
                 />
               </div>
             )}
-          </motion.article>
+          </m.article>
         );
       })}
     </div>
@@ -374,7 +374,7 @@ function AchievementsPanel() {
       {achievements.map((achievement, i) => {
         const s = SCOPE_STYLES[achievement.scope];
         return (
-          <motion.article
+          <m.article
             key={achievement.id}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -442,7 +442,7 @@ function AchievementsPanel() {
                 />
               )}
             </div>
-          </motion.article>
+          </m.article>
         );
       })}
     </div>
@@ -480,7 +480,7 @@ function EventsPanel() {
              show, and a card each would be mostly empty space. */
           <ul className="mt-8 divide-y divide-[var(--border-color)]/60 overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)]">
             {upcomingEvents.map((event, i) => (
-              <motion.li
+              <m.li
                 key={event.id}
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -511,7 +511,7 @@ function EventsPanel() {
                 <span className="font-jetbrains text-xs text-[var(--accent-color)]">
                   {event.when}
                 </span>
-              </motion.li>
+              </m.li>
             ))}
           </ul>
         )}
@@ -542,7 +542,7 @@ function EventsPanel() {
           ) : (
             <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {events.map((event, i) => (
-                <motion.article
+                <m.article
                   key={event.id}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -598,7 +598,7 @@ function EventsPanel() {
                       />
                     )}
                   </div>
-                </motion.article>
+                </m.article>
               ))}
             </div>
           )}

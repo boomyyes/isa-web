@@ -6,8 +6,7 @@
 
 import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
-
-const KEY = "cookie-notice";
+import { COOKIE_NOTICE_KEY as KEY } from "@/lib/cookieNotice";
 
 const noop = () => () => {};
 const dismissedBefore = () => {
@@ -19,8 +18,10 @@ const dismissedBefore = () => {
 };
 
 export function CookieNotice() {
-  // The server renders it hidden, so returning visitors never see it flash.
-  const stored = useSyncExternalStore(noop, dismissedBefore, () => true);
+  // The server renders it visible, so a first visit paints it with the page
+  // rather than after hydration (it was the LCP element on short pages, at
+  // 4.3s). Returning visitors are covered by COOKIE_NOTICE_SCRIPT (lib/cookieNotice.ts).
+  const stored = useSyncExternalStore(noop, dismissedBefore, () => false);
   const [hidden, setHidden] = useState(false);
 
   if (stored || hidden) return null;
@@ -38,6 +39,7 @@ export function CookieNotice() {
     <section
       role="region"
       aria-label="Cookie notice"
+      data-cookie-notice
       className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border-color)] bg-[var(--card-color)]/95 backdrop-blur"
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
