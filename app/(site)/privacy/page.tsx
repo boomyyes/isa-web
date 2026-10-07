@@ -37,7 +37,7 @@ function Address() {
 // Keep the two in sync, and change both dates whenever the substance changes.
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" effective="7 October 2026" updated="7 October 2026">
+    <LegalPage title="Privacy Policy" effective="7 October 2026" updated="8 October 2026">
       <h2>1. Identity of the Data Fiduciary</h2>
       <p>
         This Website (&ldquo;Website&rdquo;) is operated by the ISA-RAIT Student Chapter, the
@@ -89,6 +89,11 @@ export default function PrivacyPage() {
         purposes for which such personal data is processed, the entities that may process such
         data, applicable retention practices, security measures, and the rights available to Data
         Principals under applicable law.
+      </p>
+      <p>
+        ISA-RAIT also processes information relating to its committee members and volunteers for
+        internal administration. Such processing is described in a separate notice made available
+        to them.
       </p>
 
       <h2>3. Categories of personal data processed</h2>
@@ -458,6 +463,11 @@ export default function PrivacyPage() {
         <li>
           <strong>Cloud file storage.</strong> Categories of information: certificate files.
           Purpose: private storage and certificate-file delivery.
+        </li>
+        <li>
+          <strong>Communication services.</strong> Categories of information: technical information
+          and pseudonymous identifiers. Purpose: delivering notifications to authorised committee
+          members.
         </li>
       </ul>
       <p>
