@@ -135,6 +135,9 @@ export async function AdminShell({
         <div className="mt-6 border-t border-[var(--border-color)] pt-4 text-xs text-[var(--text-secondary)]">
           <p className="break-all">{session.email}</p>
           <p className="mt-1 uppercase tracking-wider">{ROLE_LABELS[session.role]}{session.domain && ` · ${session.domain}`}</p>
+          <Link href={`${base}/notice`} className="mt-3 block underline underline-offset-2 hover:text-[var(--text-primary)]">
+            Notice to members
+          </Link>
           <form method="post" action="/api/admin/logout" className="mt-3">
             <button className="underline underline-offset-2 hover:text-[var(--text-primary)]">Sign out</button>
           </form>

@@ -4,13 +4,21 @@ import "server-only";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SESSION_COOKIE, SESSION_TTL_SECONDS, adminBase } from "./config";
+import { needsNotice } from "./notice";
 import { can, hasAnyCap, hasCap, readSession, type Capability, type Role, type Session } from "./store";
 
-/** For pages: the session, or a redirect to the login page. */
-export async function requireAdmin(min: Role = "jointcore"): Promise<Session & { base: string }> {
+/**
+ * For pages: the session, or a redirect to the login page. Members who haven't
+ * acknowledged the current internal notice are sent there first.
+ */
+export async function requireAdmin(
+  min: Role = "jointcore",
+  { notice = true }: { notice?: boolean } = {}
+): Promise<Session & { base: string }> {
   const base = adminBase((await headers()).get("host"));
   const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) redirect(`${base}/login`);
+  if (notice && (await needsNotice(session.email))) redirect(`${base}/notice`);
   if (!can(session.role, min)) redirect(`${base}/?denied=1`);
   return { ...session, base };
 }
