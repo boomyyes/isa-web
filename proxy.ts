@@ -13,9 +13,11 @@ import { CSP_DIRECTIVES } from "@/lib/csp";
 
 // Admin pages: the public policy, plus the live-chat connection (Ably). Only
 // a "something changed" ping comes over it; message content never does.
+// ably-js 2.x connects to main.realtime.ably.net first and falls back to
+// *.ably-realtime.com; *.ably.io is the older endpoint, kept for safety.
 const ADMIN_CSP = CSP_DIRECTIVES.map((d) =>
   d.startsWith("connect-src")
-    ? `${d} https://*.ably.io wss://*.ably.io https://*.ably-realtime.com wss://*.ably-realtime.com`
+    ? `${d} https://*.ably.net wss://*.ably.net https://*.ably.io wss://*.ably.io https://*.ably-realtime.com wss://*.ably-realtime.com`
     : d
 ).join("; ");
 
