@@ -1,0 +1,23 @@
+# ISA-RAIT Student Chapter
+
+> The student chapter of the International Society of Automation (ISA) at Ramrao Adik Institute of Technology, D. Y. Patil University, Navi Mumbai, India. The chapter runs workshops, technical projects, the Artemis hackathon and other events in automation, instrumentation and allied engineering fields, and issues certificates for its workshops.
+
+## Pages
+
+- [Home](https://isarait.in/): about the chapter, upcoming and past events
+- [Community](https://isarait.in/community): faculty, committee and team
+- [Initiatives](https://isarait.in/initiatives): projects, achievements and gallery
+- [Artemis](https://isarait.in/artemis): the chapter's hackathon
+- [Articles](https://isarait.in/articles): articles from the chapter
+- [Membership](https://isarait.in/membership): how to join ISA through the chapter
+- [Certificates](https://isarait.in/certificates): look up and verify workshop certificates
+- [Help](https://isarait.in/help): frequently asked questions and the query form
+
+## Policies
+
+- [Privacy Policy](https://isarait.in/privacy)
+- [Terms of Service](https://isarait.in/terms)
+
+## Contact
+
+- Email: isa.rait@rait.ac.in

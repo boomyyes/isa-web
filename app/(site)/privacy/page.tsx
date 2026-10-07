@@ -716,7 +716,7 @@ export default function PrivacyPage() {
         investigation, mitigation, and notification measures in accordance with applicable law.
       </p>
 
-      <h2>13. Cookies, local storage and similar technologies</h2>
+      <h2 id="cookies">13. Cookies, local storage and similar technologies</h2>
       <p>
         The Website does not set first-party cookies for advertising, behavioural tracking, or
         analytics. A strictly necessary sign-in cookie is set only for authorised committee members
@@ -725,7 +725,7 @@ export default function PrivacyPage() {
       <p>ISA-RAIT does not operate an analytics or advertising-tracking system.</p>
       <p>
         The Website stores the user&apos;s selected light or dark theme locally in the user&apos;s
-        browser.
+        browser. Dismissing the cookie notice is likewise remembered locally in the browser.
       </p>
       <p>
         This browser-local information remains on the user&apos;s device and is not used by

@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { CookieNotice } from "@/components/layout/CookieNotice";
 import { GlobalBackground } from "@/components/layout/GlobalBackground";
 
 /** Chrome for the public site. The admin area (app/admin) has its own. */
@@ -12,6 +13,7 @@ export default function SiteLayout({ children }: Readonly<{ children: React.Reac
       <Navbar />
       <div className="relative z-10">{children}</div>
       <Footer />
+      <CookieNotice />
     </>
   );
 }
