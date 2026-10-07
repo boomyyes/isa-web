@@ -515,6 +515,15 @@ function EventsPanel() {
             ))}
           </ul>
         )}
+        <p className="mt-4 font-jetbrains text-xs text-[var(--text-secondary)]">
+          <a
+            href="/events.ics"
+            className="text-[var(--border-active)] underline decoration-dotted underline-offset-4 hover:decoration-solid"
+          >
+            Add our events to your calendar
+          </a>{" "}
+          (Google Calendar: Other calendars → From URL, then paste this link.)
+        </p>
       </section>
 
       {/* ── Finished — one section per committee tenure, newest first ── */}

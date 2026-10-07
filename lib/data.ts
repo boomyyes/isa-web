@@ -265,6 +265,11 @@ export interface UpcomingEvent {
    */
   when: string;
   /**
+   * Optional "YYYY-MM-DD". Puts the event on the calendar feed (/events.ics)
+   * and the admin calendar; `when` is still what the site displays.
+   */
+  start?: string;
+  /**
    * Optional. When set, the row's title becomes a link to this path — for the
    * few events that get a page of their own. Omit it and the row renders as
    * plain text, which is the case for most entries.
