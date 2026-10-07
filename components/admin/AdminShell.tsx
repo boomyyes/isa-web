@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { can, hasCap, type Capability, type Role, type Session } from "@/lib/admin/store";
+import { can, hasAnyCap, hasCap, type Capability, type Role, type Session } from "@/lib/admin/store";
 import { unreadCount } from "@/lib/admin/announcements";
 import { dbConfigured } from "@/lib/db";
 
-type NavItem = { path: string; label: string; role?: Role; cap?: Capability };
+type NavItem = { path: string; label: string; role?: Role; cap?: Capability; anyCap?: Capability[] };
 
 /**
  * Every admin page, grouped. An entry shows only to admins who hold its role
@@ -24,6 +24,16 @@ const NAV: { title: string; items: NavItem[] }[] = [
   {
     title: "Website",
     items: [{ path: "/content", label: "Content", cap: "content" }],
+  },
+  {
+    title: "Treasury",
+    items: [
+      { path: "/finance", label: "Overview", anyCap: ["finance.approve", "finance.audit"] },
+      { path: "/finance/bills", label: "Bills", anyCap: ["finance.submit", "finance.approve", "finance.audit"] },
+      { path: "/finance/ledger", label: "Ledger", anyCap: ["finance.approve", "finance.audit"] },
+      { path: "/finance/budgets", label: "Budgets", anyCap: ["finance.approve", "finance.audit"] },
+      { path: "/finance/purge", label: "Delete old records", role: "owner" },
+    ],
   },
   {
     title: "Administration",
@@ -82,7 +92,9 @@ export async function AdminShell({
   }
 
   const visible = (item: NavItem) =>
-    (!item.role || can(session.role, item.role)) && (!item.cap || hasCap(session, item.cap));
+    (!item.role || can(session.role, item.role)) &&
+    (!item.cap || hasCap(session, item.cap)) &&
+    (!item.anyCap || hasAnyCap(session, item.anyCap));
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 md:flex-row md:gap-10 md:px-6 md:py-10">
