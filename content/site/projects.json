@@ -1,0 +1,25 @@
+[
+  {
+    "id": "proj-ignite",
+    "title": "Project IGNITE",
+    "tagline": "Experimental rocketry: design, simulation, fabrication and instrumentation",
+    "description": "Project IGNITE is the rocketry programme of the ISA RAIT Student Chapter, focused on the design, simulation, fabrication and instrumentation of experimental rockets. The project covers the development of the rocket from initial analysis and CAD design through to physical fabrication, avionics integration and testing. It is divided into three technical verticals, each handling a specific part of the rocket development process and contributing to the design and testing of the overall vehicle.",
+    "status": "In Progress",
+    "image": "/projects/ignite.jpeg",
+    "verticals": [
+      {
+        "name": "Sensors and Avionics",
+        "description": "Handles the electronics and instrumentation of the rocket. The team develops the flight computer, sensor integration, power distribution, data acquisition and telemetry systems, with the flight computer designed to record parameters such as acceleration, altitude and orientation during flight. The team also works on the physical layout of the avionics and sensor bay, including component mounting, wiring and integration within the rocket."
+      },
+      {
+        "name": "Research and Simulations",
+        "description": "Handles the analytical work behind the rocket, covering propulsion calculations, rocket performance analysis, trajectory modelling and flight simulations. CAD models and simulation results are used to evaluate the vehicle before fabrication and testing, and the team analyses experimental data to compare actual flight behaviour against predicted performance."
+      },
+      {
+        "name": "Hardware",
+        "description": "Responsible for developing the physical rocket, working on CAD modelling, structural design, fabrication, assembly and mechanical integration. This covers the rocket body and the internal component layout, accommodating the propulsion system, flight computer, sensors and other subsystems, and converts the designs developed through analysis and simulation into the physical rocket structure."
+      }
+    ],
+    "approach": "Project IGNITE follows an iterative development process. Research and Simulations develops and evaluates the technical parameters, Hardware implements the physical design, and Sensors and Avionics integrates the systems required to measure and record flight data. Results from testing are used to validate the simulations and improve subsequent designs. Through this process IGNITE continues to build capability in rocket propulsion, structural engineering, CAD design, computational simulation, avionics and flight instrumentation, with each development cycle contributing to the next stage of the project."
+  }
+]

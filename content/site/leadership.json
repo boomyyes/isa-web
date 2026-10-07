@@ -1,0 +1,28 @@
+{
+  "principal": {
+    "name": "Dr. Mukesh D. Patil",
+    "title": "Principal, RAIT",
+    "photo": "/principal.jpg",
+    "linkedin": "https://www.linkedin.com/in/dr-mukesh-d-patil-42785039/",
+    "message": [
+      "As the Principal of Ramrao Adik Institute of Technology, I am pleased to see our students taking an active part in activities beyond their regular academic work. The ISA-RAIT Student Chapter has been one such platform where students come together with an interest in automation, technology and practical engineering.",
+      "Throughout the year, the chapter has conducted technical workshops, industrial visits, expert sessions, competitions and other activities that give students opportunities to learn outside the classroom. These activities allow them to interact with professionals, understand how technology is used in industry and gain practical experience alongside their academic studies.",
+      "I believe that students learn a great deal from such experiences. Taking responsibility for an event, working with a team, presenting a project or participating in a competition helps develop skills that cannot always be learned from a textbook. It teaches them to communicate, work together, handle challenges and become more confident in their own abilities. It has also been encouraging to see students take the initiative to organise activities for their peers.",
+      "The support of the faculty mentors and the efforts of the student committee have helped the chapter carry out its activities during the year. I appreciate everyone associated with ISA-RAIT and congratulate the students for their work and enthusiasm. I hope they continue to learn, take on new responsibilities and make the most of the opportunities ahead."
+    ]
+  },
+  "facultyMentor": {
+    "id": "fac-mentor",
+    "role": "Faculty Mentor",
+    "name": "Dr. Sharad P Jadhav",
+    "photo": "/team/sharad-jadhav.jpg",
+    "linkedin": "https://www.linkedin.com/in/dr-sharad-p-jadhav-b884b939/",
+    "title": "Faculty Mentor, ISA-RAIT",
+    "message": [
+      "The ISA-RAIT Student Chapter gives students an opportunity to explore automation, technology and practical engineering beyond the classroom. During the year, the chapter has conducted technical workshops, industrial visits, expert sessions, competitions and student projects, giving students the chance to learn through practical experience.",
+      "It has been encouraging to see students take an active role in planning and conducting these activities. Organising a workshop, arranging an industrial visit, preparing a competition or working on a project helps students learn teamwork, planning and responsibility while dealing with real situations. It also gives them the confidence to take decisions, solve problems and handle responsibilities on their own.",
+      "At ISA-RAIT, we have always tried to keep the focus on practical learning. A workshop should give students something useful to take forward, an industrial visit should show them how technology is used in industry, and a project or competition should give them a chance to apply what they have learned. The efforts of the student committee and faculty team have helped make these activities possible, and I appreciate the students who have taken responsibility and worked together to make them successful.",
+      "I congratulate the entire ISA-RAIT team for their work during the year. I hope the chapter continues to give students opportunities to learn, experiment, work together and take on new responsibilities in the years ahead."
+    ]
+  }
+}
