@@ -1,25 +1,7 @@
 import type { NextConfig } from "next";
+import { CSP_DIRECTIVES } from "./lib/csp";
 
-// 'unsafe-inline' for scripts is deliberate: a nonce-based policy needs
-// middleware and forces every page to render dynamically, which throws away the
-// static prerendering the site depends on. This still blocks third-party
-// scripts, exfiltration via connect-src, framing and <base> hijacking.
-// Production only — `next dev` needs 'unsafe-eval' for fast refresh.
-const CSP = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self'",
-  "connect-src 'self'",
-  // The support and Artemis forms are embedded from these.
-  "frame-src https://tally.so https://docs.google.com",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  "upgrade-insecure-requests",
-].join("; ");
+const CSP = CSP_DIRECTIVES.join("; ");
 
 const SECURITY_HEADERS = [
   // No `preload`: getting off the preload list takes months, and nothing needs it.
@@ -31,16 +13,29 @@ const SECURITY_HEADERS = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
   },
-  ...(process.env.NODE_ENV === "production"
-    ? [{ key: "Content-Security-Policy", value: CSP }]
-    : []),
 ];
+
+const IS_PROD = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
 
   async headers() {
-    return [{ source: "/:path*", headers: SECURITY_HEADERS }];
+    return [
+      { source: "/:path*", headers: SECURITY_HEADERS },
+      // The public CSP everywhere except admin traffic: admin pages get theirs
+      // from proxy.ts, and a second CSP header would be intersected with it,
+      // silently blocking the chat connection.
+      ...(IS_PROD
+        ? [
+            {
+              source: "/:path((?!admin(?:/|$)|api/admin/).*)",
+              missing: [{ type: "header" as const, key: "host", value: "admin\\.isarait\\.in" }],
+              headers: [{ key: "Content-Security-Policy", value: CSP }],
+            },
+          ]
+        : []),
+    ];
   },
 
   // pdfjs-dist and the native canvas that renders the magazine PDF are both

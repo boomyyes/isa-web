@@ -18,6 +18,7 @@ const NAV: { title: string; items: NavItem[] }[] = [
       { path: "/announcements", label: "Announcements" },
       { path: "/calendar", label: "Calendar" },
       { path: "/forum", label: "Forum" },
+      { path: "/chat", label: "Chat", cap: "chat" },
     ],
   },
   {
