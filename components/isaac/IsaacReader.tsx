@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
+import { useLenis } from "lenis/react";
 import { AnimatePresence, m } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Book } from "./Book";
@@ -151,6 +152,13 @@ function ReaderOverlay({
       body.style.paddingRight = previousPadding;
     };
   }, []);
+
+  // overflow: hidden doesn't stop Lenis, which scrolls the page from JS.
+  const lenis = useLenis();
+  useEffect(() => {
+    lenis?.stop();
+    return () => lenis?.start();
+  }, [lenis]);
 
   // Move focus into the dialog on open and hand it back to whatever had it —
   // the spotlight cover — on close.

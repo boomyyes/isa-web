@@ -7,7 +7,7 @@
 // on Animata and ibelick; the code is our own.
 //
 // Cost control, in order of how much each saves:
-//  - Low-res: one dot per CELL px, so ~8k cells for a 600px-square canvas.
+//  - Low-res: one dot per CELL px, so ~22k cells for a 600px-square canvas.
 //  - 30fps cap, and the loop stops entirely when the canvas is offscreen or
 //    the tab is hidden.
 //  - The pointer lives in a ref, so moving the mouse never re-renders React.
@@ -16,7 +16,7 @@
 import { useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 
-const CELL = 6;
+const CELL = 4;
 const FRAME_MS = 1000 / 30;
 const TEETH = 12;
 
@@ -83,7 +83,7 @@ export function DitherField({ className }: { className?: string }) {
           // Brighter toward the rim, plus a narrow band sweeping round the ring.
           const rim = (r - hole) / (edge - hole);
           const band = Math.max(0, Math.cos(a + spin - sweep)) ** 8;
-          const value = 0.25 + rim * 0.45 + band * 0.6;
+          const value = 0.08 + rim * 0.4 + band * 0.7;
 
           if (value > BAYER[(y & 3) * 4 + (x & 3)]) {
             ctx.fillStyle = band > 0.5 ? highlight : gear;
