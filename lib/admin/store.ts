@@ -94,6 +94,10 @@ const USERS_KEY = "admin:users";
 // user record because ADMIN_OWNERS have no stored record. Optional: set by the
 // president on the Team page or by the member on the notice page.
 const NAMES_KEY = "admin:names";
+// Optional phone numbers, email -> number, for urgent committee contact. Only
+// Faculty, the President and Admins see them (Team page). Same shape and reason
+// for a separate hash as NAMES_KEY.
+const PHONES_KEY = "admin:phones";
 const AUDIT_KEY = "admin:audit";
 const AUDIT_RETENTION_MS = 365 * 24 * 60 * 60 * 1000;
 
@@ -186,9 +190,34 @@ export async function setName(email: string, name: string | null) {
   else await redis().hdel(NAMES_KEY, email);
 }
 
+/**
+ * An Indian mobile number as +91 followed by 10 digits, or null if the input
+ * isn't one. Accepts spaces, dashes, a leading 0, 91 or +91.
+ */
+export function cleanPhone(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const digits = value.replace(/[\s()-]/g, "").replace(/^(\+?91|0)(?=\d{10}$)/, "");
+  return /^[6-9]\d{9}$/.test(digits) ? `+91 ${digits.slice(0, 5)} ${digits.slice(5)}` : null;
+}
+
+export async function phoneOf(email: string): Promise<string | null> {
+  return (await redis().hget<string>(PHONES_KEY, email)) ?? null;
+}
+
+export async function phonesOf(): Promise<Record<string, string>> {
+  return (await redis().hgetall<Record<string, string>>(PHONES_KEY)) ?? {};
+}
+
+/** Sets or, with null, clears a member's phone number. */
+export async function setPhone(email: string, phone: string | null) {
+  if (phone) await redis().hset(PHONES_KEY, { [email]: phone });
+  else await redis().hdel(PHONES_KEY, email);
+}
+
 export async function removeAdmin(email: string) {
   await redis().hdel(USERS_KEY, email);
   await redis().hdel(NAMES_KEY, email);
+  await redis().hdel(PHONES_KEY, email);
   await revokeSessions(email);
 }
 

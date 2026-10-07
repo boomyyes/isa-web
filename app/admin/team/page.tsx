@@ -11,6 +11,7 @@ import {
   listAdmins,
   NAME_MAX,
   namesOf,
+  phonesOf,
   ROLE_LABELS,
   type Role,
 } from "@/lib/admin/store";
@@ -39,7 +40,7 @@ export default async function TeamPage({
   const session = await requireAdmin("president");
   const { base } = session;
   const { saved, error } = await searchParams;
-  const [admins, names] = await Promise.all([listAdmins(), namesOf()]);
+  const [admins, names, phones] = await Promise.all([listAdmins(), namesOf(), phonesOf()]);
 
   return (
     <AdminShell session={session} base={base} title="Team">
@@ -111,6 +112,11 @@ export default async function TeamPage({
                   <td className="px-4 py-3">
                     {names[a.email] && <span className="block font-medium">{names[a.email]}</span>}
                     <span className={names[a.email] ? "text-xs text-[var(--text-secondary)]" : undefined}>{a.email}</span>
+                    {phones[a.email] && (
+                      <a href={`tel:${phones[a.email].replace(/\s/g, "")}`} className="block font-jetbrains text-xs text-[var(--border-active)]">
+                        {phones[a.email]}
+                      </a>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span className="uppercase">{ROLE_LABELS[a.role]}</span>

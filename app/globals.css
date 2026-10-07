@@ -267,6 +267,101 @@
     box-shadow: 0 0 24px -8px var(--border-active);
   }
 
+  /* Click feedback for admin buttons (classes in components/admin/AdminShell.tsx).
+     Pressing squashes the button like jelly; releasing springs it back through
+     an overshoot (the 1.8 in the curve). Transform only, so no layout work.
+     The transition lives here, not in a Tailwind `transition` utility, which
+     would override it from the utilities layer. */
+  .admin-press {
+    transition:
+      transform 480ms cubic-bezier(0.34, 1.8, 0.64, 1),
+      background-color 150ms, border-color 150ms, color 150ms, box-shadow 150ms;
+  }
+
+  .admin-press:active {
+    transform: scale(1.06, 0.86);
+    transition-duration: 90ms;
+  }
+
+  /* Primary pill: a cyan ring bursts out from the edge on each press. */
+  .admin-press-burst {
+    position: relative;
+  }
+
+  .admin-press-burst::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    border: 2px solid var(--border-active);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .admin-press-burst:active::after {
+    animation: admin-burst 520ms ease-out;
+  }
+
+  @keyframes admin-burst {
+    from { opacity: 0.9; transform: scale(1); }
+    to { opacity: 0; transform: scale(1.35, 1.7); }
+  }
+
+  /* Icon buttons: the glyph gives a little tilt on press. */
+  .admin-press-tilt > svg {
+    transition: transform 480ms cubic-bezier(0.34, 1.8, 0.64, 1);
+  }
+
+  .admin-press-tilt:active > svg {
+    transform: rotate(-18deg) scale(0.9);
+    transition-duration: 90ms;
+  }
+
+  /* Danger buttons don't boing; they flinch. */
+  .admin-press-shake:active {
+    transform: none;
+    animation: admin-shake 260ms ease-in-out;
+  }
+
+  @keyframes admin-shake {
+    0%, 100% { translate: 0; }
+    25% { translate: -3px; }
+    50% { translate: 3px; }
+    75% { translate: -2px; }
+  }
+
+  /* Admin sidebar (components/admin/AdminNav.tsx). The pill glides between
+     items with the same springy overshoot as the button press; the items
+     slide right on hover, the icon leading. */
+  .admin-nav-pill {
+    transition:
+      transform 520ms cubic-bezier(0.34, 1.45, 0.64, 1),
+      height 520ms cubic-bezier(0.34, 1.45, 0.64, 1),
+      opacity 150ms;
+  }
+
+  .admin-nav-item {
+    transition: background-color 150ms, color 150ms, transform 380ms cubic-bezier(0.34, 1.8, 0.64, 1);
+  }
+
+  .admin-nav-icon,
+  .admin-nav-label {
+    transition: transform 380ms cubic-bezier(0.34, 1.8, 0.64, 1);
+  }
+
+  .admin-nav-item:hover .admin-nav-icon {
+    transform: translateX(6px) rotate(-6deg);
+  }
+
+  .admin-nav-item:hover .admin-nav-label {
+    transform: translateX(4px);
+  }
+
+  .admin-nav-item:active {
+    transform: scale(0.96, 0.9);
+    transition-duration: 90ms;
+  }
+
   /* Set by COOKIE_NOTICE_SCRIPT (components/layout/CookieNotice.tsx). */
   [data-cookie-dismissed] [data-cookie-notice] {
     display: none;
@@ -532,6 +627,35 @@
     .glitch::before,
     .glitch::after {
       display: none;
+    }
+
+    /* Admin buttons: keep a gentle press so clicks still register, drop the
+       wobble, burst, tilt and shake. */
+    .admin-press,
+    .admin-press-tilt > svg,
+    .admin-nav-pill,
+    .admin-nav-item,
+    .admin-nav-icon,
+    .admin-nav-label {
+      transition-duration: 0ms;
+    }
+
+    .admin-nav-item:hover .admin-nav-icon,
+    .admin-nav-item:hover .admin-nav-label {
+      transform: none;
+    }
+
+    .admin-press:active {
+      transform: scale(0.97);
+    }
+
+    .admin-press-burst:active::after,
+    .admin-press-shake:active {
+      animation: none;
+    }
+
+    .admin-press-tilt:active > svg {
+      transform: none;
     }
 
     [data-clamp-body] {

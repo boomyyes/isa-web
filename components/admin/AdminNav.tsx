@@ -6,6 +6,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLayoutEffect, useRef } from "react";
 import {
   BookOpen,
   CalendarDays,
@@ -59,14 +60,69 @@ function isCurrent(pathname: string, href: string, home: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+const PILL_KEY = "admin-nav-pill";
+
+/**
+ * Slides the glowing pill onto the current item. Each admin page renders a
+ * fresh shell, so the pill's last position is kept in sessionStorage (per tab)
+ * and the new pill starts there, then glides to its own item. Positioned in a
+ * layout effect, before paint, and written straight to the DOM: no re-render.
+ */
+function useSlidingPill(navRef: React.RefObject<HTMLElement | null>, pillRef: React.RefObject<HTMLDivElement | null>) {
+  const pathname = usePathname();
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    const pill = pillRef.current;
+    const target = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!nav || !pill || !target) {
+      if (pill) pill.style.opacity = "0";
+      return;
+    }
+    // The copy inside the closed mobile drawer has no layout; measuring it
+    // would save a zero position and fling the desktop pill to the top.
+    if (target.offsetHeight === 0) return;
+    const to = { top: target.offsetTop, height: target.offsetHeight };
+    let from = to;
+    try {
+      from = JSON.parse(sessionStorage.getItem(PILL_KEY) ?? "null") ?? to;
+    } catch {
+      // Storage blocked: the pill just appears in place.
+    }
+    const place = ({ top, height }: { top: number; height: number }) => {
+      pill.style.transform = `translateY(${top}px)`;
+      pill.style.height = `${height}px`;
+    };
+    pill.style.transition = "none";
+    pill.style.opacity = "1";
+    place(from);
+    void pill.offsetHeight; // commit the start position before animating
+    pill.style.transition = "";
+    place(to);
+    try {
+      sessionStorage.setItem(PILL_KEY, JSON.stringify(to));
+    } catch {
+      // Not remembered; next page starts the pill in place.
+    }
+  }, [navRef, pillRef, pathname]);
+}
+
 export function AdminNav({ sections, home }: { sections: AdminNavSection[]; home: string }) {
   const pathname = usePathname();
+  const navRef = useRef<HTMLElement>(null);
+  const pillRef = useRef<HTMLDivElement>(null);
+  useSlidingPill(navRef, pillRef);
   // On admin.isarait.in the URL has no /admin prefix while `home` may be ""
   // (subdomain) or "/admin" (path mode); normalise both to compare.
   const root = home || "/";
 
   return (
-    <nav aria-label="Admin" className="space-y-6">
+    <nav ref={navRef} aria-label="Admin" className="relative space-y-5">
+      {/* The one glowing pill, slid under whichever item is current. */}
+      <div
+        ref={pillRef}
+        aria-hidden
+        className="admin-glow admin-nav-pill pointer-events-none absolute inset-x-0 top-0 rounded-xl border border-[var(--border-active)]/40 opacity-0"
+      />
       {sections.map((section) => (
         <div key={section.title}>
           <p className="mb-2 px-3 font-jetbrains text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-secondary)]/60">
@@ -82,15 +138,15 @@ export function AdminNav({ sections, home }: { sections: AdminNavSection[]; home
                     href={item.href || "/"}
                     aria-current={current ? "page" : undefined}
                     className={cn(
-                      "flex min-h-10 items-center gap-3 rounded-xl border px-3 py-2 text-sm transition",
+                      "admin-nav-item group relative flex min-h-9 items-center gap-3 rounded-xl px-3 py-1.5 text-sm",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]",
                       current
-                        ? "admin-glow border-[var(--border-active)]/40 font-medium text-[var(--text-primary)]"
-                        : "border-transparent text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-[var(--text-primary)]"
+                        ? "font-medium text-[var(--text-primary)]"
+                        : "text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-[var(--text-primary)]"
                     )}
                   >
-                    <Icon aria-hidden className="size-4 shrink-0" />
-                    <span className="flex-1 truncate">{item.label}</span>
+                    <Icon aria-hidden className="admin-nav-icon size-4 shrink-0" />
+                    <span className="admin-nav-label flex-1 truncate">{item.label}</span>
                     {!!item.badge && (
                       <span
                         className={cn(
