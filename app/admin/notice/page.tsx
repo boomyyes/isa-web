@@ -43,8 +43,8 @@ export default async function NoticePage({ searchParams }: { searchParams: Promi
               removed from it.
             </li>
             <li>
-              <strong className="text-[var(--text-primary)]">Sign-in:</strong> single-use sign-in links (valid 10
-              minutes) and sessions (valid 8 hours), held as one-way hashes. A strictly necessary cookie keeps you
+              <strong className="text-[var(--text-primary)]">Sign-in:</strong> single-use sign-in codes (valid 10
+              minutes, at most 5 attempts) and sessions (valid 8 hours), held as one-way hashes. A strictly necessary cookie keeps you
               signed in. Login attempts are rate-limited per email and per network address.
             </li>
             <li>

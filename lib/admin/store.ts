@@ -5,7 +5,7 @@
 // who can never be locked out by a mistake made in the UI.
 
 import "server-only";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
 import { Ratelimit } from "@upstash/ratelimit";
 import { redis } from "@/lib/redis";
 import { LOGIN_TTL_SECONDS, SESSION_TTL_SECONDS } from "./config";
@@ -87,7 +87,7 @@ const AUDIT_KEY = "admin:audit";
 const AUDIT_RETENTION_MS = 365 * 24 * 60 * 60 * 1000;
 
 const sha = (value: string) => createHash("sha256").update(value).digest("hex");
-const loginKey = (token: string) => `admin:login:${sha(token)}`;
+const otpKey = (email: string) => `admin:otp:${sha(email)}`;
 const sessionKey = (id: string) => `admin:session:${sha(id)}`;
 const sessionsOfKey = (email: string) => `admin:sessions:${email}`;
 
@@ -156,18 +156,47 @@ export async function removeAdmin(email: string) {
   await revokeSessions(email);
 }
 
-// ---------------------------------------------------------------- login links
+// ---------------------------------------------------------------- login codes
 
-/** Single use: the key is deleted as it's read. Only the hash is stored. */
-export async function createLoginToken(email: string): Promise<string> {
-  const token = randomBytes(32).toString("base64url");
-  await redis().set(loginKey(token), email, { ex: LOGIN_TTL_SECONDS });
-  return token;
+/** Wrong guesses allowed per code before it's thrown away. */
+export const MAX_CODE_TRIES = 5;
+
+/**
+ * A fresh 6-digit code, valid LOGIN_TTL_SECONDS. Only its hash is stored, and
+ * a new request replaces the old code (and its spent tries).
+ */
+export async function createLoginCode(email: string): Promise<string> {
+  const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
+  const key = otpKey(email);
+  await redis()
+    .multi()
+    .del(key)
+    .hset(key, { hash: sha(`${email}:${code}`), tries: 0 })
+    .expire(key, LOGIN_TTL_SECONDS)
+    .exec();
+  return code;
 }
 
-export async function consumeLoginToken(token: string): Promise<string | null> {
-  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
-  return redis().getdel<string>(loginKey(token));
+/**
+ * Tries are counted before comparing, so parallel guesses can't exceed the
+ * limit; a correct code is spent by whoever's DEL actually removes it.
+ */
+export async function verifyLoginCode(email: string, code: string): Promise<"ok" | "wrong" | "expired"> {
+  const key = otpKey(email);
+  const stored = await redis().hget<string>(key, "hash");
+  if (!stored) return "expired";
+  const tries = await redis().hincrby(key, "tries", 1);
+  if (tries > MAX_CODE_TRIES) {
+    await redis().del(key);
+    return "expired";
+  }
+  const given = Buffer.from(sha(`${email}:${code}`));
+  const expected = Buffer.from(String(stored));
+  if (expected.length !== given.length || !timingSafeEqual(given, expected)) {
+    if (tries >= MAX_CODE_TRIES) await redis().del(key);
+    return tries >= MAX_CODE_TRIES ? "expired" : "wrong";
+  }
+  return (await redis().del(key)) === 1 ? "ok" : "expired";
 }
 
 // ------------------------------------------------------------------ sessions
@@ -207,6 +236,7 @@ export async function revokeSessions(email: string) {
 
 let loginIp: Ratelimit | null = null;
 let loginEmail: Ratelimit | null = null;
+let codeIp: Ratelimit | null = null;
 
 export function loginLimiters() {
   loginIp ??= new Ratelimit({
@@ -223,7 +253,14 @@ export function loginLimiters() {
     ephemeralCache: new Map(),
     analytics: false,
   });
-  return { ip: loginIp, email: loginEmail };
+  codeIp ??= new Ratelimit({
+    redis: redis(),
+    limiter: Ratelimit.slidingWindow(30, "1 h"),
+    prefix: "rl:admin-otp-ip",
+    ephemeralCache: new Map(),
+    analytics: false,
+  });
+  return { ip: loginIp, email: loginEmail, codeIp };
 }
 
 // ----------------------------------------------------------------- audit log
