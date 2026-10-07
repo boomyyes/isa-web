@@ -6,7 +6,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLayoutEffect, useRef } from "react";
+import { Suspense, use, useLayoutEffect, useRef } from "react";
 import {
   BookOpen,
   CalendarDays,
@@ -49,10 +49,36 @@ export const NAV_ICONS = {
 
 export type NavIcon = keyof typeof NAV_ICONS;
 
+/** Badge counts, streamed from the server after the page has rendered. */
+export type NavCounts = { unread: number; awaiting: number };
+
 export type AdminNavSection = {
   title: string;
-  items: { href: string; label: string; icon: NavIcon; badge?: number; badgeTone?: "accent" | "active" }[];
+  items: { href: string; label: string; icon: NavIcon; badge?: keyof NavCounts }[];
 };
+
+function CountBadge({ counts, name }: { counts: Promise<NavCounts>; name: keyof NavCounts }) {
+  const n = use(counts)[name];
+  if (!n) return null;
+  return (
+    <span className="rounded-full bg-[var(--accent-color)] px-1.5 py-0.5 font-jetbrains text-[10px] font-bold tabular-nums text-[var(--bg-color)]">
+      {n}
+      <span className="sr-only"> new</span>
+    </span>
+  );
+}
+
+/** The unread dot on the top-bar bell. */
+export function BellDot({ counts }: { counts: Promise<NavCounts> }) {
+  const n = use(counts).unread;
+  if (!n) return null;
+  return (
+    <>
+      <span aria-hidden className="absolute right-2.5 top-2.5 size-2 rounded-full bg-[var(--accent-color)] ring-2 ring-[var(--card-color)]" />
+      <span className="sr-only">, {n} unread</span>
+    </>
+  );
+}
 
 /** Exact match for the dashboard, prefix match for everything else. */
 function isCurrent(pathname: string, href: string, home: string) {
@@ -106,7 +132,15 @@ function useSlidingPill(navRef: React.RefObject<HTMLElement | null>, pillRef: Re
   }, [navRef, pillRef, pathname]);
 }
 
-export function AdminNav({ sections, home }: { sections: AdminNavSection[]; home: string }) {
+export function AdminNav({
+  sections,
+  home,
+  counts,
+}: {
+  sections: AdminNavSection[];
+  home: string;
+  counts: Promise<NavCounts>;
+}) {
   const pathname = usePathname();
   const navRef = useRef<HTMLElement>(null);
   const pillRef = useRef<HTMLDivElement>(null);
@@ -147,18 +181,10 @@ export function AdminNav({ sections, home }: { sections: AdminNavSection[]; home
                   >
                     <Icon aria-hidden className="admin-nav-icon size-4 shrink-0" />
                     <span className="admin-nav-label flex-1 truncate">{item.label}</span>
-                    {!!item.badge && (
-                      <span
-                        className={cn(
-                          "rounded-full px-1.5 py-0.5 font-jetbrains text-[10px] font-bold tabular-nums",
-                          item.badgeTone === "active"
-                            ? "bg-[var(--border-active)]/15 text-[var(--border-active)]"
-                            : "bg-[var(--accent-color)] text-[var(--bg-color)]"
-                        )}
-                      >
-                        {item.badge}
-                        <span className="sr-only"> new</span>
-                      </span>
+                    {item.badge && (
+                      <Suspense>
+                        <CountBadge counts={counts} name={item.badge} />
+                      </Suspense>
                     )}
                   </Link>
                 </li>
