@@ -7,7 +7,7 @@ import { SESSION_COOKIE, SESSION_TTL_SECONDS, adminBase } from "./config";
 import { can, hasAnyCap, hasCap, readSession, type Capability, type Role, type Session } from "./store";
 
 /** For pages: the session, or a redirect to the login page. */
-export async function requireAdmin(min: Role = "viewer"): Promise<Session & { base: string }> {
+export async function requireAdmin(min: Role = "jointcore"): Promise<Session & { base: string }> {
   const base = adminBase((await headers()).get("host"));
   const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) redirect(`${base}/login`);

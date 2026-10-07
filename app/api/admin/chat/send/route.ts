@@ -1,7 +1,7 @@
 // POST { channelId, body } -> stores the message, then signals listeners.
 
 import { sessionFrom } from "@/lib/admin/session";
-import { hasCap } from "@/lib/admin/store";
+import { hasCap, seesDomain } from "@/lib/admin/store";
 import { addMessage, getChannel, messageSchema, sendLimiter } from "@/lib/admin/chat";
 import { signal } from "@/lib/ably";
 import { sameOrigin } from "@/lib/security";
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   if (!parsed.success) return json({ error: parsed.error.issues[0].message }, 400);
 
   const channel = await getChannel(parsed.data.channelId);
-  if (!channel) return json({ error: "Unknown channel." }, 404);
+  if (!channel || !seesDomain(session, channel.domain)) return json({ error: "Unknown channel." }, 404);
   if (channel.archived) return json({ error: "This channel is archived." }, 403);
 
   try {

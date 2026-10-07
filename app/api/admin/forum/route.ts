@@ -1,10 +1,11 @@
 // POST action=… for the forum. Every admin can start threads and reply.
 // Authors edit their own posts for 15 minutes and may delete their own.
-// Moderators (owners, or the `forum` capability) pin, lock and delete anything.
-// Categories are managed by owners.
+// Moderators (Core and above) pin, lock and delete anything.
+// Categories are managed by Faculty, the President and Admin.
+// Joint Core only reach general categories and their own domain's.
 
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
-import { audit, can, hasCap } from "@/lib/admin/store";
+import { audit, can, hasCap, seesDomain } from "@/lib/admin/store";
 import {
   canEdit,
   categorySchema,
@@ -39,11 +40,15 @@ export async function POST(request: Request) {
   const get = (k: string) => form?.get(k) ?? undefined;
   const action = get("action");
   const moderator = hasCap(session, "forum");
-  const owner = can(session.role, "owner");
+  const owner = can(session.role, "president");
+  const reachable = async (categoryId: string) => {
+    const category = await getCategory(categoryId);
+    return category !== null && seesDomain(session, category.domain);
+  };
 
   // ---------------------------------------------------------- categories
   if (action === "category-save" || action === "category-delete") {
-    if (!owner) return adminRedirect(request, `/forum?${err("Only owners can manage categories.")}`);
+    if (!owner) return adminRedirect(request, `/forum?${err("Only Faculty, the President or Admin can manage categories.")}`);
     const id = get("id");
     if (action === "category-delete") {
       if (!isUuid(id) || !(await getCategory(id))) return adminRedirect(request, `/forum?${err("That category no longer exists.")}`);
@@ -53,7 +58,12 @@ export async function POST(request: Request) {
       await audit(session.email, "deleted a forum category");
       return adminRedirect(request, "/forum?saved=1");
     }
-    const parsed = categorySchema.safeParse({ name: get("name"), description: get("description"), position: get("position") ?? 0 });
+    const parsed = categorySchema.safeParse({
+      name: get("name"),
+      description: get("description"),
+      domain: get("domain"),
+      position: get("position") ?? 0,
+    });
     if (!parsed.success) return adminRedirect(request, `/forum?${err(parsed.error.issues[0].message)}`);
     if (isUuid(id)) await updateCategory(id, parsed.data);
     else await createCategory(parsed.data);
@@ -64,7 +74,7 @@ export async function POST(request: Request) {
   // ------------------------------------------------------------- threads
   if (action === "thread-create") {
     const categoryId = get("categoryId");
-    if (!isUuid(categoryId) || !(await getCategory(categoryId))) return adminRedirect(request, `/forum?${err("That category no longer exists.")}`);
+    if (!isUuid(categoryId) || !(await reachable(categoryId))) return adminRedirect(request, `/forum?${err("That category no longer exists.")}`);
     const parsed = threadSchema.safeParse({ title: get("title"), body: get("body") });
     if (!parsed.success) return adminRedirect(request, `/forum/c/${categoryId}?${err(parsed.error.issues[0].message)}`);
     const id = await createThread(categoryId, parsed.data, session.email);
@@ -72,7 +82,8 @@ export async function POST(request: Request) {
   }
 
   const threadId = get("threadId");
-  const thread = isUuid(threadId) ? await getThread(threadId) : null;
+  const found = isUuid(threadId) ? await getThread(threadId) : null;
+  const thread = found && (await reachable(found.categoryId)) ? found : null;
 
   if (action === "reply") {
     if (!thread) return adminRedirect(request, `/forum?${err("That thread no longer exists.")}`);
@@ -102,7 +113,8 @@ export async function POST(request: Request) {
   if (action === "post-edit" || action === "post-delete") {
     const postId = get("postId");
     const post = isUuid(postId) ? await getPost(postId) : null;
-    const parent = post ? await getThread(post.threadId) : null;
+    const owning = post ? await getThread(post.threadId) : null;
+    const parent = owning && (await reachable(owning.categoryId)) ? owning : null;
     if (!post || !parent || post.deletedAt) return adminRedirect(request, `/forum?${err("That post no longer exists.")}`);
 
     if (action === "post-delete") {

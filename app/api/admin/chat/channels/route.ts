@@ -1,4 +1,4 @@
-// POST action=save|archive|unarchive -> channel management. Owners only.
+// POST action=save|archive|unarchive -> channel management. Faculty, President and Admin only.
 
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
 import { audit, can } from "@/lib/admin/store";
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   if (!sameOrigin(request)) return new Response("Forbidden", { status: 403 });
   const session = await sessionFrom(request);
   if (!session) return adminRedirect(request, "/login");
-  if (!can(session.role, "owner")) return adminRedirect(request, "/chat?error=Only%20owners%20can%20manage%20channels.");
+  if (!can(session.role, "president")) return adminRedirect(request, "/chat?error=Only%20Faculty%2C%20the%20President%20or%20Admin%20can%20manage%20channels.");
 
   const form = await request.formData().catch(() => null);
   const action = form?.get("action");
@@ -27,6 +27,7 @@ export async function POST(request: Request) {
   const parsed = channelSchema.safeParse({
     name: form?.get("name") ?? undefined,
     description: form?.get("description") ?? undefined,
+    domain: form?.get("domain") ?? undefined,
     position: form?.get("position") ?? 0,
   });
   if (!parsed.success) return adminRedirect(request, `/chat?error=${encodeURIComponent(parsed.error.issues[0].message)}`);

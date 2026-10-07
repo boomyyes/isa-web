@@ -5,6 +5,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { chatChannels, chatMessages } from "@/lib/db/schema";
 import { redis } from "@/lib/redis";
+import { AUDIENCES } from "./store";
 
 export const RETENTION_DAYS = 365;
 export const PAGE = 50;
@@ -20,6 +21,7 @@ export const messageSchema = z.object({
 export const channelSchema = z.object({
   name: z.string("Name is required.").trim().min(1, "Name is required.").max(60),
   description: z.preprocess((v) => (typeof v === "string" && v.trim() === "" ? undefined : v), z.string().trim().max(200).optional()),
+  domain: z.preprocess((v) => (v === "" || v == null ? null : v), z.enum(AUDIENCES).nullable()),
   position: z.coerce.number().int().min(0).max(999).default(0),
 });
 
@@ -49,7 +51,7 @@ export async function getChannel(id: string) {
 }
 
 export async function saveChannel(id: string | undefined, c: z.infer<typeof channelSchema>) {
-  const values = { name: c.name, description: c.description ?? null, position: c.position };
+  const values = { name: c.name, description: c.description ?? null, domain: c.domain, position: c.position };
   if (id) await db().update(chatChannels).set(values).where(eq(chatChannels.id, id));
   else await db().insert(chatChannels).values(values);
 }

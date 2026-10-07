@@ -14,7 +14,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!session) return adminRedirect(request, "/login");
 
   const { id } = await params;
-  if (!can(session.role, "editor")) return adminRedirect(request, `/s/${id}?error=denied`);
+  if (!can(session.role, "core")) return adminRedirect(request, `/s/${id}?error=denied`);
 
   const form = await request.formData().catch(() => null);
   const rawStatus = form?.get("status");

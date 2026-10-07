@@ -4,6 +4,7 @@ import { and, asc, desc, eq, ilike, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { forumCategories, forumPosts, forumThreads } from "@/lib/db/schema";
+import { AUDIENCES } from "./store";
 
 /** Authors may edit their own post for this long; moderators can always delete. */
 export const EDIT_WINDOW_MS = 15 * 60 * 1000;
@@ -16,6 +17,7 @@ export const isUuid = (v: unknown): v is string => typeof v === "string" && UUID
 export const categorySchema = z.object({
   name: z.string("Name is required.").trim().min(1, "Name is required.").max(80),
   description: z.preprocess((v) => (typeof v === "string" && v.trim() === "" ? undefined : v), z.string().trim().max(300).optional()),
+  domain: z.preprocess((v) => (v === "" || v == null ? null : v), z.enum(AUDIENCES).nullable()),
   position: z.coerce.number().int().min(0).max(999).default(0),
 });
 export const threadSchema = z.object({
@@ -37,6 +39,7 @@ export async function listCategories() {
       id: forumCategories.id,
       name: forumCategories.name,
       description: forumCategories.description,
+      domain: forumCategories.domain,
       position: forumCategories.position,
       threads: sql<number>`(select count(*)::int from ${forumThreads} ft where ${live})`,
       lastPostAt: sql<string | null>`(select max(ft.last_post_at) from ${forumThreads} ft where ${live})`,
@@ -52,13 +55,13 @@ export async function getCategory(id: string) {
 }
 
 export async function createCategory(c: z.infer<typeof categorySchema>) {
-  await db().insert(forumCategories).values({ name: c.name, description: c.description ?? null, position: c.position });
+  await db().insert(forumCategories).values({ name: c.name, description: c.description ?? null, domain: c.domain, position: c.position });
 }
 
 export async function updateCategory(id: string, c: z.infer<typeof categorySchema>) {
   await db()
     .update(forumCategories)
-    .set({ name: c.name, description: c.description ?? null, position: c.position })
+    .set({ name: c.name, description: c.description ?? null, domain: c.domain, position: c.position })
     .where(eq(forumCategories.id, id));
 }
 

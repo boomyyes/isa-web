@@ -3,7 +3,7 @@ import { AdminShell, buttonClass, cardClass, Notice } from "@/components/admin/A
 import { ChatRoom } from "@/components/admin/ChatRoom";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import { requireCapability } from "@/lib/admin/session";
-import { can, hasCap } from "@/lib/admin/store";
+import { AUDIENCES, audienceLabel, can, hasCap, seesDomain } from "@/lib/admin/store";
 import { listChannels } from "@/lib/admin/chat";
 import { ablyConfigured } from "@/lib/ably";
 
@@ -17,8 +17,8 @@ export default async function ChatPage({
   const session = await requireCapability("chat");
   const { base } = session;
   const { c, saved, error } = await searchParams;
-  const owner = can(session.role, "owner");
-  const channels = await listChannels({ includeArchived: true });
+  const owner = can(session.role, "president");
+  const channels = (await listChannels({ includeArchived: true })).filter((ch) => seesDomain(session, ch.domain));
   const active = channels.filter((ch) => !ch.archived);
   const current = channels.find((ch) => ch.id === c) ?? active[0];
 
@@ -50,7 +50,7 @@ export default async function ChatPage({
             // Keyed so switching channels starts a fresh connection and history.
             <ChatRoom key={current.id} channelId={current.id} me={session.email} canModerate={hasCap(session, "forum")} archived={current.archived} />
           ) : (
-            <p className="text-sm text-[var(--text-secondary)]">{owner ? "Create the first channel below." : "An owner needs to create a channel."}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{owner ? "Create the first channel below." : "Faculty, the President or Admin need to create a channel."}</p>
           )}
         </div>
       </div>
@@ -59,9 +59,9 @@ export default async function ChatPage({
         <details className={cardClass}>
           <summary className="cursor-pointer font-jetbrains text-sm font-bold uppercase tracking-widest text-[var(--text-primary)]">Manage channels</summary>
           <div className="mt-4 space-y-4">
-            {[...channels, { id: "", name: "", description: null, position: channels.length, archived: false }].map((ch) => (
+            {[...channels, { id: "", name: "", description: null, domain: null, position: channels.length, archived: false }].map((ch) => (
               <div key={ch.id || "new"} className="flex flex-wrap items-end gap-3 border-t border-[var(--border-color)] pt-4">
-                <form method="post" action="/api/admin/chat/channels" className="grid flex-1 gap-3 sm:grid-cols-[1fr_2fr_5rem_auto] sm:items-end">
+                <form method="post" action="/api/admin/chat/channels" className="grid flex-1 gap-3 sm:grid-cols-[1fr_2fr_9rem_5rem_auto] sm:items-end">
                   <input type="hidden" name="action" value="save" />
                   {ch.id && <input type="hidden" name="id" value={ch.id} />}
                   <div>
@@ -71,6 +71,15 @@ export default async function ChatPage({
                   <div>
                     <label className={labelClass}>Description</label>
                     <input name="description" maxLength={200} defaultValue={ch.description ?? ""} aria-label="Channel description" className={fieldClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Visible to</label>
+                    <select name="domain" defaultValue={ch.domain ?? ""} aria-label="Visible to" className={fieldClass}>
+                      <option value="">Everyone</option>
+                      {AUDIENCES.map((a) => (
+                        <option key={a} value={a}>{audienceLabel(a)}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className={labelClass}>Order</label>

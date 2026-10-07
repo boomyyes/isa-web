@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AdminShell, buttonClass, cardClass, dangerButtonClass, formatTime, Notice } from "@/components/admin/AdminShell";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import { requireAdmin } from "@/lib/admin/session";
-import { can } from "@/lib/admin/store";
+import { AUDIENCES, audienceLabel, can, domainLabel, isDomain, seesDomain } from "@/lib/admin/store";
 import { listCategories } from "@/lib/admin/forum";
 
 export const dynamic = "force-dynamic";
@@ -11,8 +11,9 @@ export default async function ForumPage({ searchParams }: { searchParams: Promis
   const session = await requireAdmin();
   const { base } = session;
   const { saved, error } = await searchParams;
-  const owner = can(session.role, "owner");
-  const categories = await listCategories();
+  const owner = can(session.role, "president");
+  const all = await listCategories();
+  const categories = all.filter((c) => seesDomain(session, c.domain));
 
   return (
     <AdminShell session={session} base={base} title="Forum">
@@ -21,14 +22,19 @@ export default async function ForumPage({ searchParams }: { searchParams: Promis
 
       {categories.length === 0 ? (
         <p className="text-sm text-[var(--text-secondary)]">
-          No categories yet.{owner ? " Add the first one below." : " An owner needs to add one."}
+          No categories yet.{owner ? " Add the first one below." : " Faculty, the President or Admin need to add one."}
         </p>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2">
           {categories.map((c) => (
             <li key={c.id}>
               <Link href={`${base}/forum/c/${c.id}`} className={`${cardClass} block h-full transition hover:border-[var(--border-active)]`}>
-                <p className="font-jetbrains text-sm font-bold text-[var(--text-primary)]">{c.name}</p>
+                <p className="font-jetbrains text-sm font-bold text-[var(--text-primary)]">
+                  {c.name}
+                  {isDomain(c.domain) && c.domain !== c.name.toLowerCase() && (
+                    <span className="ml-2 text-[10px] font-normal uppercase tracking-widest text-[var(--text-secondary)]">{domainLabel(c.domain)}</span>
+                  )}
+                </p>
                 {c.description && <p className="mt-1 text-sm text-[var(--text-secondary)]">{c.description}</p>}
                 <p className="mt-3 text-xs text-[var(--text-secondary)]">
                   {c.threads} thread{c.threads === 1 ? "" : "s"}
@@ -45,10 +51,13 @@ export default async function ForumPage({ searchParams }: { searchParams: Promis
           <summary className="cursor-pointer font-jetbrains text-sm font-bold uppercase tracking-widest text-[var(--text-primary)]">
             Manage categories
           </summary>
+          <p className="mt-3 text-xs text-[var(--text-secondary)]">
+            Joint Core only see categories for everyone and for their own domain. Core and above see every category.
+          </p>
           <div className="mt-4 space-y-6">
-            {[...categories, { id: "", name: "", description: null, position: categories.length }].map((c) => (
+            {[...categories, { id: "", name: "", description: null, domain: null, position: categories.length }].map((c) => (
               <div key={c.id || "new"} className="space-y-2 border-t border-[var(--border-color)] pt-4">
-                <form method="post" action="/api/admin/forum" className="grid gap-3 sm:grid-cols-[1fr_2fr_6rem_auto] sm:items-end">
+                <form method="post" action="/api/admin/forum" className="grid gap-3 sm:grid-cols-[1fr_2fr_9rem_6rem_auto] sm:items-end">
                   <input type="hidden" name="action" value="category-save" />
                   {c.id && <input type="hidden" name="id" value={c.id} />}
                   <div>
@@ -58,6 +67,15 @@ export default async function ForumPage({ searchParams }: { searchParams: Promis
                   <div>
                     <label className={labelClass}>Description</label>
                     <input name="description" maxLength={300} defaultValue={c.description ?? ""} className={fieldClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Visible to</label>
+                    <select name="domain" defaultValue={c.domain ?? ""} className={fieldClass}>
+                      <option value="">Everyone</option>
+                      {AUDIENCES.map((a) => (
+                        <option key={a} value={a}>{audienceLabel(a)}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className={labelClass}>Order</label>

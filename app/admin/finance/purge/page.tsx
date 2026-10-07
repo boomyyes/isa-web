@@ -6,7 +6,7 @@ import { purgeableYears } from "@/lib/admin/finance";
 export const dynamic = "force-dynamic";
 
 export default async function PurgePage({ searchParams }: { searchParams: Promise<{ error?: string; done?: string }> }) {
-  const session = await requireAdmin("owner");
+  const session = await requireAdmin("president");
   const { base } = session;
   const sp = await searchParams;
   const years = await purgeableYears();

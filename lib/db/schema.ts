@@ -70,6 +70,8 @@ export const forumCategories = pgTable("forum_categories", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   description: text("description"),
+  /** A domain such as "technical"; null means general, visible to everyone. */
+  domain: text("domain"),
   position: integer("position").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -117,6 +119,8 @@ export const chatChannels = pgTable("chat_channels", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   description: text("description"),
+  /** A domain such as "technical"; null means general, visible to everyone. */
+  domain: text("domain"),
   position: integer("position").notNull().default(0),
   archived: boolean("archived").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

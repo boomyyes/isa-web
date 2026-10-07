@@ -9,7 +9,7 @@ export default async function ErasePage({
 }: {
   searchParams: Promise<{ done?: string; error?: string }>;
 }) {
-  const session = await requireAdmin("owner");
+  const session = await requireAdmin("president");
   const { base } = session;
   const { done, error } = await searchParams;
 

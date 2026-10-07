@@ -42,7 +42,7 @@ export default async function SubmissionPage({
     );
   }
 
-  const editor = can(session.role, "editor");
+  const editor = can(session.role, "core");
   const fields = SHEET_LAYOUT[sub.form].columns;
 
   return (
