@@ -49,6 +49,9 @@
     --text-primary: var(--color-light-text-primary);
     --text-secondary: var(--color-light-text-secondary);
     --accent-color: var(--color-light-border-active);
+    /* Second colour for the components/fx effects. Inverted per theme, as the
+       old hero gear was: orange highlight on cyan in dark, cyan on orange in light. */
+    --fx-highlight: var(--color-light-border);
   }
 
   .dark {
@@ -59,6 +62,7 @@
     --text-primary: var(--color-dark-text-primary);
     --text-secondary: var(--color-dark-text-secondary);
     --accent-color: var(--color-dark-accent);
+    --fx-highlight: var(--color-dark-accent);
   }
 
   /* ------------------------------------------------------------------ *
@@ -176,6 +180,134 @@
 
   .animate-marquee {
     animation: marquee 25s linear infinite;
+  }
+
+  /* Flickering dot grid (components/layout/GlobalBackground.tsx). Three dot
+     layers on different tile sizes, so their overlap never visibly repeats,
+     each pulsing opacity on its own clock. Opacity on a promoted layer is
+     compositor-only: no main-thread work per frame. */
+  .fx-flicker-grid {
+    --fx-dot: rgba(255, 255, 255, 0.9);
+  }
+
+  :root:not(.dark) .fx-flicker-grid {
+    --fx-dot: var(--color-light-border);
+  }
+
+  .fx-flicker-grid > span {
+    position: absolute;
+    inset: 0;
+    will-change: opacity;
+    background-image: radial-gradient(circle, var(--fx-dot) 1px, transparent 1.5px);
+    animation: fx-flicker 7s ease-in-out infinite;
+  }
+
+  .fx-flicker-grid > span:nth-child(1) {
+    background-size: 120px 120px;
+    background-position: 13px 47px;
+  }
+
+  .fx-flicker-grid > span:nth-child(2) {
+    background-size: 168px 168px;
+    background-position: 91px 5px;
+    animation-duration: 9.5s;
+    animation-delay: -3s;
+  }
+
+  .fx-flicker-grid > span:nth-child(3) {
+    background-size: 216px 216px;
+    background-position: 151px 133px;
+    animation-duration: 12s;
+    animation-delay: -6s;
+  }
+
+  @keyframes fx-flicker {
+    0%, 100% { opacity: 0.15; }
+    50% { opacity: 0.6; }
+  }
+
+  /* Set by COOKIE_NOTICE_SCRIPT (components/layout/CookieNotice.tsx). */
+  [data-cookie-dismissed] [data-cookie-notice] {
+    display: none;
+  }
+
+  /* Hero entrance. Plain CSS, not framer-motion, so it plays from the first
+     paint instead of waiting for hydration: the hero copy is the LCP element,
+     and starting it at opacity 0 made LCP wait on the whole JS bundle (5.3s on
+     mobile). Transform only, never opacity, so the text counts as painted
+     from frame one. */
+  @keyframes hero-rise {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes hero-nudge {
+    from { transform: translateY(1.5rem); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes page-enter {
+    from { transform: translateY(12px); }
+    to { transform: translateY(0); }
+  }
+
+  .animate-page-enter {
+    animation: page-enter 0.4s ease-out both;
+  }
+
+  .animate-hero-rise {
+    animation: hero-rise 0.5s cubic-bezier(0.33, 1, 0.68, 1) both;
+  }
+
+  .animate-hero-nudge {
+    animation: hero-nudge 0.6s cubic-bezier(0.33, 1, 0.68, 1) both;
+  }
+
+  /* Glitch on hover (components/fx/GlitchText.tsx). Two clipped copies of the
+     text in the theme's two colours, jittered with transform + clip-path only. */
+  @keyframes glitch-a {
+    0%, 100% { transform: translate(0); clip-path: inset(0 0 60% 0); }
+    25% { transform: translate(-2px, 1px); clip-path: inset(20% 0 40% 0); }
+    50% { transform: translate(2px, -1px); clip-path: inset(60% 0 10% 0); }
+    75% { transform: translate(-1px, 0); clip-path: inset(40% 0 30% 0); }
+  }
+
+  @keyframes glitch-b {
+    0%, 100% { transform: translate(0); clip-path: inset(55% 0 0 0); }
+    25% { transform: translate(2px, -1px); clip-path: inset(10% 0 70% 0); }
+    50% { transform: translate(-2px, 1px); clip-path: inset(70% 0 5% 0); }
+    75% { transform: translate(1px, 1px); clip-path: inset(30% 0 50% 0); }
+  }
+
+  .glitch {
+    position: relative;
+    display: inline-block;
+  }
+
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .glitch::before { color: var(--border-active); }
+  .glitch::after { color: var(--fx-highlight); }
+
+  .glitch:hover::before,
+  .group:hover .glitch::before,
+  .glitch:focus-visible::before {
+    opacity: 0.8;
+    animation: glitch-a 0.35s steps(2, end) infinite;
+  }
+
+  .glitch:hover::after,
+  .group:hover .glitch::after,
+  .glitch:focus-visible::after {
+    opacity: 0.8;
+    animation: glitch-b 0.35s steps(2, end) infinite;
   }
 
   /* Neon "breathing" pulse for the gradient outline (see NeonFrame). Two ranges:
@@ -347,8 +479,17 @@
     .animate-artemis-orbit,
     .animate-artemis-orbit-reverse,
     .animate-artemis-shimmer,
-    .animate-artemis-twinkle {
+    .animate-artemis-twinkle,
+    .animate-hero-rise,
+    .animate-hero-nudge,
+    .animate-page-enter,
+    .fx-flicker-grid > span {
       animation: none;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      display: none;
     }
 
     [data-clamp-body] {

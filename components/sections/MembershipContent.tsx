@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -129,7 +129,7 @@ export function MembershipContent() {
 
         <div className="relative grid items-center gap-12 lg:grid-cols-[1.35fr_1fr]">
           {/* Left: headline + copy */}
-          <motion.div {...fadeUp}>
+          <m.div {...fadeUp}>
             <p className="font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">
               Membership
             </p>
@@ -167,10 +167,10 @@ export function MembershipContent() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Right: glowing quote block */}
-          <motion.div
+          <m.div
             {...fadeUp}
             transition={{ ...fadeUp.transition, delay: 0.15 }}
             className="relative"
@@ -200,24 +200,24 @@ export function MembershipContent() {
                 &mdash; ISA-RAIT Student Section
               </figcaption>
             </figure>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
       {/* ========================= THE 4 PILLARS ========================= */}
       <section className="relative mx-auto max-w-7xl px-6 py-16 md:py-24">
-        <motion.div {...fadeUp} className="mb-14 flex items-center gap-4">
+        <m.div {...fadeUp} className="mb-14 flex items-center gap-4">
           <div className="h-px flex-1 bg-[var(--border-color)]" />
           <h2 className="text-center font-jetbrains text-lg font-bold uppercase tracking-widest text-[var(--text-primary)] sm:text-xl">
             As an ISA-RAIT Student Member,{" "}
             <span className="text-[var(--accent-color)]">you get access to</span>
           </h2>
           <div className="h-px flex-1 bg-[var(--border-color)]" />
-        </motion.div>
+        </m.div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {pillars.map(({ icon: Icon, title, glow, items }, i) => (
-            <motion.div
+            <m.div
               key={title}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -272,14 +272,14 @@ export function MembershipContent() {
                   ))}
                 </ul>
               </HolographicCard>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </section>
 
       {/* ========================= WHY IT MATTERS ========================= */}
       <section className="relative mx-auto max-w-7xl px-6 py-16 md:py-24">
-        <motion.div
+        <m.div
           {...fadeUp}
           className="clip-angular relative overflow-hidden border border-[var(--border-color)] bg-white/5 p-8 backdrop-blur-xl md:p-12 dark:bg-[#141414]/70"
         >
@@ -302,7 +302,7 @@ export function MembershipContent() {
 
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
               {whyItMatters.map(({ icon: Icon, label }, i) => (
-                <motion.div
+                <m.div
                   key={label}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -317,16 +317,16 @@ export function MembershipContent() {
                   <p className="text-sm font-medium leading-relaxed text-[var(--text-secondary)]">
                     {label}
                   </p>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </section>
 
       {/* ============================= CTA ============================= */}
       <section className="relative mx-auto max-w-7xl px-6 py-16 md:py-28">
-        <motion.div
+        <m.div
           {...fadeUp}
           className="clip-angular relative overflow-hidden border border-[var(--border-active)] bg-white/5 p-8 backdrop-blur-2xl md:p-14 dark:bg-[#0D0D0D]/70"
         >
@@ -420,7 +420,7 @@ export function MembershipContent() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </section>
     </main>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { SPONSORS } from "@/lib/data";
 
 export function SponsorTicker() {
@@ -9,7 +9,7 @@ export function SponsorTicker() {
 
   return (
     <section id="sponsors" className="py-16 md:py-24 relative z-20 bg-[var(--bg-color)] border-y border-[var(--border-color)] overflow-hidden">
-      <motion.div 
+      <m.div 
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true, amount: 0.1 }}
@@ -55,7 +55,7 @@ export function SponsorTicker() {
             ))}
           </div>
         </div>
-      </motion.div>
+      </m.div>
     </section>
   );
 }

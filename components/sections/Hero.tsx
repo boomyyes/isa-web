@@ -1,39 +1,13 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
 import { AngularButton } from "@/components/ui/AngularButton";
 import { Terminal } from "lucide-react";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { HeroGear } from "@/components/fx/HeroGear";
+import { ScrambleText } from "@/components/fx/ScrambleText";
 
-// three + @react-three/fiber is ~170KB gzipped and the scene's only input is
-// the mouse, so it is dead weight on a phone. Loading it lazily keeps it out of
-// the homepage's first bundle entirely; the md gate below keeps it off small
-// screens even after hydration.
-const HeroOrb = dynamic(
-  () => import("@/components/three/HeroOrb").then((m) => m.HeroOrb),
-  { ssr: false }
-);
+// A server component: the copy below is in the prerendered HTML and visible on
+// first paint. Its entrance is CSS (animate-hero-* in globals.css), and the only
+// client pieces are the boot line's scramble and the gear canvas.
 
 export function Hero() {
-  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
-  // False on the server and on phones, so the orb never mounts there.
-  const showOrb = useMediaQuery("(min-width: 768px)");
-
-  useEffect(() => {
-    // No orb, no reason to re-render this whole section on every pointer move.
-    if (!showOrb) return;
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight,
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [showOrb]);
-
   const headline = "INTERNATIONAL SOCIETY OF AUTOMATION, RAIT";
 
   return (
@@ -55,22 +29,11 @@ export function Hero() {
       <div className="container relative z-20 mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
 
         {/* Left Column: Text */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.8 }}
-          className="flex flex-col items-start text-left pt-12 lg:pt-0"
-        >
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex items-center gap-2 mb-6 text-[var(--border-active)] font-jetbrains text-sm font-bold tracking-widest"
-          >
+        <div className="flex flex-col items-start text-left pt-12 lg:pt-0">
+          <div className="flex items-center gap-2 mb-6 text-[var(--border-active)] font-jetbrains text-sm font-bold tracking-widest">
             <Terminal size={16} />
-            <span>&gt; SYS.BOOT SEQUENCE INITIATED</span>
-          </motion.div>
+            <ScrambleText text="> SYS.BOOT SEQUENCE INITIATED" />
+          </div>
 
           {/* text-3xl at the base step, not text-4xl: each word below is an
               inline-block with overflow-hidden (that clip is what masks the
@@ -80,27 +43,18 @@ export function Hero() {
           <h1 className="text-3xl sm:text-6xl md:text-7xl lg:text-8xl font-black font-inter tracking-tighter leading-none mb-6 md:mb-8 max-w-2xl">
             {headline.split(" ").map((word, i) => (
               <span key={i} className="inline-block mr-[0.2em] overflow-hidden">
-                <motion.span
-                  className="inline-block"
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: i * 0.1,
-                    ease: [0.33, 1, 0.68, 1],
-                  }}
+                <span
+                  className="inline-block animate-hero-rise"
+                  style={{ animationDelay: `${i * 0.08}s` }}
                 >
                   {word}
-                </motion.span>
+                </span>
               </span>
             ))}
           </h1>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
-            className="text-lg md:text-xl text-[var(--text-secondary)] max-w-xl mb-6 md:mb-8 font-medium"
+          <p
+            className="animate-hero-nudge text-lg md:text-xl text-[var(--text-secondary)] max-w-xl mb-6 md:mb-8 font-medium"
           >
             ISA-RAIT is a student chapter of ISA international under the ISA Maharashtra section.
             ISA-RAIT aims to bridge the gap between the students and the Industry by developing technical knowledge of the students.
@@ -109,13 +63,10 @@ export function Hero() {
             ISA was founded in 1945 and excels in technical competence.
             The organization certifies Industry professionals; provides education and training; publishes books and technical articles;
             hosts conferences and has 40,000 members around the world creating a better world through Automation.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1, duration: 0.5 }}
-            className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto"
+          <div
+            className="animate-hero-nudge flex flex-col sm:flex-row gap-6 w-full sm:w-auto"
           >
             <AngularButton variant="primary" href="https://docs.google.com/forms/d/e/1FAIpQLSf52x6Y3TAjj6o5lhfVtmYiNagKXgpyX4Qd-OLkZQUMhKXdSg/viewform?usp=dialog" target="_blank" className="w-full sm:w-48">
               Join the Committee
@@ -123,19 +74,13 @@ export function Hero() {
             <AngularButton variant="outline" href="/initiatives#projects" className="w-full sm:w-48">
               Explore Projects
             </AngularButton>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
-        {/* Right Column: 3D Orb */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1 }}
-          className="relative hidden w-full h-[40vh] sm:h-[50vh] lg:h-[80vh] items-center justify-center pointer-events-none md:flex"
-        >
-          {showOrb && <HeroOrb mouseX={mousePos.x} mouseY={mousePos.y} />}
-        </motion.div>
+        {/* Right column: the dithered gear (md+ only). */}
+        <div className="relative hidden w-full h-[40vh] sm:h-[50vh] lg:h-[80vh] items-center justify-center pointer-events-none md:flex">
+          <HeroGear />
+        </div>
 
       </div>
     </section>

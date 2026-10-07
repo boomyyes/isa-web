@@ -1,50 +1,51 @@
 "use client";
 
 import * as React from "react";
-import { motion, useTransform } from "framer-motion";
+import { m, useTransform } from "framer-motion";
 import { useScrollProgress } from "@/hooks/useScrollProgress";
 
+// Two dashed rails down the screen edges, each with a dot that tracks scroll.
+//
+// The dots move on transform (translateY in vh), not an SVG `cy` attribute, so
+// scrolling never triggers layout or paint. There is deliberately no
+// mix-blend-mode on this layer: blending a full-viewport fixed overlay forced
+// the browser to recomposite the whole screen on every frame.
 export function SvgPipelines() {
   const { scrollYProgress } = useScrollProgress();
-  const yPosition = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-  const yPositionInverted = useTransform(scrollYProgress, [0, 1], ["100%", "0%"]);
+  const down = useTransform(scrollYProgress, [0, 1], ["0vh", "100vh"]);
+  const up = useTransform(scrollYProgress, [0, 1], ["100vh", "0vh"]);
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-40 hidden overflow-hidden mix-blend-difference sm:block">
-      {/* Left Pipeline */}
-      <svg className="absolute left-4 top-0 w-8 h-full" preserveAspectRatio="none">
-        <path
-          d="M 16 0 V 10000"
-          stroke="var(--border-color)"
-          strokeWidth="1"
-          fill="none"
-          strokeDasharray="4 4"
-        />
-        <motion.circle
-          cx="16"
-          cy={yPosition as unknown as number}
-          r="4"
-          fill="var(--border-active)"
-          className="shadow-[0_0_10px_var(--border-active)]"
-        />
-      </svg>
+    <div className="pointer-events-none fixed inset-0 z-40 hidden overflow-hidden sm:block" aria-hidden="true">
+      <Rail side="left-4" dashed y={down} />
+      <Rail side="right-4" y={up} />
+    </div>
+  );
+}
 
-      {/* Right Pipeline */}
-      <svg className="absolute right-4 top-0 w-8 h-full" preserveAspectRatio="none">
-        <path
-          d="M 16 0 V 10000"
-          stroke="var(--border-color)"
-          strokeWidth="1"
-          fill="none"
-        />
-        <motion.circle
-          cx="16"
-          cy={yPositionInverted as unknown as number}
-          r="4"
-          fill="var(--border-active)"
-          className="shadow-[0_0_10px_var(--border-active)]"
-        />
-      </svg>
+function Rail({
+  side,
+  dashed,
+  y,
+}: {
+  side: string;
+  dashed?: boolean;
+  y: ReturnType<typeof useTransform<number, string>>;
+}) {
+  return (
+    <div className={`absolute top-0 h-full w-8 ${side}`}>
+      <div
+        className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2"
+        style={{
+          backgroundImage: dashed
+            ? "repeating-linear-gradient(to bottom, var(--border-color) 0 4px, transparent 4px 8px)"
+            : "linear-gradient(var(--border-color), var(--border-color))",
+        }}
+      />
+      <m.div
+        style={{ y }}
+        className="absolute left-1/2 -top-1 -ml-1 h-2 w-2 rounded-full bg-[var(--border-active)] shadow-[0_0_10px_var(--border-active)]"
+      />
     </div>
   );
 }
