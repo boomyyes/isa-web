@@ -18,8 +18,32 @@ export const can = (role: Role, needed: Role) => RANK[role] >= RANK[needed];
 export const isRole = (value: unknown): value is Role =>
   typeof value === "string" && (ROLES as readonly string[]).includes(value);
 
-export type AdminUser = { role: Role; addedBy: string; addedAt: string };
-export type Session = { email: string; role: Role };
+/**
+ * Per-feature permissions, granted by owners on the Team page. The role still
+ * governs the submissions inbox; capabilities govern everything else. Owners
+ * hold every capability implicitly.
+ */
+export const CAPABILITIES = {
+  content: "Edit and publish website content",
+  events: "Manage the event calendar",
+  announce: "Post announcements",
+  forum: "Moderate the forum",
+  chat: "Use team chat",
+  "finance.submit": "Submit bills",
+  "finance.approve": "Approve and pay bills, manage budgets",
+  "finance.audit": "View budgets, the ledger and exports",
+} as const;
+export type Capability = keyof typeof CAPABILITIES;
+export const CAPABILITY_NAMES = Object.keys(CAPABILITIES) as Capability[];
+export const isCapability = (value: unknown): value is Capability =>
+  typeof value === "string" && Object.hasOwn(CAPABILITIES, value);
+
+export type AdminUser = { role: Role; addedBy: string; addedAt: string; caps?: Capability[] };
+export type Session = { email: string; role: Role; caps: Capability[] };
+export type Access = { role: Role; caps: Capability[] };
+
+export const hasCap = (session: Pick<Session, "role" | "caps">, cap: Capability) =>
+  session.role === "owner" || session.caps.includes(cap);
 
 const USERS_KEY = "admin:users";
 const AUDIT_KEY = "admin:audit";
@@ -40,10 +64,17 @@ export function bootstrapOwners(): string[] {
     .filter(Boolean);
 }
 
-export async function roleOf(email: string): Promise<Role | null> {
-  if (bootstrapOwners().includes(email)) return "owner";
+/** Role and capabilities, read fresh each time so changes apply on the next click. */
+export async function accessOf(email: string): Promise<Access | null> {
+  if (bootstrapOwners().includes(email)) return { role: "owner", caps: [...CAPABILITY_NAMES] };
   const user = await redis().hget<AdminUser>(USERS_KEY, email);
-  return user && isRole(user.role) ? user.role : null;
+  if (!user || !isRole(user.role)) return null;
+  const caps = user.role === "owner" ? [...CAPABILITY_NAMES] : (user.caps ?? []).filter(isCapability);
+  return { role: user.role, caps };
+}
+
+export async function roleOf(email: string): Promise<Role | null> {
+  return (await accessOf(email))?.role ?? null;
 }
 
 export async function listAdmins() {
@@ -53,7 +84,14 @@ export async function listAdmins() {
     .filter(([email]) => !owners.includes(email))
     .map(([email, user]) => ({ email, ...user, fixed: false }));
   return [
-    ...owners.map((email) => ({ email, role: "owner" as Role, addedBy: "Vercel", addedAt: "", fixed: true })),
+    ...owners.map((email) => ({
+      email,
+      role: "owner" as Role,
+      addedBy: "Vercel",
+      addedAt: "",
+      caps: [] as Capability[],
+      fixed: true,
+    })),
     ...rows.sort((a, b) => a.email.localeCompare(b.email)),
   ];
 }
@@ -64,8 +102,17 @@ export async function setAdmin(email: string, role: Role, by: string) {
     role,
     addedBy: existing?.addedBy ?? by,
     addedAt: existing?.addedAt ?? new Date().toISOString(),
+    caps: existing?.caps ?? [],
   };
   await redis().hset(USERS_KEY, { [email]: user });
+}
+
+/** Returns false if the address isn't an admin (capabilities need a role first). */
+export async function setCaps(email: string, caps: Capability[]): Promise<boolean> {
+  const existing = await redis().hget<AdminUser>(USERS_KEY, email);
+  if (!existing) return false;
+  await redis().hset(USERS_KEY, { [email]: { ...existing, caps: [...new Set(caps)] } });
+  return true;
 }
 
 export async function removeAdmin(email: string) {
@@ -106,8 +153,8 @@ export async function readSession(id: string | undefined): Promise<Session | nul
   if (!id || !/^[A-Za-z0-9_-]{43}$/.test(id)) return null;
   const stored = await redis().get<{ email: string }>(sessionKey(id));
   if (!stored) return null;
-  const role = await roleOf(stored.email);
-  return role ? { email: stored.email, role } : null;
+  const access = await accessOf(stored.email);
+  return access ? { email: stored.email, ...access } : null;
 }
 
 export async function destroySession(id: string | undefined) {

@@ -84,3 +84,22 @@ export async function presignGet(
 
   return signed.url;
 }
+
+/**
+ * Uploads to the private bucket. Needs an R2 token with Object Read & Write;
+ * the certificate portal alone only ever needed read.
+ */
+export async function putObject(key: string, body: Uint8Array, contentType: string): Promise<void> {
+  const response = await aws().fetch(objectUrl(key), {
+    method: "PUT",
+    body: new Blob([body as BlobPart], { type: contentType }),
+    headers: { "Content-Type": contentType, "Content-Length": String(body.byteLength) },
+  });
+  if (!response.ok) throw new Error(`R2 PUT ${key} -> ${response.status}`);
+}
+
+export async function deleteObject(key: string): Promise<void> {
+  const response = await aws().fetch(objectUrl(key), { method: "DELETE" });
+  // 404 is fine: the goal is that it's gone.
+  if (!response.ok && response.status !== 404) throw new Error(`R2 DELETE ${key} -> ${response.status}`);
+}

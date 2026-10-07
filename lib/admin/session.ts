@@ -4,7 +4,7 @@ import "server-only";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SESSION_COOKIE, SESSION_TTL_SECONDS, adminBase } from "./config";
-import { can, readSession, type Role, type Session } from "./store";
+import { can, hasCap, readSession, type Capability, type Role, type Session } from "./store";
 
 /** For pages: the session, or a redirect to the login page. */
 export async function requireAdmin(min: Role = "viewer"): Promise<Session & { base: string }> {
@@ -13,6 +13,13 @@ export async function requireAdmin(min: Role = "viewer"): Promise<Session & { ba
   if (!session) redirect(`${base}/login`);
   if (!can(session.role, min)) redirect(`${base}/?denied=1`);
   return { ...session, base };
+}
+
+/** For pages gated by a feature capability rather than a role. */
+export async function requireCapability(cap: Capability): Promise<Session & { base: string }> {
+  const session = await requireAdmin();
+  if (!hasCap(session, cap)) redirect(`${session.base}/?denied=1`);
+  return session;
 }
 
 export async function currentBase(): Promise<string> {
