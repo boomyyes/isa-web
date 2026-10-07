@@ -1,7 +1,7 @@
 import { AdminShell, buttonClass, cardClass, dangerButtonClass, formatTime, Notice } from "@/components/admin/AdminShell";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import { requireAdmin } from "@/lib/admin/session";
-import { listAdmins, ROLES } from "@/lib/admin/store";
+import { CAPABILITIES, CAPABILITY_NAMES, listAdmins, ROLES } from "@/lib/admin/store";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +62,7 @@ export default async function TeamPage({
             <tr>
               <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Role</th>
+              <th className="px-4 py-3">Permissions</th>
               <th className="px-4 py-3">Added</th>
               <th className="px-4 py-3" />
             </tr>
@@ -71,6 +72,29 @@ export default async function TeamPage({
               <tr key={a.email} className="border-t border-[var(--border-color)] text-[var(--text-primary)]">
                 <td className="px-4 py-3">{a.email}</td>
                 <td className="px-4 py-3 uppercase">{a.role}</td>
+                <td className="px-4 py-3">
+                  {a.role === "owner" ? (
+                    <span className="text-[var(--text-secondary)]">All</span>
+                  ) : (
+                    <form method="post" action="/api/admin/team" className="space-y-1">
+                      <input type="hidden" name="action" value="caps" />
+                      <input type="hidden" name="email" value={a.email} />
+                      {CAPABILITY_NAMES.map((cap) => (
+                        <label key={cap} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+                          <input
+                            type="checkbox"
+                            name="cap"
+                            value={cap}
+                            defaultChecked={a.caps?.includes(cap)}
+                            className="h-3.5 w-3.5 accent-[var(--accent-color)]"
+                          />
+                          {CAPABILITIES[cap]}
+                        </label>
+                      ))}
+                      <button className={`${buttonClass} mt-2 !px-3 !py-1.5`}>Save permissions</button>
+                    </form>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-[var(--text-secondary)]">
                   {a.fixed ? "Set in Vercel" : `${a.addedBy}, ${formatTime(a.addedAt)}`}
                 </td>

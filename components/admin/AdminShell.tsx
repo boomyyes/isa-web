@@ -1,6 +1,27 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { can, type Session } from "@/lib/admin/store";
+import { can, hasCap, type Capability, type Role, type Session } from "@/lib/admin/store";
+
+type NavItem = { path: string; label: string; role?: Role; cap?: Capability };
+
+/**
+ * Every admin page, grouped. An entry shows only to admins who hold its role
+ * or capability; the page itself enforces the same rule. New features add a line here.
+ */
+const NAV: { title: string; items: NavItem[] }[] = [
+  {
+    title: "Workspace",
+    items: [{ path: "/", label: "Inbox" }],
+  },
+  {
+    title: "Administration",
+    items: [
+      { path: "/team", label: "Team", role: "owner" },
+      { path: "/erase", label: "Erasure", role: "owner" },
+      { path: "/audit", label: "Audit log", role: "owner" },
+    ],
+  },
+];
 
 export const buttonClass =
   "inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--border-active)] bg-[var(--border-active)]/10 px-4 py-2.5 font-jetbrains text-xs font-semibold uppercase tracking-widest text-[var(--text-primary)] transition hover:bg-[var(--border-active)]/20 disabled:opacity-50";
@@ -38,43 +59,53 @@ export function AdminShell({
   title: string;
   children: ReactNode;
 }) {
-  const links = [
-    { href: `${base}/`, label: "Inbox", show: true },
-    { href: `${base}/erase`, label: "Erasure", show: can(session.role, "owner") },
-    { href: `${base}/team`, label: "Team", show: can(session.role, "owner") },
-    { href: `${base}/audit`, label: "Audit log", show: can(session.role, "owner") },
-  ];
+  const visible = (item: NavItem) =>
+    (!item.role || can(session.role, item.role)) && (!item.cap || hasCap(session, item.cap));
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-10">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border-color)] pb-4">
-        <nav className="flex flex-wrap items-center gap-x-5 gap-y-2">
-          <span className="font-jetbrains text-sm font-bold uppercase tracking-widest text-[var(--accent-color)]">
-            ISA-RAIT Admin
-          </span>
-          {links
-            .filter((l) => l.show)
-            .map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="text-sm text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
-              >
-                {l.label}
-              </Link>
-            ))}
+    <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 md:flex-row md:gap-10 md:px-6 md:py-10">
+      <aside className="md:sticky md:top-6 md:h-[calc(100vh-3rem)] md:w-56 md:shrink-0 md:overflow-y-auto">
+        <p className="font-jetbrains text-sm font-bold uppercase tracking-widest text-[var(--accent-color)]">
+          ISA-RAIT Admin
+        </p>
+        <nav className="mt-5 flex flex-wrap gap-x-5 gap-y-4 md:block md:space-y-5">
+          {NAV.map((section) => {
+            const items = section.items.filter(visible);
+            if (items.length === 0) return null;
+            return (
+              <div key={section.title}>
+                <p className="font-jetbrains text-[10px] font-semibold uppercase tracking-[0.25em] text-[var(--text-secondary)]/70">
+                  {section.title}
+                </p>
+                <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 md:block md:space-y-1">
+                  {items.map((item) => (
+                    <li key={item.path}>
+                      <Link
+                        href={`${base}${item.path}`}
+                        className="text-sm text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </nav>
-        <div className="flex items-center gap-3 text-xs text-[var(--text-secondary)]">
-          <span>
-            {session.email} · <span className="uppercase tracking-wider">{session.role}</span>
-          </span>
-          <form method="post" action="/api/admin/logout">
+        <div className="mt-6 border-t border-[var(--border-color)] pt-4 text-xs text-[var(--text-secondary)]">
+          <p className="break-all">{session.email}</p>
+          <p className="mt-1 uppercase tracking-wider">{session.role}</p>
+          <form method="post" action="/api/admin/logout" className="mt-3">
             <button className="underline underline-offset-2 hover:text-[var(--text-primary)]">Sign out</button>
           </form>
         </div>
-      </header>
-      <h1 className="mt-8 font-jetbrains text-2xl font-bold text-[var(--text-primary)]">{title}</h1>
-      <div className="mt-6 space-y-6">{children}</div>
+      </aside>
+
+      <section className="min-w-0 flex-1">
+        <h1 className="font-jetbrains text-2xl font-bold text-[var(--text-primary)]">{title}</h1>
+        <div className="mt-6 space-y-6">{children}</div>
+      </section>
     </div>
   );
 }

@@ -1,14 +1,16 @@
-// POST action=set|remove, email, role -> manages admins. Owners only.
+// POST action=set|caps|remove, email, role | cap[] -> manages admins. Owners only.
 
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
 import {
   audit,
   bootstrapOwners,
   can,
+  isCapability,
   isRole,
   normaliseEmail,
   removeAdmin,
   setAdmin,
+  setCaps,
 } from "@/lib/admin/store";
 import { sameOrigin } from "@/lib/security";
 
@@ -32,7 +34,11 @@ export async function POST(request: Request) {
   // Owners set in Vercel can't be changed here, so nobody gets locked out.
   if (bootstrapOwners().includes(email)) return adminRedirect(request, "/team?error=fixed");
 
-  if (action === "set" && isRole(role)) {
+  if (action === "caps") {
+    const caps = (form?.getAll("cap") ?? []).filter(isCapability);
+    if (!(await setCaps(email, caps))) return adminRedirect(request, "/team?error=email");
+    await audit(session.email, `set permissions: ${caps.join(", ") || "none"}`, email);
+  } else if (action === "set" && isRole(role)) {
     await setAdmin(email, role, session.email);
     await audit(session.email, `set role "${role}"`, email);
   } else if (action === "remove") {
