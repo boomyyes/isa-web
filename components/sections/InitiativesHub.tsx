@@ -202,7 +202,10 @@ export function InitiativesHub() {
 
       {/* Panels */}
       <div className="mt-8">
-        <AnimatePresence mode="wait">
+        {/* initial={false}: the first panel renders in its final state, so the
+            prerendered HTML is visible and its photo can be the LCP. Tab
+            switches still fade. */}
+        <AnimatePresence mode="wait" initial={false}>
           <m.div
             key={active}
             variants={panelVariants}
@@ -246,8 +249,8 @@ function ProjectsPanel() {
         return (
           <m.article
             key={project.id}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 12 }}
+            animate={{ y: 0 }}
             transition={{ delay: i * 0.05, duration: 0.3 }}
             className="overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)] transition-colors duration-300 hover:border-[var(--border-active)]/50"
           >
@@ -262,6 +265,10 @@ function ProjectsPanel() {
                     fill
                     sizes="(max-width: 1024px) 100vw, 42vw"
                     className="object-cover"
+                    // The first project's photo is the page's LCP element:
+                    // fetch it with the HTML instead of waiting for layout.
+                    loading={i === 0 ? "eager" : "lazy"}
+                    fetchPriority={i === 0 ? "high" : "auto"}
                   />
                 </div>
               )}
@@ -376,8 +383,8 @@ function AchievementsPanel() {
         return (
           <m.article
             key={achievement.id}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 12 }}
+            animate={{ y: 0 }}
             transition={{ delay: i * 0.05, duration: 0.3 }}
             className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)] transition-colors duration-300 hover:border-[var(--border-active)]/50"
           >
@@ -482,8 +489,8 @@ function EventsPanel() {
             {upcomingEvents.map((event, i) => (
               <m.li
                 key={event.id}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ y: 6 }}
+                animate={{ y: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.3 }}
                 className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-5 py-4 transition-colors hover:bg-[var(--border-active)]/5"
               >
@@ -544,8 +551,8 @@ function EventsPanel() {
               {events.map((event, i) => (
                 <m.article
                   key={event.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ y: 12 }}
+                  animate={{ y: 0 }}
                   transition={{ delay: i * 0.05, duration: 0.3 }}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)]/60 bg-[var(--card-color)] transition-colors duration-300 hover:border-[var(--border-active)]/50"
                 >
