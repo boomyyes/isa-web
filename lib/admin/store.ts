@@ -45,6 +45,9 @@ export type Access = { role: Role; caps: Capability[] };
 export const hasCap = (session: Pick<Session, "role" | "caps">, cap: Capability) =>
   session.role === "owner" || session.caps.includes(cap);
 
+export const hasAnyCap = (session: Pick<Session, "role" | "caps">, caps: Capability[]) =>
+  caps.some((cap) => hasCap(session, cap));
+
 const USERS_KEY = "admin:users";
 const AUDIT_KEY = "admin:audit";
 const AUDIT_RETENTION_MS = 365 * 24 * 60 * 60 * 1000;

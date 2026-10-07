@@ -29,15 +29,17 @@ export const postSchema = z.object({
 // ----------------------------------------------------------------- categories
 
 export async function listCategories() {
-  const live = and(isNull(forumThreads.deletedAt), eq(forumThreads.categoryId, forumCategories.id));
+  // Qualified by hand: an interpolated column prints as bare "id", which inside
+  // the subquery would mean the thread's own id rather than the outer category's.
+  const live = sql`ft.deleted_at is null and ft.category_id = ${sql.raw('"forum_categories"."id"')}`;
   return db()
     .select({
       id: forumCategories.id,
       name: forumCategories.name,
       description: forumCategories.description,
       position: forumCategories.position,
-      threads: sql<number>`(select count(*)::int from ${forumThreads} where ${live})`,
-      lastPostAt: sql<string | null>`(select max(${forumThreads.lastPostAt}) from ${forumThreads} where ${live})`,
+      threads: sql<number>`(select count(*)::int from ${forumThreads} ft where ${live})`,
+      lastPostAt: sql<string | null>`(select max(ft.last_post_at) from ${forumThreads} ft where ${live})`,
     })
     .from(forumCategories)
     .orderBy(asc(forumCategories.position), asc(forumCategories.name));

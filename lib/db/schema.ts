@@ -4,7 +4,7 @@
 // Conventions: ids are generated UUIDs; people are referenced by their admin
 // email (the admin list itself lives in Upstash); times are timestamptz.
 
-import { boolean, date, index, integer, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { bigint, boolean, date, index, integer, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 /**
  * Who has read the internal workspace notice, and when (the DPDP notice to
@@ -140,4 +140,81 @@ export const chatMessages = pgTable(
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [index("chat_messages_channel_idx").on(t.channelId, t.createdAt), index("chat_messages_created_idx").on(t.createdAt)]
+);
+
+// ------------------------------------------------------------------ finance
+//
+// Amounts are integer paise (₹1 = 100), never floats. Members' bank or UPI
+// details are deliberately not stored: a payment records who was paid and how.
+
+export const budgets = pgTable("budgets", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  description: text("description"),
+  allocatedPaise: bigint("allocated_paise", { mode: "number" }).notNull().default(0),
+  archived: boolean("archived").notNull().default(false),
+  createdBy: text("created_by").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const bills = pgTable(
+  "bills",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    budgetId: uuid("budget_id")
+      .notNull()
+      .references(() => budgets.id, { onDelete: "restrict" }),
+    amountPaise: bigint("amount_paise", { mode: "number" }).notNull(),
+    billDate: date("bill_date", { mode: "string" }).notNull(),
+    vendor: text("vendor").notNull(),
+    description: text("description").notNull(),
+    /** submitted -> approved | rejected; approved -> paid */
+    status: text("status").notNull().default("submitted"),
+    submittedBy: text("submitted_by").notNull(),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }).notNull().defaultNow(),
+    decidedBy: text("decided_by"),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+    rejectReason: text("reject_reason"),
+    paidBy: text("paid_by"),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    paidTo: text("paid_to"),
+    payMode: text("pay_mode"),
+  },
+  (t) => [index("bills_budget_idx").on(t.budgetId), index("bills_status_idx").on(t.status), index("bills_date_idx").on(t.billDate)]
+);
+
+export const billReceipts = pgTable("bill_receipts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  billId: uuid("bill_id")
+    .notNull()
+    .references(() => bills.id, { onDelete: "cascade" }),
+  r2Key: text("r2_key").notNull(),
+  mime: text("mime").notNull(),
+  sizeBytes: integer("size_bytes").notNull(),
+  uploadedBy: text("uploaded_by").notNull(),
+  uploadedAt: timestamp("uploaded_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * Append-only. A database trigger (migration 0005) rejects every UPDATE and
+ * every DELETE except an owner's financial-year purge. Mistakes are corrected
+ * with a reversing entry: same kind, negated amount, pointing at the original.
+ */
+export const ledgerEntries = pgTable(
+  "ledger_entries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    budgetId: uuid("budget_id")
+      .notNull()
+      .references(() => budgets.id, { onDelete: "restrict" }),
+    kind: text("kind").notNull(), // "income" | "expense"
+    amountPaise: bigint("amount_paise", { mode: "number" }).notNull(),
+    entryDate: date("entry_date", { mode: "string" }).notNull(),
+    description: text("description").notNull(),
+    billId: uuid("bill_id").references(() => bills.id, { onDelete: "set null" }),
+    reversesId: uuid("reverses_id").unique(),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("ledger_budget_idx").on(t.budgetId, t.entryDate), index("ledger_date_idx").on(t.entryDate)]
 );
