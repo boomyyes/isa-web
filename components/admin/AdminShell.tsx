@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { can, hasCap, type Capability, type Role, type Session } from "@/lib/admin/store";
+import { unreadCount } from "@/lib/admin/announcements";
+import { dbConfigured } from "@/lib/db";
 
 type NavItem = { path: string; label: string; role?: Role; cap?: Capability };
 
@@ -13,7 +15,9 @@ const NAV: { title: string; items: NavItem[] }[] = [
     title: "Workspace",
     items: [
       { path: "/", label: "Inbox" },
+      { path: "/announcements", label: "Announcements" },
       { path: "/calendar", label: "Calendar" },
+      { path: "/forum", label: "Forum" },
     ],
   },
   {
@@ -55,7 +59,7 @@ export function Notice({ tone = "info", children }: { tone?: "info" | "error"; c
   return <p className={`rounded-lg border px-4 py-3 text-sm ${styles}`}>{children}</p>;
 }
 
-export function AdminShell({
+export async function AdminShell({
   session,
   base,
   title,
@@ -66,6 +70,16 @@ export function AdminShell({
   title: string;
   children: ReactNode;
 }) {
+  // A badge, not a blocker: if the database is down, pages still render.
+  let unread = 0;
+  if (dbConfigured()) {
+    try {
+      unread = await unreadCount(session.email);
+    } catch {
+      unread = 0;
+    }
+  }
+
   const visible = (item: NavItem) =>
     (!item.role || can(session.role, item.role)) && (!item.cap || hasCap(session, item.cap));
 
@@ -92,6 +106,11 @@ export function AdminShell({
                         className="text-sm text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
                       >
                         {item.label}
+                        {item.path === "/announcements" && unread > 0 && (
+                          <span className="ml-2 rounded-full bg-[var(--accent-color)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--bg-color)]">
+                            {unread}
+                          </span>
+                        )}
                       </Link>
                     </li>
                   ))}
