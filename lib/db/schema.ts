@@ -110,3 +110,34 @@ export const forumPosts = pgTable(
   },
   (t) => [index("forum_posts_thread_idx").on(t.threadId, t.createdAt)]
 );
+
+// --------------------------------------------------------------------- chat
+
+export const chatChannels = pgTable("chat_channels", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  description: text("description"),
+  position: integer("position").notNull().default(0),
+  archived: boolean("archived").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * The only copy of every message. Ably is told "something new in channel X"
+ * and nothing else, so no message text or author ever passes through it.
+ * Deleted after a year by the daily retention job (app/api/cron/chat-retention).
+ */
+export const chatMessages = pgTable(
+  "chat_messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    channelId: uuid("channel_id")
+      .notNull()
+      .references(() => chatChannels.id, { onDelete: "cascade" }),
+    body: text("body").notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [index("chat_messages_channel_idx").on(t.channelId, t.createdAt), index("chat_messages_created_idx").on(t.createdAt)]
+);

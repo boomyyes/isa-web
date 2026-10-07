@@ -9,8 +9,22 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminHost, pathModeAllowed } from "@/lib/admin/config";
+import { CSP_DIRECTIVES } from "@/lib/csp";
 
-const PRIVATE = { "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" };
+// Admin pages: the public policy, plus the live-chat connection (Ably). Only
+// a "something changed" ping comes over it; message content never does.
+const ADMIN_CSP = CSP_DIRECTIVES.map((d) =>
+  d.startsWith("connect-src")
+    ? `${d} https://*.ably.io wss://*.ably.io https://*.ably-realtime.com wss://*.ably-realtime.com`
+    : d
+).join("; ");
+
+const PRIVATE: Record<string, string> = {
+  "X-Robots-Tag": "noindex, nofollow",
+  "Cache-Control": "no-store",
+  // Dev needs 'unsafe-eval' for fast refresh, so like next.config, prod only.
+  ...(process.env.NODE_ENV === "production" ? { "Content-Security-Policy": ADMIN_CSP } : {}),
+};
 
 /** The only public files the admin pages use: the tab icons from app/layout.tsx. */
 const ADMIN_HOST_FILES = new Set(["/favicon.ico", "/icon-light.png", "/icon-dark.png", "/apple-icon.png"]);
