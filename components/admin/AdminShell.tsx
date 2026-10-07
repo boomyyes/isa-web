@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { can, hasAnyCap, hasCap, type Capability, type Role, type Session } from "@/lib/admin/store";
+import { can, hasAnyCap, hasCap, ROLE_LABELS, type Capability, type Role, type Session } from "@/lib/admin/store";
 import { unreadCount } from "@/lib/admin/announcements";
 import { dbConfigured } from "@/lib/db";
 
@@ -32,15 +32,15 @@ const NAV: { title: string; items: NavItem[] }[] = [
       { path: "/finance/bills", label: "Bills", anyCap: ["finance.submit", "finance.approve", "finance.audit"] },
       { path: "/finance/ledger", label: "Ledger", anyCap: ["finance.approve", "finance.audit"] },
       { path: "/finance/budgets", label: "Budgets", anyCap: ["finance.approve", "finance.audit"] },
-      { path: "/finance/purge", label: "Delete old records", role: "owner" },
+      { path: "/finance/purge", label: "Delete old records", role: "president" },
     ],
   },
   {
     title: "Administration",
     items: [
-      { path: "/team", label: "Team", role: "owner" },
-      { path: "/erase", label: "Erasure", role: "owner" },
-      { path: "/audit", label: "Audit log", role: "owner" },
+      { path: "/team", label: "Team", role: "president" },
+      { path: "/erase", label: "Erasure", role: "president" },
+      { path: "/audit", label: "Audit log", role: "president" },
     ],
   },
 ];
@@ -134,7 +134,7 @@ export async function AdminShell({
         </nav>
         <div className="mt-6 border-t border-[var(--border-color)] pt-4 text-xs text-[var(--text-secondary)]">
           <p className="break-all">{session.email}</p>
-          <p className="mt-1 uppercase tracking-wider">{session.role}</p>
+          <p className="mt-1 uppercase tracking-wider">{ROLE_LABELS[session.role]}{session.domain && ` · ${session.domain}`}</p>
           <form method="post" action="/api/admin/logout" className="mt-3">
             <button className="underline underline-offset-2 hover:text-[var(--text-primary)]">Sign out</button>
           </form>

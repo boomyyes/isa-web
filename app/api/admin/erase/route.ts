@@ -1,4 +1,4 @@
-// POST email + confirm -> erases everything held under that address. Owners only.
+// POST email + confirm -> erases everything held under that address. Faculty, President and Admin only.
 
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
 import { eraseByEmail } from "@/lib/admin/submissions";
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   if (!sameOrigin(request)) return new Response("Forbidden", { status: 403 });
   const session = await sessionFrom(request);
   if (!session) return adminRedirect(request, "/login");
-  if (!can(session.role, "owner")) return adminRedirect(request, "/?error=denied");
+  if (!can(session.role, "president")) return adminRedirect(request, "/?error=denied");
 
   const form = await request.formData().catch(() => null);
   const raw = form?.get("email");

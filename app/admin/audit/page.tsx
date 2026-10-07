@@ -5,7 +5,7 @@ import { listAudit } from "@/lib/admin/store";
 export const dynamic = "force-dynamic";
 
 export default async function AuditPage() {
-  const session = await requireAdmin("owner");
+  const session = await requireAdmin("president");
   const entries = await listAudit();
 
   return (

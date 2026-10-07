@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AdminShell, buttonClass, cardClass, formatTime, Notice } from "@/components/admin/AdminShell";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import { requireAdmin } from "@/lib/admin/session";
+import { seesDomain } from "@/lib/admin/store";
 import { getCategory, listThreads, THREADS_PER_PAGE } from "@/lib/admin/forum";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +20,7 @@ export default async function ForumCategoryPage({
   const { q, page: rawPage, error, saved } = await searchParams;
   const category = await getCategory(id);
 
-  if (!category) {
+  if (!category || !seesDomain(session, category.domain)) {
     return (
       <AdminShell session={session} base={base} title="Not found">
         <Link href={`${base}/forum`} className="text-sm text-[var(--accent-color)] underline">Back to the forum</Link>

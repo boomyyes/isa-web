@@ -3,7 +3,7 @@ import { AdminShell, buttonClass, cardClass, dangerButtonClass, formatTime, Noti
 import { PlainText } from "@/components/admin/PlainText";
 import { fieldClass } from "@/components/ui/formStyles";
 import { requireAdmin } from "@/lib/admin/session";
-import { hasCap } from "@/lib/admin/store";
+import { hasCap, seesDomain } from "@/lib/admin/store";
 import { canEdit, getCategory, getThread, listPosts, POSTS_PER_PAGE } from "@/lib/admin/forum";
 
 export const dynamic = "force-dynamic";
@@ -22,8 +22,9 @@ export default async function ForumThreadPage({
   const { id } = await params;
   const { page: rawPage, error } = await searchParams;
   const thread = await getThread(id);
+  const category = thread ? await getCategory(thread.categoryId) : null;
 
-  if (!thread) {
+  if (!thread || !category || !seesDomain(session, category.domain)) {
     return (
       <AdminShell session={session} base={base} title="Not found">
         <p className="text-sm text-[var(--text-secondary)]">That thread doesn&apos;t exist or was deleted.</p>
@@ -36,12 +37,12 @@ export default async function ForumThreadPage({
   const total = thread.replyCount + 1;
   const pages = Math.max(1, Math.ceil(total / POSTS_PER_PAGE));
   const page = rawPage === "last" ? pages : Math.min(pages, Math.max(1, Number(rawPage) || 1));
-  const [category, { rows }] = await Promise.all([getCategory(thread.categoryId), listPosts(thread.id, page)]);
+  const { rows } = await listPosts(thread.id, page);
 
   return (
     <AdminShell session={session} base={base} title={thread.title}>
       <Link href={`${base}/forum/c/${thread.categoryId}`} className="text-sm text-[var(--accent-color)] underline underline-offset-2">
-        {category?.name ?? "Back"}
+        {category.name}
       </Link>
       {error && <Notice tone="error">{error}</Notice>}
       {(thread.pinned || thread.locked) && (

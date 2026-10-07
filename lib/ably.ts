@@ -23,11 +23,17 @@ export const channelName = (channelId: string) => `chat:${channelId}`;
 /** A stable pseudonym for Ably's clientId, so Ably never learns admin emails. */
 const pseudonym = (email: string) => createHash("sha256").update(`isa-chat:${email}`).digest("hex").slice(0, 16);
 
-/** Subscribe-only to every chat channel, for an hour. Never publish. */
-export function subscribeTokenRequest(email: string) {
+/**
+ * Subscribe-only for an hour, never publish: to every chat channel, or only to
+ * `channelIds` when given. A channel created later is picked up on the next token.
+ */
+export function subscribeTokenRequest(email: string, channelIds: string[] | null = null) {
+  const capability: Record<string, ["subscribe"]> = channelIds
+    ? Object.fromEntries(channelIds.map((id) => [channelName(id), ["subscribe"]]))
+    : { "chat:*": ["subscribe"] };
   return client().auth.createTokenRequest({
     clientId: pseudonym(email),
-    capability: { "chat:*": ["subscribe"] },
+    capability,
     ttl: 60 * 60 * 1000,
   });
 }

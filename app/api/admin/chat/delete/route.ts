@@ -1,9 +1,9 @@
-// POST { id } -> deletes a message. Authors delete their own; owners and forum
-// moderators can remove anyone's (logged).
+// POST { id } -> deletes a message. Authors delete their own; moderators (Core and above)
+// can remove anyone's in channels they can see (logged).
 
 import { sessionFrom } from "@/lib/admin/session";
-import { audit, hasCap } from "@/lib/admin/store";
-import { deleteMessage, getMessage } from "@/lib/admin/chat";
+import { audit, hasCap, seesDomain } from "@/lib/admin/store";
+import { deleteMessage, getChannel, getMessage } from "@/lib/admin/chat";
 import { signal } from "@/lib/ably";
 import { sameOrigin } from "@/lib/security";
 
@@ -19,7 +19,10 @@ export async function POST(request: Request) {
 
   const { id } = (await request.json().catch(() => ({}))) as { id?: unknown };
   const message = await getMessage(String(id ?? ""));
-  if (!message || message.deletedAt) return json({ error: "That message no longer exists." }, 404);
+  const channel = message ? await getChannel(message.channelId) : null;
+  if (!message || message.deletedAt || !channel || !seesDomain(session, channel.domain)) {
+    return json({ error: "That message no longer exists." }, 404);
+  }
 
   const own = message.createdBy === session.email;
   if (!own && !hasCap(session, "forum")) return json({ error: "You can only delete your own messages." }, 403);

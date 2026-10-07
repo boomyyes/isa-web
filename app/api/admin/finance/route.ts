@@ -1,7 +1,7 @@
 // POST action=… for the treasury. Rules, enforced here:
 //   finance.submit  — submit bills, attach receipts to their own submitted bills
 //   finance.approve — budgets, approve/reject/pay bills, ledger entries, reversals
-//   owner           — the financial-year purge
+//   president+      — the financial-year purge
 // Nobody approves, rejects or pays a bill they submitted themselves.
 
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
@@ -195,7 +195,7 @@ async function handle(request: Request) {
 
   // --------------------------------------------------------------- purge
   if (action === "purge-year") {
-    if (!can(session.role, "owner")) return adminRedirect(request, `/finance?${err("Only owners can delete records.")}`);
+    if (!can(session.role, "president")) return adminRedirect(request, `/finance?${err("Only Faculty, the President or Admin can delete records.")}`);
     const fy = Number(get("fy"));
     const eligible = (await purgeableYears()).find((y) => y.fy === fy);
     if (!eligible) return adminRedirect(request, `/finance/purge?${err("That year isn't eligible for deletion yet.")}`);

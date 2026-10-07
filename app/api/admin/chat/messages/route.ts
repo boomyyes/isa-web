@@ -1,7 +1,7 @@
 // GET ?channel=<id>[&after=<iso>|&before=<iso>] -> { messages } oldest first.
 
 import { sessionFrom } from "@/lib/admin/session";
-import { hasCap } from "@/lib/admin/store";
+import { hasCap, seesDomain } from "@/lib/admin/store";
 import { getChannel, listMessages } from "@/lib/admin/chat";
 
 export const runtime = "nodejs";
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const channel = await getChannel(url.searchParams.get("channel") ?? "");
-  if (!channel) return Response.json({ error: "Unknown channel." }, { status: 404, headers: PRIVATE });
+  if (!channel || !seesDomain(session, channel.domain)) return Response.json({ error: "Unknown channel." }, { status: 404, headers: PRIVATE });
 
   const messages = await listMessages(channel.id, {
     after: date(url.searchParams.get("after")),
