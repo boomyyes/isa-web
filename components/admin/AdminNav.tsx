@@ -81,9 +81,25 @@ export function BellDot({ counts }: { counts: Promise<NavCounts> }) {
 }
 
 /** Exact match for the dashboard, prefix match for everything else. */
-function isCurrent(pathname: string, href: string, home: string) {
+function matches(pathname: string, href: string, home: string) {
   if (href === home) return pathname === home || pathname === `${home}/`;
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/**
+ * The one item to highlight: the longest href that matches. Without this,
+ * /finance/bills matched both "Overview" (/finance) and "Bills", and the pill
+ * slid to whichever came first.
+ */
+function currentHref(sections: AdminNavSection[], pathname: string, home: string) {
+  let best: string | null = null;
+  for (const { items } of sections) {
+    for (const { href } of items) {
+      const h = href || "/";
+      if (matches(pathname, h, home) && (!best || h.length > best.length)) best = h;
+    }
+  }
+  return best;
 }
 
 const PILL_KEY = "admin-nav-pill";
@@ -148,6 +164,7 @@ export function AdminNav({
   // On admin.isarait.in the URL has no /admin prefix while `home` may be ""
   // (subdomain) or "/admin" (path mode); normalise both to compare.
   const root = home || "/";
+  const active = currentHref(sections, pathname, root);
 
   return (
     <nav ref={navRef} aria-label="Admin" className="relative space-y-5">
@@ -164,7 +181,7 @@ export function AdminNav({
           </p>
           <ul className="space-y-0.5">
             {section.items.map((item) => {
-              const current = isCurrent(pathname, item.href || "/", root);
+              const current = (item.href || "/") === active;
               const Icon = NAV_ICONS[item.icon];
               return (
                 <li key={item.href}>
