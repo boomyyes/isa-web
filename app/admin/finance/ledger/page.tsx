@@ -1,4 +1,4 @@
-import { AdminShell, buttonClass, cardClass, Notice } from "@/components/admin/AdminShell";
+import { AdminShell, buttonClass, cardClass, Notice, tableHeadClass, tableRowClass, tableWrapClass } from "@/components/admin/AdminShell";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import { requireAnyCapability } from "@/lib/admin/session";
 import { hasCap } from "@/lib/admin/store";
@@ -64,9 +64,9 @@ export default async function LedgerPage({
         <a href={`/api/admin/finance/export?type=ledger&${exportQs}`} className={`${buttonClass} !border-[var(--border-color)]`}>Export CSV</a>
       </form>
 
-      <div className="overflow-x-auto rounded-2xl border border-[var(--border-color)]">
+      <div className={tableWrapClass}>
         <table className="w-full text-left text-sm">
-          <thead className="bg-[var(--card-color)] font-jetbrains text-xs uppercase tracking-widest text-[var(--text-secondary)]">
+          <thead className={tableHeadClass}>
             <tr>
               <th className="px-4 py-3">Date</th>
               <th className="px-4 py-3">Budget</th>
@@ -78,7 +78,7 @@ export default async function LedgerPage({
           </thead>
           <tbody>
             {rows.map(({ entry: e, budgetName, reversedBy }) => (
-              <tr key={e.id} className={`border-t border-[var(--border-color)] text-[var(--text-primary)] ${reversedBy || e.reversesId ? "text-[var(--text-secondary)]" : ""}`}>
+              <tr key={e.id} className={`${tableRowClass} ${reversedBy || e.reversesId ? "text-[var(--text-secondary)]" : ""}`}>
                 <td className="whitespace-nowrap px-4 py-3">{e.entryDate}</td>
                 <td className="px-4 py-3">{budgetName}</td>
                 <td className="px-4 py-3">
@@ -108,7 +108,7 @@ export default async function LedgerPage({
           </tbody>
           {rows.length > 0 && (
             <tfoot>
-              <tr className="border-t-2 border-[var(--border-color)] font-semibold text-[var(--text-primary)]">
+              <tr className="border-t-2 border-white/10 font-semibold text-[var(--text-primary)] [&_td]:px-5 [&_td]:py-4">
                 <td className="px-4 py-3" colSpan={3}>Net (income − expense) for these entries</td>
                 <td className={`px-4 py-3 text-right ${net < 0 ? "text-red-400" : ""}`} colSpan={2}>{formatPaise(net)}</td>
                 {approver && <td />}

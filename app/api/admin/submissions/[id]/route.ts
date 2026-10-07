@@ -25,7 +25,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!status && !note) return adminRedirect(request, `/s/${id}`);
 
   const ok = await updateSubmission(id, { status, note: note || undefined }, session.email);
-  if (!ok) return adminRedirect(request, "/?error=missing");
+  if (!ok) return adminRedirect(request, "/inbox?error=missing");
 
   await audit(session.email, status ? `set status "${status}"` : "added a note", id);
   return adminRedirect(request, `/s/${id}?saved=1`);

@@ -64,7 +64,14 @@ export function capsFor(role: Role, domain: Domain | null): Capability[] {
 }
 
 export type AdminUser = { role: Role; domain?: Domain | null; addedBy: string; addedAt: string };
-export type Session = { email: string; role: Role; domain: Domain | null; caps: Capability[] };
+export type Session = {
+  email: string;
+  /** Display name, if one has been set (see NAMES_KEY). Never guessed from the email. */
+  name: string | null;
+  role: Role;
+  domain: Domain | null;
+  caps: Capability[];
+};
 export type Access = { role: Role; domain: Domain | null; caps: Capability[] };
 
 export const hasCap = (session: Pick<Session, "caps">, cap: Capability) => session.caps.includes(cap);
@@ -83,6 +90,10 @@ export const seesDomain = (session: Pick<Session, "role" | "domain">, audience: 
   audience === null || session.role !== "jointcore" || (audience !== "core" && session.domain === audience);
 
 const USERS_KEY = "admin:users";
+// Display names, email -> name. A hash of its own rather than a field on the
+// user record because ADMIN_OWNERS have no stored record. Optional: set by the
+// president on the Team page or by the member on the notice page.
+const NAMES_KEY = "admin:names";
 const AUDIT_KEY = "admin:audit";
 const AUDIT_RETENTION_MS = 365 * 24 * 60 * 60 * 1000;
 
@@ -151,8 +162,33 @@ export async function setAdmin(email: string, role: Role, domain: Domain | null,
   await redis().hset(USERS_KEY, { [email]: user });
 }
 
+/** Longest display name accepted, after trimming. */
+export const NAME_MAX = 60;
+
+/** Trims and collapses whitespace; null when nothing usable is left. */
+export function cleanName(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const name = value.replace(/\s+/g, " ").trim().slice(0, NAME_MAX);
+  return name || null;
+}
+
+export async function nameOf(email: string): Promise<string | null> {
+  return (await redis().hget<string>(NAMES_KEY, email)) ?? null;
+}
+
+export async function namesOf(): Promise<Record<string, string>> {
+  return (await redis().hgetall<Record<string, string>>(NAMES_KEY)) ?? {};
+}
+
+/** Sets or, with null, clears a member's display name. */
+export async function setName(email: string, name: string | null) {
+  if (name) await redis().hset(NAMES_KEY, { [email]: name });
+  else await redis().hdel(NAMES_KEY, email);
+}
+
 export async function removeAdmin(email: string) {
   await redis().hdel(USERS_KEY, email);
+  await redis().hdel(NAMES_KEY, email);
   await revokeSessions(email);
 }
 
@@ -218,8 +254,8 @@ export async function readSession(id: string | undefined): Promise<Session | nul
   if (!id || !/^[A-Za-z0-9_-]{43}$/.test(id)) return null;
   const stored = await redis().get<{ email: string }>(sessionKey(id));
   if (!stored) return null;
-  const access = await accessOf(stored.email);
-  return access ? { email: stored.email, ...access } : null;
+  const [access, name] = await Promise.all([accessOf(stored.email), nameOf(stored.email)]);
+  return access ? { email: stored.email, name, ...access } : null;
 }
 
 export async function destroySession(id: string | undefined) {

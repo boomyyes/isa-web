@@ -1,4 +1,6 @@
 import { AdminShell, buttonClass, cardClass, formatTime, Notice } from "@/components/admin/AdminShell";
+import { fieldClass, labelClass } from "@/components/ui/formStyles";
+import { NAME_MAX } from "@/lib/admin/store";
 import { requireAdmin } from "@/lib/admin/session";
 import { ackedAt, NOTICE_VERSION } from "@/lib/admin/notice";
 
@@ -9,10 +11,14 @@ const h2 = "font-jetbrains text-sm font-bold uppercase tracking-widest text-[var
 // The notice to committee members under s.5 of the DPDP Act, 2023. Keep it
 // true to what the workspace does; when its substance changes, bump
 // NOTICE_VERSION in lib/admin/notice.ts so everyone acknowledges it again.
-export default async function NoticePage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function NoticePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; named?: string }>;
+}) {
   const session = await requireAdmin("jointcore", { notice: false });
   const { base } = session;
-  const { error } = await searchParams;
+  const { error, named } = await searchParams;
   let acked: Date | null = null;
   try {
     acked = await ackedAt(session.email);
@@ -22,7 +28,8 @@ export default async function NoticePage({ searchParams }: { searchParams: Promi
 
   return (
     <AdminShell session={session} base={base} title="Notice to committee members">
-      {error && <Notice tone="error">Your acknowledgement couldn&apos;t be saved. Try again in a moment.</Notice>}
+      {error && <Notice tone="error">That couldn&apos;t be saved. Try again in a moment.</Notice>}
+      {named && <Notice>Your name is saved.</Notice>}
       {!acked && (
         <Notice>Please read this before using the workspace. It explains what the workspace holds about you.</Notice>
       )}
@@ -38,7 +45,8 @@ export default async function NoticePage({ searchParams }: { searchParams: Promi
           <h2 className={h2}>What is held about you, and for how long</h2>
           <ul className="list-disc space-y-2 pl-5">
             <li>
-              <strong className="text-[var(--text-primary)]">Your account:</strong> your email address, role and
+              <strong className="text-[var(--text-primary)]">Your account:</strong> your email address, the name
+              you or the President chose to show (optional, and you can change or remove it below), role and
               domain, who added you and when. Kept while you are a member of the workspace and deleted when you are
               removed from it.
             </li>
@@ -126,9 +134,29 @@ export default async function NoticePage({ searchParams }: { searchParams: Promi
       </div>
 
       {acked ? (
-        <p className="text-sm text-[var(--text-secondary)]">You acknowledged this notice on {formatTime(acked.toISOString())}.</p>
+        <>
+          <p className="text-sm text-[var(--text-secondary)]">You acknowledged this notice on {formatTime(acked.toISOString())}.</p>
+          {/* Linked from the avatar block in the admin top bar. */}
+          <form id="name" method="post" action="/api/admin/notice" className={`${cardClass} flex flex-wrap items-end gap-3`}>
+            <input type="hidden" name="action" value="name" />
+            <div className="min-w-0 flex-1">
+              <label htmlFor="display-name" className={labelClass}>
+                Your name
+              </label>
+              <input id="display-name" name="name" type="text" maxLength={NAME_MAX} defaultValue={session.name ?? ""} autoComplete="name" placeholder="Leave blank to show only your email" className={fieldClass} />
+            </div>
+            <button className={buttonClass}>Save name</button>
+          </form>
+        </>
       ) : (
-        <form method="post" action="/api/admin/notice">
+        <form method="post" action="/api/admin/notice" className={`${cardClass} space-y-4`}>
+          <input type="hidden" name="action" value="ack" />
+          <div>
+            <label htmlFor="display-name" className={labelClass}>
+              What should we call you? (optional)
+            </label>
+            <input id="display-name" name="name" type="text" maxLength={NAME_MAX} defaultValue={session.name ?? ""} autoComplete="name" placeholder="Shown to you and in the admin area" className={fieldClass} />
+          </div>
           <button className={buttonClass}>I have read this notice</button>
         </form>
       )}

@@ -126,6 +126,15 @@ export async function listBills(f: BillFilter) {
     .limit(500);
 }
 
+/** Bills in one status, counted on the status index. For badges, not listings. */
+export async function countBills(status: (typeof BILL_STATUSES)[number]): Promise<number> {
+  const [row] = await db()
+    .select({ n: sql<number>`count(*)::int` })
+    .from(bills)
+    .where(eq(bills.status, status));
+  return row?.n ?? 0;
+}
+
 export async function getBill(id: string) {
   if (!isUuid(id)) return null;
   const [row] = await db()

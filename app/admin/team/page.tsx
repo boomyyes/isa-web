@@ -1,4 +1,4 @@
-import { AdminShell, buttonClass, cardClass, dangerButtonClass, formatTime, Notice } from "@/components/admin/AdminShell";
+import { AdminShell, buttonClass, cardClass, dangerButtonClass, formatTime, Notice, tableHeadClass, tableRowClass, tableWrapClass } from "@/components/admin/AdminShell";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import { requireAdmin } from "@/lib/admin/session";
 import {
@@ -9,6 +9,8 @@ import {
   DOMAINS,
   domainLabel,
   listAdmins,
+  NAME_MAX,
+  namesOf,
   ROLE_LABELS,
   type Role,
 } from "@/lib/admin/store";
@@ -37,20 +39,27 @@ export default async function TeamPage({
   const session = await requireAdmin("president");
   const { base } = session;
   const { saved, error } = await searchParams;
-  const admins = await listAdmins();
+  const [admins, names] = await Promise.all([listAdmins(), namesOf()]);
 
   return (
     <AdminShell session={session} base={base} title="Team">
       {saved && <Notice>Saved. Changes apply on the person&apos;s next click; removed admins are signed out immediately.</Notice>}
       {error && ERRORS[error] && <Notice tone="error">{ERRORS[error]}</Notice>}
 
-      <form method="post" action="/api/admin/team" className={`${cardClass} grid gap-4 sm:grid-cols-[1fr_auto_auto_auto] sm:items-end`}>
+      <form method="post" action="/api/admin/team" className={`${cardClass} grid gap-4 sm:grid-cols-[1fr_1fr_auto_auto_auto] sm:items-end`}>
         <input type="hidden" name="action" value="set" />
         <div>
           <label htmlFor="email" className={labelClass}>
             Add or change an admin
           </label>
           <input id="email" name="email" type="email" required placeholder="name@example.com" className={fieldClass} />
+        </div>
+        <div>
+          <label htmlFor="name" className={labelClass}>
+            Name (optional)
+          </label>
+          {/* Blank leaves an existing name as it is; members can also set their own. */}
+          <input id="name" name="name" type="text" maxLength={NAME_MAX} autoComplete="off" placeholder="Shown in the admin area" className={fieldClass} />
         </div>
         <select name="role" defaultValue="jointcore" aria-label="Role" className={`${fieldClass} w-auto`}>
           {ASSIGNABLE_ROLES.map((r) => (
@@ -68,7 +77,7 @@ export default async function TeamPage({
           ))}
         </select>
         <button className={buttonClass}>Save</button>
-        <div className="space-y-1 text-xs text-[var(--text-secondary)] sm:col-span-4">
+        <div className="space-y-1 text-xs text-[var(--text-secondary)] sm:col-span-5">
           <ul>
             {(["admin", ...ASSIGNABLE_ROLES] as Role[]).map((r) => (
               <li key={r}>
@@ -83,11 +92,11 @@ export default async function TeamPage({
         </div>
       </form>
 
-      <div className="overflow-x-auto rounded-2xl border border-[var(--border-color)]">
+      <div className={tableWrapClass}>
         <table className="w-full text-left text-sm">
-          <thead className="bg-[var(--card-color)] font-jetbrains text-xs uppercase tracking-widest text-[var(--text-secondary)]">
+          <thead className={tableHeadClass}>
             <tr>
-              <th className="px-4 py-3">Email</th>
+              <th className="px-4 py-3">Member</th>
               <th className="px-4 py-3">Role</th>
               <th className="px-4 py-3">Can</th>
               <th className="px-4 py-3">Added</th>
@@ -98,8 +107,11 @@ export default async function TeamPage({
             {admins.map((a) => {
               const caps = capsFor(a.role, a.domain);
               return (
-                <tr key={a.email} className="border-t border-[var(--border-color)] align-top text-[var(--text-primary)]">
-                  <td className="px-4 py-3">{a.email}</td>
+                <tr key={a.email} className={`${tableRowClass} align-top`}>
+                  <td className="px-4 py-3">
+                    {names[a.email] && <span className="block font-medium">{names[a.email]}</span>}
+                    <span className={names[a.email] ? "text-xs text-[var(--text-secondary)]" : undefined}>{a.email}</span>
+                  </td>
                   <td className="px-4 py-3">
                     <span className="uppercase">{ROLE_LABELS[a.role]}</span>
                     {a.domain && <span className="block text-xs text-[var(--text-secondary)]">{domainLabel(a.domain)}</span>}

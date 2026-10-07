@@ -1,4 +1,4 @@
-// POST action=set|remove, email, role, domain -> manages admins.
+// POST action=set|remove, email, role, domain, name? -> manages admins.
 // Faculty, President and Admin only. Admins themselves come from ADMIN_OWNERS
 // in Vercel and can't be granted, changed or removed here.
 
@@ -7,12 +7,14 @@ import {
   audit,
   bootstrapOwners,
   can,
+  cleanName,
   isAssignableRole,
   isDomain,
   normaliseEmail,
   removeAdmin,
   ROLE_LABELS,
   setAdmin,
+  setName,
 } from "@/lib/admin/store";
 import { sameOrigin } from "@/lib/security";
 
@@ -42,6 +44,12 @@ export async function POST(request: Request) {
     if (role === "jointcore" && !domain) return adminRedirect(request, "/team?error=domain");
     await setAdmin(email, role, domain, session.email);
     await audit(session.email, `set role "${ROLE_LABELS[role]}${domain ? ` · ${domain}` : ""}"`, email);
+    // Optional. Blank keeps the current name, so changing a role never wipes it.
+    const name = cleanName(form?.get("name"));
+    if (name) {
+      await setName(email, name);
+      await audit(session.email, `set name "${name}"`, email);
+    }
   } else if (action === "remove") {
     await removeAdmin(email);
     await audit(session.email, "removed admin", email);
