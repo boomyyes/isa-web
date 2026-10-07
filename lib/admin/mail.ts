@@ -20,24 +20,25 @@ function mailer(): Transporter {
   return transport;
 }
 
-export async function sendLoginLink(to: string, url: string) {
+/** `code` is always six digits, so it's safe to put in the HTML as is. */
+export async function sendLoginCode(to: string, code: string) {
   const minutes = LOGIN_TTL_SECONDS / 60;
   await mailer().sendMail({
     from: `ISA-RAIT Admin <${process.env.ADMIN_SMTP_USER}>`,
     to,
-    subject: "Your ISA-RAIT admin sign-in link",
+    subject: `Your ISA-RAIT admin sign-in code: ${code}`,
     text: [
-      "Use this link to sign in to the ISA-RAIT admin area:",
+      "Your code to sign in to the ISA-RAIT admin area:",
       "",
-      url,
+      code,
       "",
       `It works once and expires in ${minutes} minutes.`,
-      "If you didn't ask to sign in, ignore this email. Nobody can use the link without access to your inbox.",
+      "Never share this code. If you didn't ask to sign in, ignore this email.",
     ].join("\n"),
     html: `<div style="font-family:system-ui,sans-serif;line-height:1.6;color:#1E293B;max-width:520px">
-  <p>Use this link to sign in to the ISA-RAIT admin area:</p>
-  <p><a href="${url}" style="color:#00A3C4">Sign in</a></p>
-  <p style="color:#64748B;font-size:14px">It works once and expires in ${minutes} minutes. If you didn't ask to sign in, ignore this email.</p>
+  <p>Your code to sign in to the ISA-RAIT admin area:</p>
+  <p style="font-family:ui-monospace,monospace;font-size:32px;font-weight:700;letter-spacing:8px;margin:16px 0">${code}</p>
+  <p style="color:#64748B;font-size:14px">It works once and expires in ${minutes} minutes. Never share this code. If you didn't ask to sign in, ignore this email.</p>
 </div>`,
   });
 }
