@@ -1,0 +1,8 @@
+# ai.txt for isarait.in
+# AI crawlers may read the public pages of this site. robots.txt
+# (https://isarait.in/robots.txt) is authoritative where the two differ.
+
+User-Agent: *
+Allow: /
+Disallow: /api/
+Disallow: /certificates/reset
