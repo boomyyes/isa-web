@@ -11,7 +11,10 @@ type NavItem = { path: string; label: string; role?: Role; cap?: Capability };
 const NAV: { title: string; items: NavItem[] }[] = [
   {
     title: "Workspace",
-    items: [{ path: "/", label: "Inbox" }],
+    items: [
+      { path: "/", label: "Inbox" },
+      { path: "/calendar", label: "Calendar" },
+    ],
   },
   {
     title: "Website",
