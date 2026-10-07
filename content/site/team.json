@@ -2,8 +2,8 @@
   "faculty": [
     {
       "id": "fac-coordinator",
-      "role": "Faculty Coordinator",
       "name": "Dr. Supriya Bhuran",
+      "role": "Faculty Coordinator",
       "photo": "/team/supriya-bhuran.jpg",
       "linkedin": "https://www.linkedin.com/in/dr-supriya-bhuran-yadav-2899211a/"
     }
@@ -11,36 +11,36 @@
   "core": [
     {
       "id": "core-president",
-      "role": "President",
       "name": "Yash Patil",
+      "role": "President",
       "photo": "/team/yash-patil.jpg",
       "linkedin": "https://www.linkedin.com/in/yash-v-patil/"
     },
     {
       "id": "core-vp",
-      "role": "Vice President",
       "name": "Jyotiraditya Patil",
+      "role": "Vice President",
       "photo": "/team/jyotiraditya-patil.jpg",
       "linkedin": "https://www.linkedin.com/in/jyotiraditya-patil-73b394274/"
     },
     {
       "id": "core-treasurer",
-      "role": "Treasurer",
       "name": "Arya Bhagwat",
+      "role": "Treasurer",
       "photo": "/team/arya-bhagwat.jpg",
       "linkedin": "https://www.linkedin.com/in/arya-bhagwat-08653334b/"
     },
     {
       "id": "core-gen-sec",
-      "role": "General Secretary",
       "name": "Harsh Watkar",
+      "role": "General Secretary",
       "photo": "/team/harsh-watkar.jpg",
       "linkedin": "https://www.linkedin.com/in/harsh-watkar-00105a346/"
     },
     {
       "id": "core-ceo",
-      "role": "Chief Event Organizer",
       "name": "Janhavi Patankar",
+      "role": "Chief Event Organizer",
       "photo": "/team/janhavi-patankar.jpg",
       "linkedin": "https://www.linkedin.com/in/janhavi-patankar-264292397/"
     }
@@ -48,26 +48,26 @@
   "subCore": [
     {
       "id": "sub-pro",
-      "role": "Public Relations Officer",
       "name": "Suhani Guralwar",
+      "role": "Public Relations Officer",
       "photo": "/team/suhani-guralwar.jpg",
       "linkedin": "https://www.linkedin.com/in/suhani-guralwar-b43807421/"
     },
     {
       "id": "sub-sponsorship",
-      "role": "Sponsorship Officer",
       "name": "Suhas Dongre",
+      "role": "Sponsorship Officer",
       "photo": "/team/suhas-dongre.jpg",
       "linkedin": "https://www.linkedin.com/in/suhasdongre/"
     },
     {
       "id": "sub-cto",
-      "role": "Chief Technical Officer",
       "name": "Chris Misquitta",
+      "role": "Chief Technical Officer (test edit)",
       "photo": "/team/chris-misquitta.jpg",
       "linkedin": "https://www.linkedin.com/in/chrismm31313/",
-      "github": "https://github.com/CMM31313",
       "technical": true,
+      "github": "https://github.com/CMM31313",
       "hidden": true
     }
   ],
@@ -77,30 +77,30 @@
       "members": [
         {
           "id": "jc-tech-1",
-          "role": "Technical Member",
           "name": "Ujjwal Prajapati",
+          "role": "Technical Member",
           "photo": "/team/ujjwal-prajapati.jpg",
           "linkedin": "https://www.linkedin.com/in/ujjwalprajapati915/",
-          "github": "https://github.com/minoubs",
-          "technical": true
+          "technical": true,
+          "github": "https://github.com/minoubs"
         },
         {
           "id": "jc-tech-2",
-          "role": "Technical Member",
           "name": "Aryesh Deshmukh",
+          "role": "Technical Member",
           "photo": "/team/aryesh-deshmukh.jpg",
           "linkedin": "https://www.linkedin.com/in/aryesh-deshmukh-9373693b7/",
-          "github": "https://github.com/Aryesh0/",
-          "technical": true
+          "technical": true,
+          "github": "https://github.com/Aryesh0/"
         },
         {
           "id": "jc-tech-3",
-          "role": "Technical Member",
           "name": "Avanish Wankhede",
+          "role": "Technical Member",
           "photo": "/team/avanish-wankhede.jpg",
           "linkedin": "https://www.linkedin.com/in/avanishwankhede/",
-          "github": "https://github.com/boomyyes/",
-          "technical": true
+          "technical": true,
+          "github": "https://github.com/boomyyes/"
         }
       ]
     },
@@ -109,21 +109,21 @@
       "members": [
         {
           "id": "jc-edit-1",
-          "role": "Historian",
           "name": "Keyur Kulkarni",
+          "role": "Historian",
           "photo": "/team/keyur-kulkarni.jpg",
           "linkedin": "https://www.linkedin.com/in/keyur-anand-kulkarni-b89508333/"
         },
         {
           "id": "jc-edit-2",
-          "role": "Historian",
           "name": "Aadya Bharde",
+          "role": "Historian",
           "photo": "/team/aadya-bharde.jpg"
         },
         {
           "id": "jc-edit-3",
-          "role": "Historian",
           "name": "Rutu Mahadev",
+          "role": "Historian",
           "photo": "/team/rutu-mahadev.jpg"
         }
       ]
@@ -133,22 +133,22 @@
       "members": [
         {
           "id": "jc-pub-1",
-          "role": "Publicity Member",
           "name": "Eshan Aryaa",
+          "role": "Publicity Member",
           "photo": "/team/eshan-aryaa.jpg",
           "linkedin": "https://www.linkedin.com/in/eshan-arya-696848312/"
         },
         {
           "id": "jc-pub-2",
-          "role": "Publicity Member",
           "name": "Ansh Bhoir",
+          "role": "Publicity Member",
           "photo": "/team/ansh-bhoir.jpg",
           "linkedin": "https://www.linkedin.com/in/ansh-bhoir-5238b2329/"
         },
         {
           "id": "jc-pub-3",
-          "role": "Publicity Member",
           "name": "Anjali Karpe",
+          "role": "Publicity Member",
           "photo": "/team/anjali-karpe.jpg"
         }
       ]
@@ -158,31 +158,31 @@
       "members": [
         {
           "id": "jc-admin-1",
-          "role": "Administration Head",
           "name": "Ayan Varekar",
+          "role": "Administration Head",
           "photo": "/team/ayan-varekar.jpg",
           "linkedin": "https://www.linkedin.com/in/ayanvarekar/"
         },
         {
           "id": "jc-admin-gharat",
-          "role": "Administration Co-head",
           "name": "Atharv Gharat",
+          "role": "Administration Co-head",
           "linkedin": "https://www.linkedin.com/in/atharva-gharat-b12a6b306/",
           "hidden": true
         },
         {
           "id": "jc-admin-2",
-          "role": "Administration Co-head",
           "name": "Atharv Bhoir",
+          "role": "Administration Co-head",
           "photo": "/team/atharv-bhoir.jpg",
           "linkedin": "https://www.linkedin.com/in/atharv-bhoir-800352388",
-          "github": "https://github.com/AtharvKB",
-          "technical": true
+          "technical": true,
+          "github": "https://github.com/AtharvKB"
         },
         {
           "id": "jc-admin-3",
-          "role": "Administration Co-Head",
-          "name": "Ishan Hedao"
+          "name": "Ishan Hedao",
+          "role": "Administration Co-Head"
         }
       ]
     },
@@ -191,34 +191,34 @@
       "members": [
         {
           "id": "jc-create-1",
-          "role": "Creativity Head",
           "name": "Yahya Dongarkar",
+          "role": "Creativity Head",
           "photo": "/team/yahya-dongarkar.jpg"
         },
         {
           "id": "jc-create-2",
-          "role": "Creativity Co-head",
           "name": "Vaibhavi Patil",
+          "role": "Creativity Co-head",
           "photo": "/team/vaibhavi-patil.jpg",
           "linkedin": "https://www.linkedin.com/in/vaibhavi-patil-836b1a382"
         },
         {
           "id": "jc-create-3",
-          "role": "Creativity Co-head",
           "name": "Shriya Dalvi",
+          "role": "Creativity Co-head",
           "photo": "/team/shriya-dalvi.jpg"
         },
         {
           "id": "jc-create-4",
-          "role": "Creativity Co-head",
           "name": "Angel Bari",
+          "role": "Creativity Co-head",
           "photo": "/team/angel-bari.jpg",
           "linkedin": "https://www.linkedin.com/in/angel-bari-75441b300/"
         },
         {
           "id": "jc-create-5",
-          "role": "Creativity Co-head",
           "name": "Tanmayi Rathod",
+          "role": "Creativity Co-head",
           "photo": "/team/tanmayi-rathod.jpg"
         }
       ]
@@ -228,28 +228,28 @@
       "members": [
         {
           "id": "jc-media-1",
-          "role": "Media Head",
           "name": "Mazen Zari",
+          "role": "Media Head",
           "photo": "/team/mazen-zari.jpg",
           "linkedin": "https://www.linkedin.com/in/mazen-ejaj-zari-63968b243"
         },
         {
           "id": "jc-media-2",
-          "role": "Media Co-head",
           "name": "Sayan Dutta",
+          "role": "Media Co-head",
           "photo": "/team/sayan-dutta.jpg"
         },
         {
           "id": "jc-media-3",
-          "role": "Media Co-head",
           "name": "Vishesh Karot",
+          "role": "Media Co-head",
           "photo": "/team/vishesh-karot.jpg",
           "linkedin": "https://www.linkedin.com/in/vishesh-karoth-0061273aa/"
         },
         {
           "id": "jc-media-4",
-          "role": "Media Co-head",
           "name": "Mayuri Varti",
+          "role": "Media Co-head",
           "photo": "/team/mayuri-varti.jpg",
           "linkedin": "https://www.linkedin.com/in/mayuri-varti-25788b382"
         }
