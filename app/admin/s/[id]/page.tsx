@@ -12,7 +12,7 @@ import { getSubmission } from "@/lib/admin/submissions";
 import { can } from "@/lib/admin/store";
 import { FORMS } from "@/lib/forms/schemas";
 import { SUBMISSION_STATUSES } from "@/lib/forms/server";
-import { SHEET_LAYOUT } from "@/lib/forms/sheet";
+import { isAnonymous, SHEET_LAYOUT, shownValue } from "@/lib/forms/sheet";
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +59,7 @@ export default async function SubmissionPage({
               <dt className={labelClass}>{title}</dt>
               {/* Rendered as text: React escapes it, so submitted markup can't run. */}
               <dd className="whitespace-pre-wrap break-words text-sm text-[var(--text-primary)]">
-                {String(sub.data[key] ?? "")}
+                {shownValue(sub, key)}
               </dd>
             </div>
           ))}
@@ -117,9 +117,13 @@ export default async function SubmissionPage({
       </section>
 
       <p className="text-sm">
-        <a href={`mailto:${String(sub.data.email ?? "")}?subject=${encodeURIComponent(`Re: your query ${sub.id}`)}`} className="text-[var(--accent-color)] underline underline-offset-2">
-          Reply by email
-        </a>
+        {isAnonymous(sub) ? (
+          <span className="text-[var(--text-secondary)]">Sent anonymously: there&apos;s no address to reply to.</span>
+        ) : (
+          <a href={`mailto:${String(sub.data.email ?? "")}?subject=${encodeURIComponent(`Re: your query ${sub.id}`)}`} className="text-[var(--accent-color)] underline underline-offset-2">
+            Reply by email
+          </a>
+        )}
       </p>
     </AdminShell>
   );

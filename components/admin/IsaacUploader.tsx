@@ -7,8 +7,7 @@
 import { useState, type FormEvent } from "react";
 import { Loader2 } from "lucide-react";
 import { labelClass } from "@/components/ui/formStyles";
-
-const MAX_BYTES = 100 * 1024 * 1024;
+import { ISAAC_MAX_UPLOAD_BYTES, ISAAC_MAX_UPLOAD_MB } from "@/lib/isaac";
 
 type Status =
   | { kind: "idle" }
@@ -52,7 +51,9 @@ export function IsaacUploader({ buttonClass }: { buttonClass: string }) {
     e.preventDefault();
     if (!file || busy) return;
     if (file.type && file.type !== "application/pdf") return setStatus({ kind: "error", message: "Choose a PDF file." });
-    if (file.size > MAX_BYTES) return setStatus({ kind: "error", message: "The PDF is over 100 MB. Export it smaller and try again." });
+    if (file.size > ISAAC_MAX_UPLOAD_BYTES) {
+      return setStatus({ kind: "error", message: `The PDF is over ${ISAAC_MAX_UPLOAD_MB} MB. Export it smaller and try again.` });
+    }
 
     try {
       setStatus({ kind: "uploading", percent: 0 });
@@ -85,7 +86,7 @@ export function IsaacUploader({ buttonClass }: { buttonClass: string }) {
           className="mt-1 block text-sm text-[var(--text-secondary)]"
         />
         <p className="mt-1 text-xs text-[var(--text-secondary)]">
-          The whole issue as one PDF, up to 100 MB, without a password. The first page is used as the cover.
+          The whole issue as one PDF, up to {ISAAC_MAX_UPLOAD_MB} MB, without a password. The first page is used as the cover.
         </p>
       </div>
 

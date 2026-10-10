@@ -1,6 +1,14 @@
 import issueJson from "@/content/site/isaac-issue.json";
 
 /**
+ * Largest issue PDF the admin upload accepts. The server reads the whole file
+ * into memory to check it and, on each cold start, to render pages, so this is
+ * bounded by function memory and the 60 s publish limit, not by R2.
+ */
+export const ISAAC_MAX_UPLOAD_MB = 250;
+export const ISAAC_MAX_UPLOAD_BYTES = ISAAC_MAX_UPLOAD_MB * 1024 * 1024;
+
+/**
  * The current issue, written only by the admin upload page
  * (app/api/admin/content/isaac-issue). `pdf` is a key in the private R2 bucket,
  * or "" while the issue still comes from the Drive env vars. The key isn't a

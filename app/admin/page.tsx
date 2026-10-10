@@ -19,6 +19,7 @@ import { listSubmissions } from "@/lib/admin/submissions";
 import { dbConfigured } from "@/lib/db";
 import { FORMS } from "@/lib/forms/schemas";
 import { cn } from "@/lib/utils";
+import { shownValue } from "@/lib/forms/sheet";
 
 export const dynamic = "force-dynamic";
 
@@ -175,7 +176,7 @@ export default async function DashboardPage({
                 <li key={s.id}>
                   <Link href={`${base}/s/${s.id}`} className="-mx-2 flex items-center justify-between gap-4 rounded-xl px-2 py-3 transition hover:bg-white/[0.03]">
                     <span className="min-w-0">
-                      <span className="block truncate text-sm">{String(s.data.name ?? "Unnamed")}</span>
+                      <span className="block truncate text-sm">{shownValue(s, "name") || "Unnamed"}</span>
                       <span className="block truncate font-jetbrains text-[11px] text-[var(--text-secondary)]">
                         {s.id} · {FORMS[s.form]?.label ?? s.form}
                       </span>

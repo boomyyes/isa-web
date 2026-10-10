@@ -42,13 +42,48 @@ const declarations = {
   adult: z.literal(true, "You must be 18 or older to submit this form."),
 };
 
-export const querySchema = z.object({
-  name: line("Name", 2, 100),
-  email,
-  subject: line("Subject", 3, 150),
-  message: text("Message", 10, 3000),
-  ...declarations,
-});
+const name = line("Name", 2, 100);
+
+/**
+ * Name and email are required unless `anonymous` is ticked, in which case
+ * they're dropped entirely, even if the browser sent them, so nothing
+ * identifying is stored for an anonymous query. The committee can't reply to
+ * those; the form says so.
+ */
+export const querySchema = z
+  .object({
+    anonymous: z.boolean().optional(),
+    name: z.string().optional(),
+    email: z.string().optional(),
+    subject: line("Subject", 3, 150),
+    message: text("Message", 10, 3000),
+    ...declarations,
+  })
+  // `when`: runs even if other fields failed, so name and email errors show in
+  // the same pass as the rest instead of only after everything else is fixed.
+  .superRefine(
+    (value, ctx) => {
+      if (value?.anonymous === true) return;
+      const blank = (v: unknown) => typeof v !== "string" || !v.trim();
+      const n = name.safeParse(typeof value?.name === "string" ? value.name : "");
+      const e = email.safeParse(typeof value?.email === "string" ? value.email : "");
+      if (!n.success) {
+        const message = blank(value?.name) ? "Enter your name, or choose to send without it." : n.error.issues[0].message;
+        ctx.addIssue({ code: "custom", path: ["name"], message });
+      }
+      if (!e.success) {
+        const message = blank(value?.email) ? "Enter your email address, or choose to send without it." : e.error.issues[0].message;
+        ctx.addIssue({ code: "custom", path: ["email"], message });
+      }
+    },
+    { when: () => true }
+  )
+  .transform((value) => {
+    const { anonymous, name: rawName, email: rawEmail, ...rest } = value;
+    if (anonymous) return { ...rest, anonymous: true as const };
+    // Already checked above; parse again only for the cleaned-up values.
+    return { ...rest, name: name.parse(rawName), email: email.parse(rawEmail) };
+  });
 
 export type QueryInput = z.input<typeof querySchema>;
 export type QueryData = z.output<typeof querySchema>;

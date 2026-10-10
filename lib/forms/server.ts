@@ -6,7 +6,7 @@
 import "server-only";
 import { createHash, randomInt } from "node:crypto";
 import { resolveMx } from "node:dns/promises";
-import { clientIp, formEmailLimiter, formIpLimiter, redis } from "@/lib/redis";
+import { clientIp, formAnonIpLimiter, formEmailLimiter, formIpLimiter, redis } from "@/lib/redis";
 import { mailerConfigured, sendCustomEmail } from "@/lib/mailer";
 import { sameOrigin } from "@/lib/security";
 import {
@@ -131,6 +131,8 @@ export async function handleSubmission(request: Request, form: FormName): Promis
     return json({ error: "Please fix the highlighted fields.", fields: fieldErrors(result.error) }, 400);
   }
   const data = result.data;
+  // Anonymous queries carry no email, so the email-keyed checks don't apply.
+  const email = "email" in data && typeof data.email === "string" ? data.email : null;
 
   // Same person, same form, same content within a day: hand back the first ref.
   // Checked before the rate limits so a double-click doesn't spend someone's quota.
@@ -150,11 +152,12 @@ export async function handleSubmission(request: Request, form: FormName): Promis
   }
 
   try {
-    const [byIp, byEmail] = await Promise.all([
-      formIpLimiter().limit(clientIp(request)),
-      formEmailLimiter().limit(`${form}:${data.email}`),
+    const ip = clientIp(request);
+    const [byIp, second] = await Promise.all([
+      formIpLimiter().limit(ip),
+      email ? formEmailLimiter().limit(`${form}:${email}`) : formAnonIpLimiter().limit(`${form}:${ip}`),
     ]);
-    if (!byIp.success || !byEmail.success) {
+    if (!byIp.success || !second.success) {
       return json({ error: "Too many submissions. Please try again later." }, 429);
     }
   } catch {
@@ -164,7 +167,7 @@ export async function handleSubmission(request: Request, form: FormName): Promis
   const reason = "message" in data ? spamReason(String(data.message)) : null;
   if (reason) return json({ error: reason, fields: { message: reason } }, 400);
 
-  if (!(await domainAcceptsMail(data.email))) {
+  if (email && !(await domainAcceptsMail(email))) {
     const message = "That email domain can't receive mail. Check for a typo.";
     return json({ error: message, fields: { email: message } }, 400);
   }
@@ -191,15 +194,16 @@ export async function handleSubmission(request: Request, form: FormName): Promis
       return json({ ok: true, ref: existing ?? id });
     }
 
-    await db
+    const tx = db
       .multi()
       .set(subKey(id), record, { ex: ttl })
       .rpush(PENDING_KEY, id)
-      .zadd(INDEX_KEY, { score: now.getTime(), member: id })
-      .sadd(emailKey(data.email), id)
+      .zadd(INDEX_KEY, { score: now.getTime(), member: id });
+    if (email) {
       // Lives as long as the person's newest submission.
-      .expire(emailKey(data.email), ttl)
-      .exec();
+      tx.sadd(emailKey(email), id).expire(emailKey(email), ttl);
+    }
+    await tx.exec();
   } catch {
     return json({ error: "Submissions are unavailable right now. Please try again later." }, 503);
   }

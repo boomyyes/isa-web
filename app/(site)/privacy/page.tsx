@@ -37,7 +37,7 @@ function Address() {
 // Keep the two in sync, and change both dates whenever the substance changes.
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" effective="7 October 2026" updated="8 October 2026">
+    <LegalPage title="Privacy Policy" effective="7 October 2026" updated="10 October 2026">
       <h2>1. Identity of the Data Fiduciary</h2>
       <p>
         This Website (&ldquo;Website&rdquo;) is operated by the ISA-RAIT Student Chapter, the
@@ -195,6 +195,13 @@ export default function PrivacyPage() {
         </li>
       </ul>
       <p>
+        The name and email address may be left out by choosing to send the submission without
+        them. Such a submission is stored without a name or email address, and ISA-RAIT cannot
+        reply to it. Technical information, including the IP address, is still processed briefly
+        to limit repeated submissions, as described in Section 3.6, and the contents of
+        the enquiry may themselves identify the submitter.
+      </p>
+      <p>
         Each submission is given a reference number, which is shown to the submitter and may be
         quoted in correspondence about the enquiry.
       </p>
@@ -261,7 +268,7 @@ export default function PrivacyPage() {
       <p>
         When certificate sign-in, access-code reset, or a form on the Website is used, the Website
         temporarily processes the user&apos;s IP address and, for form submissions, the email
-        address submitted.
+        address submitted, if one is given.
       </p>
       <p>
         Such information is processed solely for security purposes, including rate-limiting, abuse
