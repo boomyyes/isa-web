@@ -113,6 +113,25 @@ export function formEmailLimiter(): Ratelimit {
   return formEmail;
 }
 
+let formAnonIp: Ratelimit | null = null;
+
+/**
+ * Anonymous submissions on top of formIpLimiter: with no email there's no
+ * per-person limit, so the per-network one is tighter. Still not very tight,
+ * since a whole campus can share one address.
+ */
+export function formAnonIpLimiter(): Ratelimit {
+  if (formAnonIp) return formAnonIp;
+  formAnonIp = new Ratelimit({
+    redis: redis(),
+    limiter: Ratelimit.slidingWindow(5, "1 h"),
+    prefix: "rl:form-anon-ip",
+    ephemeralCache: new Map(),
+    analytics: false,
+  });
+  return formAnonIp;
+}
+
 /** `NextRequest.ip` was removed in Next 15. */
 export function clientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");

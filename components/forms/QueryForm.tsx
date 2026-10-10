@@ -12,13 +12,14 @@ const EMPTY = { name: "", email: "", subject: "", message: "" };
 type Status =
   | { kind: "idle" }
   | { kind: "sending" }
-  | { kind: "sent"; ref: string }
+  | { kind: "sent"; ref: string; anonymous: boolean }
   | { kind: "error"; message: string };
 
 export function QueryForm() {
   const [values, setValues] = useState(EMPTY);
   const [consent, setConsent] = useState(false);
   const [adult, setAdult] = useState(false);
+  const [anonymous, setAnonymous] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const mountedAt = useRef(0);
@@ -45,7 +46,10 @@ export function QueryForm() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    const input: QueryInput = { ...values, consent: consent as true, adult: adult as true };
+    // Anonymous: name and email aren't sent at all, not just ignored later.
+    const input: QueryInput = anonymous
+      ? { anonymous: true, subject: values.subject, message: values.message, consent: consent as true, adult: adult as true }
+      : { ...values, consent: consent as true, adult: adult as true };
     const parsed = querySchema.safeParse(input);
     if (!parsed.success) {
       setErrors(fieldErrors(parsed.error));
@@ -69,7 +73,7 @@ export function QueryForm() {
         fields?: Record<string, string>;
       };
       if (response.ok && body.ref) {
-        setStatus({ kind: "sent", ref: body.ref });
+        setStatus({ kind: "sent", ref: body.ref, anonymous });
         return;
       }
       if (body.fields) setErrors(body.fields);
@@ -89,8 +93,9 @@ export function QueryForm() {
         <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
           Your reference is{" "}
           <span className="font-jetbrains font-semibold text-[var(--text-primary)]">{status.ref}</span>.
-          The committee will reply to the email address you gave. Quote the reference if you
-          follow up.
+          {status.anonymous
+            ? " You sent this without your name or email, so the committee can read it but can't reply."
+            : " The committee will reply to the email address you gave. Quote the reference if you follow up."}
         </p>
       </div>
     );
@@ -117,39 +122,61 @@ export function QueryForm() {
         <input ref={honeypot} id="q-website" name={HONEYPOT_FIELD} type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="q-name" className={labelClass}>Name</label>
-          <input
-            id="q-name"
-            name="name"
-            autoComplete="name"
-            maxLength={100}
-            value={values.name}
-            onChange={(e) => set("name")(e.target.value)}
-            aria-invalid={Boolean(errors.name)}
-            aria-describedby={describedBy("name")}
-            className={fieldClass}
-          />
-          {fieldError("name")}
+      <label className="flex items-start gap-3 text-sm text-[var(--text-secondary)]">
+        <input
+          type="checkbox"
+          checked={anonymous}
+          onChange={(e) => {
+            setAnonymous(e.target.checked);
+            clearError("name");
+            clearError("email");
+          }}
+          className="mt-1 h-4 w-4 shrink-0 accent-[var(--accent-color)]"
+        />
+        <span>
+          <span className="text-[var(--text-primary)]">Send without my name or email</span>
+          <span className="mt-0.5 block text-xs">
+            The committee won&apos;t know who sent it and won&apos;t be able to reply. Leave out anything in your
+            message that identifies you.
+          </span>
+        </span>
+      </label>
+
+      {!anonymous && (
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor="q-name" className={labelClass}>Name</label>
+            <input
+              id="q-name"
+              name="name"
+              autoComplete="name"
+              maxLength={100}
+              value={values.name}
+              onChange={(e) => set("name")(e.target.value)}
+              aria-invalid={Boolean(errors.name)}
+              aria-describedby={describedBy("name")}
+              className={fieldClass}
+            />
+            {fieldError("name")}
+          </div>
+          <div>
+            <label htmlFor="q-email" className={labelClass}>Email</label>
+            <input
+              id="q-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              maxLength={254}
+              value={values.email}
+              onChange={(e) => set("email")(e.target.value)}
+              aria-invalid={Boolean(errors.email)}
+              aria-describedby={describedBy("email")}
+              className={fieldClass}
+            />
+            {fieldError("email")}
+          </div>
         </div>
-        <div>
-          <label htmlFor="q-email" className={labelClass}>Email</label>
-          <input
-            id="q-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            maxLength={254}
-            value={values.email}
-            onChange={(e) => set("email")(e.target.value)}
-            aria-invalid={Boolean(errors.email)}
-            aria-describedby={describedBy("email")}
-            className={fieldClass}
-          />
-          {fieldError("email")}
-        </div>
-      </div>
+      )}
 
       <div>
         <label htmlFor="q-subject" className={labelClass}>Subject</label>
@@ -194,7 +221,7 @@ export function QueryForm() {
             className="mt-1 h-4 w-4 shrink-0 accent-[var(--accent-color)]"
           />
           <span>
-            I agree to ISA-RAIT processing these details to answer my query, as described in the{" "}
+            I agree to ISA-RAIT processing what I submit here to deal with my query, as described in the{" "}
             <Link href="/privacy" className="text-[var(--accent-color)] underline underline-offset-2">
               Privacy Policy
             </Link>

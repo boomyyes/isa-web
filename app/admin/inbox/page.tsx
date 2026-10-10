@@ -4,6 +4,7 @@ import { fieldClass } from "@/components/ui/formStyles";
 import { requireAdmin } from "@/lib/admin/session";
 import { listSubmissions } from "@/lib/admin/submissions";
 import { FORMS } from "@/lib/forms/schemas";
+import { shownValue } from "@/lib/forms/sheet";
 
 export const dynamic = "force-dynamic";
 
@@ -65,8 +66,8 @@ export default async function InboxPage({
                   </td>
                   <td className="px-4 py-3">{FORMS[s.form]?.label ?? s.form}</td>
                   <td className="whitespace-nowrap px-4 py-3">{formatTime(s.receivedAt)}</td>
-                  <td className="px-4 py-3">{String(s.data.name ?? "")}</td>
-                  <td className="px-4 py-3">{String(s.data.email ?? "")}</td>
+                  <td className="px-4 py-3">{shownValue(s, "name")}</td>
+                  <td className="px-4 py-3">{shownValue(s, "email")}</td>
                   <td className="px-4 py-3">{s.status ?? "new"}</td>
                 </tr>
               ))}

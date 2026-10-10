@@ -28,12 +28,24 @@ export function safeCell(value: unknown): string {
   return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
 }
 
+/**
+ * A submission's field for display. Anonymous queries store no name or email,
+ * so they read "Anonymous" instead of a blank. Used by the sheet and the inbox.
+ */
+export function shownValue(sub: Pick<StoredSubmission, "data">, key: string): string {
+  if (sub.data.anonymous === true && key === "name") return "Anonymous";
+  const value = sub.data[key];
+  return value === undefined || value === null ? "" : String(value);
+}
+
+export const isAnonymous = (sub: Pick<StoredSubmission, "data">) => sub.data.anonymous === true;
+
 export function toRow(sub: StoredSubmission): string[] {
   const { columns } = SHEET_LAYOUT[sub.form];
   return [
     sub.id,
     sub.receivedAt,
-    ...columns.map(([key]) => safeCell(sub.data[key])),
+    ...columns.map(([key]) => safeCell(shownValue(sub, key))),
     sub.data.consent === true ? "yes" : "no",
     sub.data.adult === true ? "yes" : "no",
     sub.status ?? "new",

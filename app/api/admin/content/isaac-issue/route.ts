@@ -12,7 +12,7 @@ import { randomBytes } from "node:crypto";
 import { sessionFrom } from "@/lib/admin/session";
 import { audit, hasCap } from "@/lib/admin/store";
 import { ConflictError, readFile, toJsonText, writeFile } from "@/lib/content/github";
-import type { IsaacIssue } from "@/lib/isaac";
+import { ISAAC_MAX_UPLOAD_BYTES as MAX_ISSUE_BYTES, ISAAC_MAX_UPLOAD_MB, type IsaacIssue } from "@/lib/isaac";
 import { pdfPageCount, R2_PREFIX } from "@/lib/isaac.pdf";
 import { deleteObject, headObject, presignPut } from "@/lib/r2";
 import { sameOrigin } from "@/lib/security";
@@ -22,7 +22,6 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const FILE = "content/site/isaac-issue.json";
-const MAX_ISSUE_BYTES = 100 * 1024 * 1024;
 const VERSION = /^\d{8}-\d{6}-[0-9a-f]{6}$/;
 const keyFor = (version: string) => `admin/isaac/${version}.pdf`;
 
@@ -51,7 +50,7 @@ export async function POST(request: Request) {
   if (body.action === "start") {
     const size = Number(body.size);
     if (!Number.isFinite(size) || size <= 0) return json({ error: "Choose a PDF file." }, 400);
-    if (size > MAX_ISSUE_BYTES) return json({ error: "The PDF is over 100 MB. Export it smaller and try again." }, 400);
+    if (size > MAX_ISSUE_BYTES) return json({ error: `The PDF is over ${ISAAC_MAX_UPLOAD_MB} MB. Export it smaller and try again.` }, 400);
     const version = newVersion();
     try {
       return json({ version, url: await presignPut(keyFor(version), 15 * 60) });
@@ -72,7 +71,7 @@ export async function POST(request: Request) {
   };
   const head = await headObject(key).catch(() => null);
   if (!head) return json({ error: "The upload didn't reach storage. Try again." }, 400);
-  if (head.size > MAX_ISSUE_BYTES) return reject("The PDF is over 100 MB.");
+  if (head.size > MAX_ISSUE_BYTES) return reject(`The PDF is over ${ISAAC_MAX_UPLOAD_MB} MB.`);
   const pages = await pdfPageCount(`${R2_PREFIX}${key}`);
   if (pages === 0) {
     return reject("That file couldn't be opened as a PDF. If it's password-protected, upload an unprotected copy: it's stored privately either way.");
