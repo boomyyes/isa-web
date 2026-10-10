@@ -16,7 +16,14 @@ export const ISAAC_MAX_UPLOAD_BYTES = ISAAC_MAX_UPLOAD_MB * 1024 * 1024;
  * `previous` is the issue before it, kept until the next upload so the live
  * site can keep serving it while the new one deploys.
  */
-export type IsaacIssue = { version: string; pdf: string; previous: string; uploadedAt?: string };
+export type IsaacIssue = {
+  version: string;
+  pdf: string;
+  previous: string;
+  uploadedAt?: string;
+  /** Counted when published, so the home page needn't open the PDF just to count. */
+  pages?: number;
+};
 export const ISAAC_ISSUE = issueJson as IsaacIssue;
 
 /**

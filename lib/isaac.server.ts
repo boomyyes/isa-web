@@ -125,6 +125,8 @@ export async function isaacSource(): Promise<IsaacSource | null> {
 
 /** How many pages the reader should render. 0 disables it entirely. */
 export async function isaacPageCount(): Promise<number> {
+  // Recorded at upload; avoids downloading and parsing the PDF on the home page.
+  if (ISAAC_ISSUE.pdf && ISAAC_ISSUE.pages && ISAAC_ISSUE.pages > 0) return ISAAC_ISSUE.pages;
   const source = await isaacSource();
   if (!source) return 0;
   return source.kind === "pdf"

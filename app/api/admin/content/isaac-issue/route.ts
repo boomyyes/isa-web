@@ -85,6 +85,7 @@ export async function POST(request: Request) {
       pdf: key,
       previous: before.pdf,
       uploadedAt: new Date().toISOString(),
+      pages,
     };
     const commit = await writeFile(FILE, toJsonText(next), `content(isaac): publish a new issue (${pages} pages) — via admin`, current.sha);
     await audit(session.email, `published a new ISAAC issue (${pages} pages)`, commit.commitSha.slice(0, 7));

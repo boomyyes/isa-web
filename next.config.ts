@@ -61,6 +61,8 @@ const nextConfig: NextConfig = {
     "/api/isaac-page/*": PDFJS_RUNTIME_FILES,
     "/api/isaac-cover": PDFJS_RUNTIME_FILES,
     "/api/admin/content/isaac-issue": PDFJS_RUNTIME_FILES,
+    // The home page counts the issue's pages when the count isn't recorded.
+    "/": PDFJS_RUNTIME_FILES,
   },
 
   images: {
