@@ -8,7 +8,8 @@ import { db, dbConfigured } from "@/lib/db";
 import { noticeAcks } from "@/lib/db/schema";
 
 // .2: the account entry now lists the optional display name.
-export const NOTICE_VERSION = "2026-10-08.2";
+// 2026-10-10: the Treasurer can now see what the President can.
+export const NOTICE_VERSION = "2026-10-10";
 
 /** When this member acknowledged the current version, or null if they haven't. */
 export async function ackedAt(email: string): Promise<Date | null> {

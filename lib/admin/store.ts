@@ -12,23 +12,25 @@ import { LOGIN_TTL_SECONDS, SESSION_TTL_SECONDS } from "./config";
 
 // Chapter roles. Admin is the break-glass role: it comes only from ADMIN_OWNERS
 // in Vercel and can't be granted, changed or removed from the admin area.
-// The Faculty Advisor and President lead; Core (titled Core or Subcore) runs
+// The Faculty Advisor, President and Treasurer lead; Core (titled Core or Subcore) runs
 // things; Joint Core works inside one domain. A Faculty Coordinator has Joint
 // Core's reach without treasury or website access.
-export const ROLES = ["coordinator", "jointcore", "core", "president", "advisor", "admin"] as const;
+export const ROLES = ["coordinator", "jointcore", "core", "treasurer", "president", "advisor", "admin"] as const;
 export type Role = (typeof ROLES)[number];
-export const ASSIGNABLE_ROLES = ["advisor", "coordinator", "president", "core", "jointcore"] as const satisfies readonly Role[];
+export const ASSIGNABLE_ROLES = ["advisor", "coordinator", "president", "treasurer", "core", "jointcore"] as const satisfies readonly Role[];
 export const ROLE_LABELS: Record<Role, string> = {
   admin: "Admin",
   advisor: "Faculty Advisor",
   coordinator: "Faculty Coordinator",
   president: "President",
+  treasurer: "Treasurer",
   core: "Core / Subcore",
   jointcore: "Joint Core",
 };
 
 // Coordinator ranks with Joint Core: what it may do on top comes from capsFor.
-const RANK: Record<Role, number> = { coordinator: 0, jointcore: 0, core: 1, president: 2, advisor: 2, admin: 3 };
+// Treasurer is listed below President but has exactly the same access.
+const RANK: Record<Role, number> = { coordinator: 0, jointcore: 0, core: 1, treasurer: 2, president: 2, advisor: 2, admin: 3 };
 export const can = (role: Role, needed: Role) => RANK[role] >= RANK[needed];
 export const isRole = (value: unknown): value is Role =>
   typeof value === "string" && (ROLES as readonly string[]).includes(value);
@@ -105,7 +107,7 @@ const USERS_KEY = "admin:users";
 // president on the Team page or by the member on the notice page.
 const NAMES_KEY = "admin:names";
 // Optional phone numbers, email -> number, for urgent committee contact. Only
-// the Faculty Advisor, the President and Admins see them (Team page). Same shape and reason
+// the Faculty Advisor, the President, the Treasurer and Admins see them (Team page). Same shape and reason
 // for a separate hash as NAMES_KEY.
 const PHONES_KEY = "admin:phones";
 const AUDIT_KEY = "admin:audit";

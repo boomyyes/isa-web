@@ -195,7 +195,7 @@ async function handle(request: Request) {
 
   // --------------------------------------------------------------- purge
   if (action === "purge-year") {
-    if (!can(session.role, "president")) return adminRedirect(request, `/finance?${err("Only the Faculty Advisor, the President or Admin can delete records.")}`);
+    if (!can(session.role, "president")) return adminRedirect(request, `/finance?${err("Only the Faculty Advisor, the President, the Treasurer or Admin can delete records.")}`);
     const fy = Number(get("fy"));
     const eligible = (await purgeableYears()).find((y) => y.fy === fy);
     if (!eligible) return adminRedirect(request, `/finance/purge?${err("That year isn't eligible for deletion yet.")}`);

@@ -22,6 +22,7 @@ const ROLE_HELP: Record<Role, string> = {
   admin: "Backup access to everything. Set only in Vercel (ADMIN_OWNERS).",
   advisor: "Everything, including the team, treasury audit, record deletion and erasure.",
   president: "Same as the Faculty Advisor.",
+  treasurer: "Same as the President.",
   core: "Announcements, calendar, forum and chat moderation across all domains, submitting and approving bills. No treasury audit or team management.",
   jointcore: "Chat and forum for their own domain plus general ones, and submitting bills.",
   coordinator: "Chat and forum for general areas plus their domain, if one is set. No treasury and no website editing.",
@@ -89,7 +90,7 @@ export default async function TeamPage({
           </ul>
           <p>
             Domain applies to Core, Joint Core and Faculty Coordinators (required for Joint Core) and is ignored for
-            the Faculty Advisor and President. Core and Joint Core in the Technical domain can also edit the website
+            the Faculty Advisor, President and Treasurer. Core and Joint Core in the Technical domain can also edit the website
             and its events.
           </p>
         </div>

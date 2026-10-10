@@ -1,5 +1,5 @@
 // POST action=set|remove, email, role, domain, name? -> manages admins.
-// Faculty Advisor, President and Admin only. Admins themselves come from ADMIN_OWNERS
+// Faculty Advisor, President, Treasurer and Admin only. Admins themselves come from ADMIN_OWNERS
 // in Vercel and can't be granted, changed or removed here.
 
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   if (bootstrapOwners().includes(email)) return adminRedirect(request, "/team?error=fixed");
 
   if (action === "set" && isAssignableRole(role)) {
-    // The Advisor and President span every domain; Core and Coordinators may
+    // The Advisor, President and Treasurer span every domain; Core and Coordinators may
     // have one; Joint Core must.
     const domain =
       role === "core" || role === "jointcore" || role === "coordinator" ? (isDomain(rawDomain) ? rawDomain : null) : null;
