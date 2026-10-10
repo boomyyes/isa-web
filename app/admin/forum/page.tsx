@@ -22,7 +22,7 @@ export default async function ForumPage({ searchParams }: { searchParams: Promis
 
       {categories.length === 0 ? (
         <p className="text-sm text-[var(--text-secondary)]">
-          No categories yet.{owner ? " Add the first one below." : " Faculty, the President or Admin need to add one."}
+          No categories yet.{owner ? " Add the first one below." : " The Faculty Advisor, the President or Admin need to add one."}
         </p>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2">

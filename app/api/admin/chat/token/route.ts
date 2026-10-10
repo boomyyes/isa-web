@@ -2,7 +2,7 @@
 // client in the browser (authUrl), with the admin session cookie.
 
 import { sessionFrom } from "@/lib/admin/session";
-import { hasCap, seesDomain } from "@/lib/admin/store";
+import { domainScoped, hasCap, seesDomain } from "@/lib/admin/store";
 import { listChannels } from "@/lib/admin/chat";
 import { ablyConfigured, subscribeTokenRequest } from "@/lib/ably";
 
@@ -15,8 +15,8 @@ export async function GET(request: Request) {
   if (!session) return Response.json({ error: "Sign in again." }, { status: 401, headers: PRIVATE });
   if (!hasCap(session, "chat")) return Response.json({ error: "No chat access." }, { status: 403, headers: PRIVATE });
   if (!ablyConfigured()) return Response.json({ error: "Live updates aren't set up." }, { status: 503, headers: PRIVATE });
-  // Joint Core get a token for exactly the channels they can see; everyone else for all.
-  const ids = session.role === "jointcore"
+  // Domain-scoped roles get a token for exactly the channels they can see; everyone else for all.
+  const ids = domainScoped(session.role)
     ? (await listChannels({ includeArchived: true })).filter((ch) => seesDomain(session, ch.domain)).map((ch) => ch.id)
     : null;
   if (ids?.length === 0) return Response.json({ error: "No channels to follow." }, { status: 403, headers: PRIVATE });

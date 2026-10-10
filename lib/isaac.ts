@@ -1,3 +1,16 @@
+import issueJson from "@/content/site/isaac-issue.json";
+
+/**
+ * The current issue, written only by the admin upload page
+ * (app/api/admin/content/isaac-issue). `pdf` is a key in the private R2 bucket,
+ * or "" while the issue still comes from the Drive env vars. The key isn't a
+ * secret — the bucket is private — so it's fine in this public repository.
+ * `previous` is the issue before it, kept until the next upload so the live
+ * site can keep serving it while the new one deploys.
+ */
+export type IsaacIssue = { version: string; pdf: string; previous: string; uploadedAt?: string };
+export const ISAAC_ISSUE = issueJson as IsaacIssue;
+
 /**
  * Version token for the ISAAC magazine artwork.
  *
@@ -13,14 +26,15 @@
  *   3. the browser and any CDN, via Cache-Control.
  *
  * Threading this token through the URL is what changes the cache key for all
- * three at once. Bump it whenever the Drive files' contents change; the value
- * is arbitrary, so a date is used because it also records when the swap
- * happened. Forgetting to bump it is not fatal — the caches still expire on
+ * three at once. It lives in content/site/isaac-issue.json: uploading an issue
+ * from the admin area writes a new one automatically. With the older Drive
+ * setup it still has to be bumped by hand in that file whenever the Drive
+ * files' contents change. Forgetting is not fatal — the caches still expire on
  * their own, it just takes up to a day.
  *
  * The name is historical: it versions every page, not only the cover.
  */
-export const ISAAC_COVER_VERSION = "2026-08-27d";
+export const ISAAC_COVER_VERSION = ISAAC_ISSUE.version;
 
 /** Same-origin proxy path used by the spotlight <Image>. Never the Drive URL. */
 export const ISAAC_COVER_SRC = `/api/isaac-cover?v=${ISAAC_COVER_VERSION}`;

@@ -86,6 +86,30 @@ export async function presignGet(
 }
 
 /**
+ * A short-lived URL the browser can PUT one file to, straight into the bucket.
+ * For files too big to pass through a serverless function (their request
+ * bodies cap out around 4.5 MB). Needs the bucket's CORS policy to allow PUT
+ * from the admin origin.
+ */
+export async function presignPut(key: string, ttlSeconds: number): Promise<string> {
+  const url = new URL(objectUrl(key));
+  url.searchParams.set("X-Amz-Expires", String(ttlSeconds));
+  const signed = await aws().sign(url.toString(), { method: "PUT", aws: { signQuery: true } });
+  return signed.url;
+}
+
+/** Size and type of a stored object, or null if it isn't there. */
+export async function headObject(key: string): Promise<{ size: number; type: string } | null> {
+  const response = await aws().fetch(objectUrl(key), { method: "HEAD" });
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`R2 HEAD ${key} -> ${response.status}`);
+  return {
+    size: Number(response.headers.get("content-length") ?? 0),
+    type: response.headers.get("content-type") ?? "",
+  };
+}
+
+/**
  * Uploads to the private bucket. Needs an R2 token with Object Read & Write;
  * the certificate portal alone only ever needed read.
  */

@@ -7,8 +7,10 @@
 // keeping it server-side is what stops the issue being copied off Drive. The
 // browser only ever sees /api/isaac-page/<n>.
 //
-// Two kinds of source, checked in this order:
+// Sources, checked in this order:
 //
+//   0. An issue uploaded from the admin area: a PDF in the private R2 bucket,
+//      named in content/site/isaac-issue.json. Rendered exactly like 1.
 //   1. ISAAC_MAGAZINE_FILE_ID — one PDF, the whole issue. The server renders
 //      the page that was asked for and sends a JPEG; the PDF itself never
 //      leaves the server. This is the normal case.
@@ -19,7 +21,8 @@
 // With neither set the magazine falls back to the single cover file, so the
 // reader still opens with something in it rather than erroring.
 
-import { ISAAC_COVER_VERSION } from "./isaac";
+import { ISAAC_COVER_VERSION, ISAAC_ISSUE } from "./isaac";
+import { R2_PREFIX } from "./isaac.pdf";
 import { pdfPageCount, renderPdfPage } from "./isaac.pdf";
 
 /** How long a folder listing is reused before Drive is asked again. */
@@ -105,6 +108,8 @@ async function fromFolder(): Promise<string[]> {
  * and every caller treats "no pages" as "the reader stays shut".
  */
 export async function isaacSource(): Promise<IsaacSource | null> {
+  if (ISAAC_ISSUE.pdf) return { kind: "pdf", fileId: `${R2_PREFIX}${ISAAC_ISSUE.pdf}` };
+
   const pdf = configured(process.env.ISAAC_MAGAZINE_FILE_ID, "<FILE_ID>");
   if (pdf) return { kind: "pdf", fileId: pdf };
 

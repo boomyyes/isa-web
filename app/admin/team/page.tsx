@@ -20,10 +20,11 @@ export const dynamic = "force-dynamic";
 
 const ROLE_HELP: Record<Role, string> = {
   admin: "Backup access to everything. Set only in Vercel (ADMIN_OWNERS).",
-  faculty: "Everything, including the team, treasury audit, record deletion and erasure.",
-  president: "Same as Faculty.",
+  advisor: "Everything, including the team, treasury audit, record deletion and erasure.",
+  president: "Same as the Faculty Advisor.",
   core: "Announcements, calendar, forum and chat moderation across all domains, submitting and approving bills. No treasury audit or team management.",
   jointcore: "Chat and forum for their own domain plus general ones, and submitting bills.",
+  coordinator: "Chat and forum for general areas plus their domain, if one is set. No treasury and no website editing.",
 };
 
 const ERRORS: Record<string, string> = {
@@ -87,8 +88,9 @@ export default async function TeamPage({
             ))}
           </ul>
           <p>
-            Domain applies to Core and Joint Core (required for Joint Core) and is ignored for Faculty and President.
-            Anyone in the Technical domain can also edit the website and its events.
+            Domain applies to Core, Joint Core and Faculty Coordinators (required for Joint Core) and is ignored for
+            the Faculty Advisor and President. Core and Joint Core in the Technical domain can also edit the website
+            and its events.
           </p>
         </div>
       </form>
