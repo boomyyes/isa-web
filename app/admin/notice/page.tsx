@@ -46,7 +46,7 @@ export default async function NoticePage({
             <li>
               <strong className="text-[var(--text-primary)]">Your account:</strong> your email address, role and
               domain, and if you give them, a display name and a phone number (you can change or remove both
-              on your Profile page; your phone number is visible only to the Faculty Advisor, the President and Admins, for
+              on your Profile page; your phone number is visible only to the Faculty Advisor, the President, the Treasurer and Admins, for
               urgent committee contact), who added you and when. Kept while you are a member of the workspace and deleted when you are
               removed from it.
             </li>
@@ -109,8 +109,8 @@ export default async function NoticePage({
           <ul className="list-disc space-y-2 pl-5">
             <li>Chat channels and forum categories: the members they are open to (everyone, Core and above, or one domain).</li>
             <li>Announcements and the shared calendar: all workspace members.</li>
-            <li>Your bills and receipts: you, Core and above (who approve and pay them), and the Faculty Advisor and the President (who audit them). Exports of the accounts may be given to faculty or the institute for audit.</li>
-            <li>The activity log and the team list: the Faculty Advisor, the President and Admins.</li>
+            <li>Your bills and receipts: you, Core and above (who approve and pay them), and the Faculty Advisor, the President and the Treasurer (who audit them). Exports of the accounts may be given to faculty or the institute for audit.</li>
+            <li>The activity log and the team list: the Faculty Advisor, the President, the Treasurer and Admins.</li>
           </ul>
           <p>
             The workspace relies on service providers for hosting, databases, file storage and real-time

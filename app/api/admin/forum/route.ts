@@ -1,7 +1,7 @@
 // POST action=… for the forum. Every admin can start threads and reply.
 // Authors edit their own posts for 15 minutes and may delete their own.
 // Moderators (Core and above) pin, lock and delete anything.
-// Categories are managed by the Faculty Advisor, the President and Admin.
+// Categories are managed by the Faculty Advisor, the President, the Treasurer and Admin.
 // Joint Core only reach general categories and their own domain's.
 
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
   // ---------------------------------------------------------- categories
   if (action === "category-save" || action === "category-delete") {
-    if (!owner) return adminRedirect(request, `/forum?${err("Only the Faculty Advisor, the President or Admin can manage categories.")}`);
+    if (!owner) return adminRedirect(request, `/forum?${err("Only the Faculty Advisor, the President, the Treasurer or Admin can manage categories.")}`);
     const id = get("id");
     if (action === "category-delete") {
       if (!isUuid(id) || !(await getCategory(id))) return adminRedirect(request, `/forum?${err("That category no longer exists.")}`);

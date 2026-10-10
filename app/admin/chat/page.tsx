@@ -50,7 +50,7 @@ export default async function ChatPage({
             // Keyed so switching channels starts a fresh connection and history.
             <ChatRoom key={current.id} channelId={current.id} me={session.email} canModerate={hasCap(session, "forum")} archived={current.archived} />
           ) : (
-            <p className="text-sm text-[var(--text-secondary)]">{owner ? "Create the first channel below." : "The Faculty Advisor, the President or Admin need to create a channel."}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{owner ? "Create the first channel below." : "The Faculty Advisor, the President, the Treasurer or Admin need to create a channel."}</p>
           )}
         </div>
       </div>
