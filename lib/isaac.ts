@@ -23,6 +23,11 @@ export type IsaacIssue = {
   uploadedAt?: string;
   /** Counted when published, so the home page needn't open the PDF just to count. */
   pages?: number;
+  /**
+   * Every page was drawn to a JPEG in R2 when the issue was published, so the
+   * reader serves images and never opens the PDF. See isaacPageImage.
+   */
+  images?: boolean;
 };
 export const ISAAC_ISSUE = issueJson as IsaacIssue;
 

@@ -98,6 +98,32 @@ export async function presignPut(key: string, ttlSeconds: number): Promise<strin
   return signed.url;
 }
 
+/** Every key under a prefix (S3 ListObjectsV2, paged). */
+export async function listKeys(prefix: string): Promise<string[]> {
+  const keys: string[] = [];
+  let token: string | null = null;
+  do {
+    const url = new URL(objectUrl("").replace(/\/$/, ""));
+    url.searchParams.set("list-type", "2");
+    url.searchParams.set("prefix", prefix);
+    if (token) url.searchParams.set("continuation-token", token);
+    const response = await aws().fetch(url.toString());
+    if (!response.ok) throw new Error(`R2 LIST ${prefix} -> ${response.status}`);
+    const xml = await response.text();
+    for (const m of xml.matchAll(/<Key>([^<]+)<\/Key>/g)) keys.push(m[1].replace(/&amp;/g, "&"));
+    token = /<IsTruncated>true<\/IsTruncated>/.test(xml) ? (xml.match(/<NextContinuationToken>([^<]+)</)?.[1] ?? null) : null;
+  } while (token);
+  return keys;
+}
+
+/** Bytes of a stored object, or null if it isn't there. Server-side; for small files. */
+export async function getObject(key: string): Promise<{ body: ArrayBuffer; type: string } | null> {
+  const response = await aws().fetch(objectUrl(key));
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`R2 GET ${key} -> ${response.status}`);
+  return { body: await response.arrayBuffer(), type: response.headers.get("content-type") ?? "" };
+}
+
 /** Size and type of a stored object, or null if it isn't there. */
 export async function headObject(key: string): Promise<{ size: number; type: string } | null> {
   const response = await aws().fetch(objectUrl(key), { method: "HEAD" });
