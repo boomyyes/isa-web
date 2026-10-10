@@ -23,7 +23,13 @@
 
 import { ISAAC_COVER_VERSION, ISAAC_ISSUE } from "./isaac";
 import { R2_PREFIX } from "./isaac.pdf";
+import { getObject } from "./r2";
 import { pdfPageCount, renderPdfPage } from "./isaac.pdf";
+
+/** Where an uploaded issue's PDF and its pre-drawn pages live in the private bucket. */
+export const issuePdfKey = (version: string) => `admin/isaac/${version}.pdf`;
+export const issuePagePrefix = (version: string) => `admin/isaac/${version}/`;
+export const issuePageKey = (version: string, index: number) => `${issuePagePrefix(version)}p${index}.jpg`;
 
 /** How long a folder listing is reused before Drive is asked again. */
 const LISTING_TTL_SECONDS = 3600;
@@ -178,8 +184,19 @@ async function fetchDriveImage(
 export async function isaacPageImage(
   index: number
 ): Promise<{ body: ArrayBuffer | Buffer; contentType: string } | null> {
+  if (index < 0) return null;
+
+  // Pages drawn at publish time: a small R2 read instead of downloading and
+  // parsing the whole PDF, which is what made a cold reader slow. A missing
+  // image falls through to drawing it from the PDF, so a gap is slow, not broken.
+  if (ISAAC_ISSUE.pdf && ISAAC_ISSUE.images && ISAAC_ISSUE.pages) {
+    if (index >= ISAAC_ISSUE.pages) return null;
+    const stored = await getObject(issuePageKey(ISAAC_ISSUE.version, index)).catch(() => null);
+    if (stored) return { body: stored.body, contentType: "image/jpeg" };
+  }
+
   const source = await isaacSource();
-  if (!source || index < 0) return null;
+  if (!source) return null;
 
   if (source.kind === "pdf") {
     // Bounds-checked against the real document rather than trusted, so a probe

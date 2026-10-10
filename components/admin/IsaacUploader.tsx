@@ -13,6 +13,8 @@ type Status =
   | { kind: "idle" }
   | { kind: "uploading"; percent: number }
   | { kind: "checking" }
+  | { kind: "preparing"; done: number; pages: number }
+  | { kind: "publishing" }
   | { kind: "done"; pages: number; url: string }
   | { kind: "error"; message: string };
 
@@ -45,7 +47,7 @@ function put(url: string, file: File, onProgress: (percent: number) => void): Pr
 export function IsaacUploader({ buttonClass }: { buttonClass: string }) {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
-  const busy = status.kind === "uploading" || status.kind === "checking";
+  const busy = ["uploading", "checking", "preparing", "publishing"].includes(status.kind);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -60,7 +62,15 @@ export function IsaacUploader({ buttonClass }: { buttonClass: string }) {
       const start = await api({ action: "start", size: file.size });
       await put(String(start.url), file, (percent) => setStatus({ kind: "uploading", percent }));
       setStatus({ kind: "checking" });
-      const done = await api({ action: "publish", version: start.version });
+      const { pages } = (await api({ action: "check", version: start.version })) as { pages: number };
+      // Draw every page now, in batches, so readers only ever get stored images.
+      for (let from = 0; from < pages; ) {
+        setStatus({ kind: "preparing", done: from, pages });
+        const step = (await api({ action: "render", version: start.version, from })) as { next: number };
+        from = step.next;
+      }
+      setStatus({ kind: "publishing" });
+      const done = await api({ action: "publish", version: start.version, pages });
       setStatus({ kind: "done", pages: Number(done.pages), url: String(done.commitUrl) });
       setFile(null);
     } catch (error) {
@@ -86,7 +96,7 @@ export function IsaacUploader({ buttonClass }: { buttonClass: string }) {
           className="mt-1 block text-sm text-[var(--text-secondary)]"
         />
         <p className="mt-1 text-xs text-[var(--text-secondary)]">
-          The whole issue as one PDF, up to {ISAAC_MAX_UPLOAD_MB} MB, without a password. The first page is used as the cover.
+          The whole issue as one PDF, up to {ISAAC_MAX_UPLOAD_MB} MB, without a password. The first page is used as the cover. Every page is prepared as an image before publishing, which takes a minute or two; keep this page open until it finishes.
         </p>
       </div>
 
@@ -96,7 +106,11 @@ export function IsaacUploader({ buttonClass }: { buttonClass: string }) {
           ? `Uploading… ${status.percent}%`
           : status.kind === "checking"
             ? "Checking the PDF…"
-            : "Upload and publish"}
+            : status.kind === "preparing"
+              ? `Preparing pages… ${status.done}/${status.pages}`
+              : status.kind === "publishing"
+                ? "Publishing…"
+                : "Upload and publish"}
       </button>
 
       <div aria-live="polite" className="text-sm">
