@@ -17,6 +17,12 @@ const SECURITY_HEADERS = [
 
 const IS_PROD = process.env.NODE_ENV === "production";
 
+/** Files pdfjs reads at runtime that nothing imports statically (see outputFileTracingIncludes). */
+const PDFJS_RUNTIME_FILES = [
+  "./node_modules/pdfjs-dist/standard_fonts/**",
+  "./node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs",
+];
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
 
@@ -46,9 +52,15 @@ const nextConfig: NextConfig = {
   // Nothing imports the standard Type1 fonts, so file tracing cannot see that
   // the PDF renderer needs them; without this they are missing in production
   // and any page relying on Helvetica or Times renders blank.
+  // The worker too: on the server pdfjs runs it in-process ("fake worker") by
+  // importing pdf.worker.mjs dynamically, which file tracing can't see. Every
+  // route that opens the magazine PDF needs both, including the admin upload
+  // check, which failed with "Cannot find module .../pdf.worker.mjs" without it.
   outputFileTracingIncludes: {
-    "/api/isaac-page/[index]": ["./node_modules/pdfjs-dist/standard_fonts/**"],
-    "/api/isaac-cover": ["./node_modules/pdfjs-dist/standard_fonts/**"],
+    // A glob, so "[index]" would be a character class and match nothing.
+    "/api/isaac-page/*": PDFJS_RUNTIME_FILES,
+    "/api/isaac-cover": PDFJS_RUNTIME_FILES,
+    "/api/admin/content/isaac-issue": PDFJS_RUNTIME_FILES,
   },
 
   images: {

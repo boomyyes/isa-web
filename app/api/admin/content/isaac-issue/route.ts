@@ -74,7 +74,7 @@ export async function POST(request: Request) {
   if (head.size > MAX_ISSUE_BYTES) return reject(`The PDF is over ${ISAAC_MAX_UPLOAD_MB} MB.`);
   const pages = await pdfPageCount(`${R2_PREFIX}${key}`);
   if (pages === 0) {
-    return reject("That file couldn't be opened as a PDF. If it's password-protected, upload an unprotected copy: it's stored privately either way.");
+    return reject("The server couldn't open that PDF. If it has a password, upload a copy without one (it's stored privately either way). Otherwise ask whoever looks after the website to check the server logs.");
   }
 
   try {
