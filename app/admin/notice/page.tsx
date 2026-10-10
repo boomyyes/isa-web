@@ -46,7 +46,7 @@ export default async function NoticePage({
             <li>
               <strong className="text-[var(--text-primary)]">Your account:</strong> your email address, role and
               domain, and if you give them, a display name and a phone number (you can change or remove both
-              on your Profile page; your phone number is visible only to Faculty, the President and Admins, for
+              on your Profile page; your phone number is visible only to the Faculty Advisor, the President and Admins, for
               urgent committee contact), who added you and when. Kept while you are a member of the workspace and deleted when you are
               removed from it.
             </li>
@@ -109,8 +109,8 @@ export default async function NoticePage({
           <ul className="list-disc space-y-2 pl-5">
             <li>Chat channels and forum categories: the members they are open to (everyone, Core and above, or one domain).</li>
             <li>Announcements and the shared calendar: all workspace members.</li>
-            <li>Your bills and receipts: you, Core and above (who approve and pay them), and Faculty and the President (who audit them). Exports of the accounts may be given to faculty or the institute for audit.</li>
-            <li>The activity log and the team list: Faculty, the President and Admins.</li>
+            <li>Your bills and receipts: you, Core and above (who approve and pay them), and the Faculty Advisor and the President (who audit them). Exports of the accounts may be given to faculty or the institute for audit.</li>
+            <li>The activity log and the team list: the Faculty Advisor, the President and Admins.</li>
           </ul>
           <p>
             The workspace relies on service providers for hosting, databases, file storage and real-time
@@ -125,7 +125,7 @@ export default async function NoticePage({
           <h2 className={h2}>Your rights</h2>
           <p>
             You may ask to access, correct or erase personal data held about you, or raise a grievance, by
-            writing to Faculty or the President, or through the contact details in the public Privacy Policy.
+            writing to the Faculty Advisor or the President, or through the contact details in the public Privacy Policy.
             Financial records cannot be erased before the end of their retention period where they are needed
             to keep the chapter&apos;s accounts complete and auditable; in that case the reason will be explained
             to you. You may also approach the Data Protection Board of India.

@@ -27,6 +27,10 @@ export default async function ContentIndexPage() {
             <p className="mt-1 text-sm text-[var(--text-secondary)]">{c.description}</p>
           </Link>
         ))}
+        <Link href={`${base}/content/isaac-issue`} className={`${cardClass} block transition hover:border-[var(--border-active)]`}>
+          <p className="font-jetbrains text-sm font-bold text-[var(--text-primary)]">ISAAC issue (PDF)</p>
+          <p className="mt-1 text-sm text-[var(--text-secondary)]">Upload a new issue of the magazine for the reader on the home page.</p>
+        </Link>
       </div>
     </AdminShell>
   );

@@ -1,4 +1,4 @@
-// POST email + confirm -> erases everything held under that address. Faculty, President and Admin only.
+// POST email + confirm -> erases everything held under that address. Faculty Advisor, President and Admin only.
 
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
 import { eraseByEmail } from "@/lib/admin/submissions";

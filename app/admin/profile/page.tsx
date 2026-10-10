@@ -41,7 +41,7 @@ export default async function ProfilePage({
             </label>
             <input id="phone" name="phone" type="tel" inputMode="tel" defaultValue={phone ?? ""} autoComplete="tel" placeholder="98765 43210" className={fieldClass} />
             <p className="mt-1.5 text-xs text-[var(--text-secondary)]">
-              For urgent committee contact. Only Faculty, the President and Admins can see it.
+              For urgent committee contact. Only the Faculty Advisor, the President and Admins can see it.
             </p>
           </div>
           <button className={buttonClass}>Save profile</button>

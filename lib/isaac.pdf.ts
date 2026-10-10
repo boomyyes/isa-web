@@ -11,6 +11,10 @@
 import { createRequire } from "node:module";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { presignGet } from "./r2";
+
+/** Marks a "file id" that is really a key in the private R2 bucket. */
+export const R2_PREFIX = "r2:";
 
 /**
  * Rendered height, in pixels. The reader never paints a page taller than the
@@ -115,7 +119,28 @@ function looksLikePdf(bytes: Uint8Array): boolean {
   );
 }
 
+/**
+ * An issue uploaded from the admin area. Not put in Next's fetch cache: a whole
+ * magazine is far over its 2MB entry limit, and the parsed document is kept in
+ * memory below anyway.
+ */
+async function fetchR2Pdf(key: string): Promise<Uint8Array | null> {
+  try {
+    const response = await fetch(await presignGet(key, 300), { cache: "no-store" });
+    if (!response.ok) {
+      console.error(`[isaac] R2 returned ${response.status} for the uploaded issue.`);
+      return null;
+    }
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    return looksLikePdf(bytes) ? bytes : null;
+  } catch (error) {
+    console.error("[isaac] could not fetch the uploaded issue from R2:", error);
+    return null;
+  }
+}
+
 async function fetchPdfBytes(fileId: string): Promise<Uint8Array | null> {
+  if (fileId.startsWith(R2_PREFIX)) return fetchR2Pdf(fileId.slice(R2_PREFIX.length));
   for (const url of downloadUrls(fileId)) {
     let response: Response;
     try {

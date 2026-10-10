@@ -11,7 +11,7 @@
 // never drift apart. Get the ID from the share link
 // https://drive.google.com/file/d/<FILE_ID>/view — paste just the <FILE_ID>.
 // The file must be shared as "Anyone with the link".
-import { ISAAC_COVER_VERSION, isCurrentVersion } from "@/lib/isaac";
+import { ISAAC_COVER_VERSION, ISAAC_ISSUE, isCurrentVersion } from "@/lib/isaac";
 import { isaacPageImage } from "@/lib/isaac.server";
 
 // May end up rasterising a PDF page, which needs a native canvas.
@@ -34,7 +34,9 @@ export async function GET(request: Request) {
     return new Response("Stale or missing version token", { status: 400 });
   }
 
-  if (!FILE_ID || FILE_ID === "<FILE_ID>") {
+  // An uploaded issue always supplies its own cover, so a Drive cover left in
+  // the env from an older issue can't end up on the new one.
+  if (ISAAC_ISSUE.pdf || !FILE_ID || FILE_ID === "<FILE_ID>") {
     // No dedicated cover image — use the magazine's own first page.
     const first = await isaacPageImage(0);
     if (!first) {

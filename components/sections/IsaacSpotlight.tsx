@@ -7,6 +7,22 @@ import { BookOpen } from "lucide-react";
 import { StatusBlock } from "@/components/ui/StatusBlock";
 import { IsaacReader, type ReaderOrigin } from "@/components/isaac/IsaacReader";
 import { ISAAC_COVER_SRC } from "@/lib/isaac";
+import isaacJson from "@/content/site/isaac.json";
+
+// Edited from the admin area (Website content › ISAAC magazine). Typed by hand
+// because optional notes are dropped from the file when left empty.
+const isaac = isaacJson as {
+  issue: string;
+  volume: string;
+  subscribers: string;
+  industriesCount: string;
+  latestCompany: string;
+  eventName: string;
+  eventNote?: string;
+  printStatus: "Available" | "Unavailable";
+  committeeCount: string;
+  committeeNote?: string;
+};
 
 // ISAAC magazine first page. Served through our own server proxy so the real
 // Drive source stays hidden from viewers — the browser only ever sees this
@@ -142,9 +158,9 @@ export function IsaacSpotlight({ pageCount }: IsaacSpotlightProps) {
             ISAAC Magazine
           </h2>
           <div className="flex flex-wrap gap-4">
-            <StatusBlock value="ISSUE: #26" />
-            <StatusBlock value="VOL: 2026" />
-            <StatusBlock value="INACTIVE" progress={0} label="SUBSCRIBERS" />
+            <StatusBlock value={`ISSUE: #${isaac.issue}`} />
+            <StatusBlock value={`VOL: ${isaac.volume}`} />
+            <StatusBlock value={isaac.subscribers} progress={0} label="SUBSCRIBERS" />
           </div>
         </div>
 
@@ -153,13 +169,13 @@ export function IsaacSpotlight({ pageCount }: IsaacSpotlightProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:block lg:space-y-6">
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular">
               <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">INDUSTRIES IN COLLABORATION</p>
-              <p className="text-3xl font-bold font-inter text-[var(--text-primary)]">5</p>
-              <p className="text-sm text-[var(--text-secondary)]">Latest Company: Siemens</p>
+              <p className="text-3xl font-bold font-inter text-[var(--text-primary)]">{isaac.industriesCount}</p>
+              <p className="text-sm text-[var(--text-secondary)]">Latest Company: {isaac.latestCompany}</p>
             </div>
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular">
               <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">UPCOMING EVENT</p>
-              <p className="text-xl font-bold font-inter text-[var(--text-primary)]">Artemis Hackathon</p>
-              <p className="text-sm text-[var(--text-secondary)] mt-1">Coming soon.</p>
+              <p className="text-xl font-bold font-inter text-[var(--text-primary)]">{isaac.eventName}</p>
+              {isaac.eventNote && <p className="text-sm text-[var(--text-secondary)] mt-1">{isaac.eventNote}</p>}
             </div>
           </div>
 
@@ -197,14 +213,14 @@ export function IsaacSpotlight({ pageCount }: IsaacSpotlightProps) {
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular-reverse">
               <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">PRINT STATUS</p>
               <div className="flex items-center gap-4">
-                <div className="w-3 h-3 bg-red-500 animate-pulse" />
-                <p className="text-xl font-bold font-inter text-[var(--text-primary)]">UNAVAILABLE</p>
+                <div className={`w-3 h-3 animate-pulse ${isaac.printStatus === "Available" ? "bg-emerald-500" : "bg-red-500"}`} />
+                <p className="text-xl font-bold font-inter text-[var(--text-primary)] uppercase">{isaac.printStatus}</p>
               </div>
             </div>
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular-reverse">
               <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">COMMITTEE MEMBERS</p>
-              <p className="text-xl font-bold font-inter text-[var(--text-primary)]">30</p>
-              <p className="text-sm text-[var(--text-secondary)] mt-1">Students and Faculty.</p>
+              <p className="text-xl font-bold font-inter text-[var(--text-primary)]">{isaac.committeeCount}</p>
+              {isaac.committeeNote && <p className="text-sm text-[var(--text-secondary)] mt-1">{isaac.committeeNote}</p>}
             </div>
           </div>
         </div>

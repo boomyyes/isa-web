@@ -12,28 +12,34 @@ import { LOGIN_TTL_SECONDS, SESSION_TTL_SECONDS } from "./config";
 
 // Chapter roles. Admin is the break-glass role: it comes only from ADMIN_OWNERS
 // in Vercel and can't be granted, changed or removed from the admin area.
-// Faculty and President lead; Core (titled Core or Subcore) runs things;
-// Joint Core works inside one domain.
-export const ROLES = ["jointcore", "core", "president", "faculty", "admin"] as const;
+// The Faculty Advisor and President lead; Core (titled Core or Subcore) runs
+// things; Joint Core works inside one domain. A Faculty Coordinator has Joint
+// Core's reach without treasury or website access.
+export const ROLES = ["coordinator", "jointcore", "core", "president", "advisor", "admin"] as const;
 export type Role = (typeof ROLES)[number];
-export const ASSIGNABLE_ROLES = ["faculty", "president", "core", "jointcore"] as const satisfies readonly Role[];
+export const ASSIGNABLE_ROLES = ["advisor", "coordinator", "president", "core", "jointcore"] as const satisfies readonly Role[];
 export const ROLE_LABELS: Record<Role, string> = {
   admin: "Admin",
-  faculty: "Faculty",
+  advisor: "Faculty Advisor",
+  coordinator: "Faculty Coordinator",
   president: "President",
   core: "Core / Subcore",
   jointcore: "Joint Core",
 };
 
-const RANK: Record<Role, number> = { jointcore: 0, core: 1, president: 2, faculty: 2, admin: 3 };
+// Coordinator ranks with Joint Core: what it may do on top comes from capsFor.
+const RANK: Record<Role, number> = { coordinator: 0, jointcore: 0, core: 1, president: 2, advisor: 2, admin: 3 };
 export const can = (role: Role, needed: Role) => RANK[role] >= RANK[needed];
 export const isRole = (value: unknown): value is Role =>
   typeof value === "string" && (ROLES as readonly string[]).includes(value);
 export const isAssignableRole = (value: unknown): value is (typeof ASSIGNABLE_ROLES)[number] =>
   typeof value === "string" && (ASSIGNABLE_ROLES as readonly string[]).includes(value);
 
-/** Roles stored before the chapter roles existed. */
-const LEGACY_ROLES: Record<string, Role> = { owner: "president", editor: "core", viewer: "jointcore" };
+/** Roles stored under older names. "faculty" was split on 2026-10-10; existing faculty keep full access. */
+const LEGACY_ROLES: Record<string, Role> = { owner: "president", editor: "core", viewer: "jointcore", faculty: "advisor" };
+
+/** Roles limited to general areas plus their own domain's forum categories and chat channels. */
+export const domainScoped = (role: Role) => role === "jointcore" || role === "coordinator";
 
 export const DOMAINS = ["administrative", "creative", "editorial", "media", "publicity", "technical"] as const;
 export type Domain = (typeof DOMAINS)[number];
@@ -55,9 +61,13 @@ export const CAPABILITIES = {
 export type Capability = keyof typeof CAPABILITIES;
 export const CAPABILITY_NAMES = Object.keys(CAPABILITIES) as Capability[];
 
-/** The technical domain, at any level, looks after the website. */
+/**
+ * The technical domain, at any level, looks after the website, except Faculty
+ * Coordinators: Joint Core's reach, but no treasury and no website content.
+ */
 export function capsFor(role: Role, domain: Domain | null): Capability[] {
   if (can(role, "president")) return [...CAPABILITY_NAMES];
+  if (role === "coordinator") return ["chat"];
   const tech: Capability[] = domain === "technical" ? ["content", "events"] : [];
   if (role === "core") return [...new Set<Capability>([...tech, "events", "announce", "forum", "chat", "finance.submit", "finance.approve"])];
   return [...tech, "chat", "finance.submit"];
@@ -81,13 +91,13 @@ export const hasAnyCap = (session: Pick<Session, "caps">, caps: Capability[]) =>
 
 /**
  * Who a forum category or chat channel is for: everyone (null), Core and above
- * ("core"), or one domain. Joint Core see the general ones and their own
- * domain's; everyone above sees everything.
+ * ("core"), or one domain. Joint Core and Faculty Coordinators see the
+ * general ones and their own domain's; everyone above sees everything.
  */
 export const AUDIENCES = ["core", ...DOMAINS] as const;
 export const audienceLabel = (a: (typeof AUDIENCES)[number]) => (a === "core" ? "Core and above" : `${domainLabel(a)} only`);
 export const seesDomain = (session: Pick<Session, "role" | "domain">, audience: string | null) =>
-  audience === null || session.role !== "jointcore" || (audience !== "core" && session.domain === audience);
+  audience === null || !domainScoped(session.role) || (audience !== "core" && session.domain === audience);
 
 const USERS_KEY = "admin:users";
 // Display names, email -> name. A hash of its own rather than a field on the
@@ -95,7 +105,7 @@ const USERS_KEY = "admin:users";
 // president on the Team page or by the member on the notice page.
 const NAMES_KEY = "admin:names";
 // Optional phone numbers, email -> number, for urgent committee contact. Only
-// Faculty, the President and Admins see them (Team page). Same shape and reason
+// the Faculty Advisor, the President and Admins see them (Team page). Same shape and reason
 // for a separate hash as NAMES_KEY.
 const PHONES_KEY = "admin:phones";
 const AUDIT_KEY = "admin:audit";
