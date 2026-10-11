@@ -113,9 +113,11 @@ export default async function NoticePage({
             <li>The activity log and the team list: the Faculty Advisor, the President, the Treasurer and Admins.</li>
           </ul>
           <p>
-            The workspace relies on service providers for hosting, databases, file storage and real-time
-            message delivery. The real-time delivery provider receives only a pseudonymous identifier and a
-            signal that a channel has changed; it never receives message text or your email address. The
+            The workspace relies on service providers for hosting, databases, file storage, real-time
+            message delivery and email delivery. The real-time delivery provider receives only a pseudonymous
+            identifier and a signal that a channel has changed; it never receives message text or your email
+            address. The email delivery provider receives your email address and each sign-in code sent to
+            it. The
             categories of these providers are listed in the public Privacy Policy, and you may ask for their
             identities.
           </p>

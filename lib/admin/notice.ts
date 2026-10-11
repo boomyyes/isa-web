@@ -9,7 +9,8 @@ import { noticeAcks } from "@/lib/db/schema";
 
 // .2: the account entry now lists the optional display name.
 // 2026-10-10: the Treasurer can now see what the President can.
-export const NOTICE_VERSION = "2026-10-10";
+// 2026-10-11: email delivery listed among the service providers.
+export const NOTICE_VERSION = "2026-10-11";
 
 /** When this member acknowledged the current version, or null if they haven't. */
 export async function ackedAt(email: string): Promise<Date | null> {
