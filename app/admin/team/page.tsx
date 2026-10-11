@@ -19,11 +19,11 @@ import {
 export const dynamic = "force-dynamic";
 
 const ROLE_HELP: Record<Role, string> = {
-  admin: "Backup access to everything except approving bills. Set only in Vercel (ADMIN_OWNERS).",
-  advisor: "Everything except approving bills, including the team, treasury audit, record deletion and erasure.",
-  president: "Everything, including approving, rejecting and paying bills (their own too), the team, treasury audit, record deletion and erasure.",
+  admin: "Backup access to everything. Set only in Vercel (ADMIN_OWNERS).",
+  advisor: "Everything, including approving, rejecting and paying bills (their own too), the team, treasury audit, record deletion and erasure.",
+  president: "Same as the Faculty Advisor.",
   treasurer: "Same as the President.",
-  core: "Announcements, calendar, forum and chat moderation across all domains, submitting bills, managing budgets and the ledger. No bill approval, treasury audit or team management.",
+  core: "Announcements, calendar, forum and chat moderation across all domains, and submitting bills. No budgets, ledger, bill approval, treasury audit or team management.",
   jointcore: "Chat and forum for their own domain plus general ones, and submitting bills.",
   coordinator: "Chat and forum for general areas plus their domain, if one is set. No treasury and no website editing.",
 };

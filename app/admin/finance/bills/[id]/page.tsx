@@ -160,7 +160,7 @@ export default async function BillPage({
       )}
 
       {!canDecide && ["submitted", "approved"].includes(bill.status) && (
-        <p className="text-xs text-[var(--text-secondary)]">The President or the Treasurer approves and pays bills.</p>
+        <p className="text-xs text-[var(--text-secondary)]">The Faculty Advisor, the President or the Treasurer approves and pays bills.</p>
       )}
     </AdminShell>
   );

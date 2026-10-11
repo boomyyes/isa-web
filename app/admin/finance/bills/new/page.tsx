@@ -17,7 +17,7 @@ export default async function NewBillPage({ searchParams }: { searchParams: Prom
       <Link href={`${base}/finance/bills`} className="text-sm text-[var(--accent-color)] underline underline-offset-2">Back to bills</Link>
       {error && <Notice tone="error">{error}</Notice>}
       {open.length === 0 ? (
-        <p className="text-sm text-[var(--text-secondary)]">There are no open budgets yet. An approver needs to create one first.</p>
+        <p className="text-sm text-[var(--text-secondary)]">There are no open budgets yet. The Faculty Advisor, the President or the Treasurer needs to create one first.</p>
       ) : (
         <form method="post" action="/api/admin/finance" className={`${cardClass} grid gap-4 sm:grid-cols-2`}>
           <input type="hidden" name="action" value="bill-create" />

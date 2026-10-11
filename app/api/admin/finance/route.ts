@@ -1,7 +1,7 @@
 // POST action=… for the treasury. Rules, enforced here:
 //   finance.submit  — submit bills, attach receipts to their own submitted bills
 //   finance.approve — budgets, ledger entries, reversals
-//   finance.decide  — approve, reject and pay bills (President and Treasurer only)
+//   finance.decide  — approve, reject and pay bills (Admin, Faculty Advisor, President, Treasurer)
 //   president+      — the yearly treasury amount, and the financial-year purge
 // Deciders may act on their own bills too; every decision is in the audit log.
 
@@ -71,7 +71,7 @@ async function handle(request: Request) {
 
   // ------------------------------------------------------------- budgets
   if (action === "budget-save" || action === "budget-archive" || action === "budget-unarchive") {
-    if (!approver) return adminRedirect(request, `/finance/budgets?${err("Only approvers can manage budgets.")}`);
+    if (!approver) return adminRedirect(request, `/finance/budgets?${err("Only the Faculty Advisor, the President, the Treasurer or Admin can manage budgets.")}`);
     const id = get("id");
     if (action !== "budget-save") {
       if (!isUuid(id) || !(await getBudget(id))) return adminRedirect(request, "/finance/budgets");
@@ -145,7 +145,7 @@ async function handle(request: Request) {
     if (!found) return adminRedirect(request, `/finance/bills?${err("That bill no longer exists.")}`);
     const { bill } = found;
     const back = `/finance/bills/${bill.id}`;
-    if (!decider) return adminRedirect(request, `${back}?${err("Only the President or the Treasurer can approve, reject or pay bills.")}`);
+    if (!decider) return adminRedirect(request, `${back}?${err("Only the Faculty Advisor, the President, the Treasurer or Admin can approve, reject or pay bills.")}`);
 
     if (action === "bill-pay") {
       const parsed = paySchema.safeParse({ paidTo: get("paidTo"), payMode: get("payMode"), paidOn: get("paidOn") });
@@ -171,7 +171,7 @@ async function handle(request: Request) {
 
   // -------------------------------------------------------------- ledger
   if (action === "entry-add") {
-    if (!approver) return adminRedirect(request, `/finance/ledger?${err("Only approvers can add ledger entries.")}`);
+    if (!approver) return adminRedirect(request, `/finance/ledger?${err("Only the Faculty Advisor, the President, the Treasurer or Admin can add ledger entries.")}`);
     const parsed = entrySchema.safeParse({
       budgetId: get("budgetId"),
       kind: get("kind"),
@@ -187,7 +187,7 @@ async function handle(request: Request) {
   }
 
   if (action === "entry-reverse") {
-    if (!approver) return adminRedirect(request, `/finance/ledger?${err("Only approvers can reverse entries.")}`);
+    if (!approver) return adminRedirect(request, `/finance/ledger?${err("Only the Faculty Advisor, the President, the Treasurer or Admin can reverse entries.")}`);
     const reason = String(get("reason") ?? "").trim().slice(0, 300);
     if (!reason) return adminRedirect(request, `/finance/ledger?${err("Give a reason for the reversal.")}`);
     const result = await reverseEntry(String(get("entryId") ?? ""), reason, me);

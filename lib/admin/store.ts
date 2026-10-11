@@ -69,14 +69,13 @@ export const CAPABILITY_NAMES = Object.keys(CAPABILITIES) as Capability[];
  * Coordinators: Joint Core's reach, but no treasury and no website content.
  */
 export function capsFor(role: Role, domain: Domain | null): Capability[] {
-  // Only the President and the Treasurer decide on bills, their own included.
-  if (can(role, "president")) {
-    const decides = role === "president" || role === "treasurer";
-    return CAPABILITY_NAMES.filter((c) => c !== "finance.decide" || decides);
-  }
+  // Leadership has everything, including the treasury and deciding on bills
+  // (their own too): Admin, the Faculty Advisor, the President and the Treasurer.
+  if (can(role, "president")) return [...CAPABILITY_NAMES];
   if (role === "coordinator") return ["chat"];
   const tech: Capability[] = domain === "technical" ? ["content", "events"] : [];
-  if (role === "core") return [...new Set<Capability>([...tech, "events", "announce", "forum", "chat", "finance.submit", "finance.approve"])];
+  // Core submits bills; budgets, the ledger and bill decisions are leadership's.
+  if (role === "core") return [...new Set<Capability>([...tech, "events", "announce", "forum", "chat", "finance.submit"])];
   return [...tech, "chat", "finance.submit"];
 }
 

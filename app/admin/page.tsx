@@ -85,7 +85,7 @@ export default async function DashboardPage({
   const range: Range = isRange(sp.range) ? sp.range : "1Y";
 
   const seesTreasury = hasAnyCap(session, ["finance.approve", "finance.audit"]);
-  // The "bills need your decision" prompt is for the President and Treasurer.
+  // The "bills need your decision" prompt is for those who decide on bills.
   const approves = hasCap(session, "finance.decide");
   const live = dbConfigured();
   const { today, weekAgo, in60Days } = clock();
