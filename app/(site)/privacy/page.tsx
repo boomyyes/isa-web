@@ -37,7 +37,7 @@ function Address() {
 // Keep the two in sync, and change both dates whenever the substance changes.
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" effective="7 October 2026" updated="10 October 2026">
+    <LegalPage title="Privacy Policy" effective="7 October 2026" updated="11 October 2026">
       <h2>1. Identity of the Data Fiduciary</h2>
       <p>
         This Website (&ldquo;Website&rdquo;) is operated by the ISA-RAIT Student Chapter, the
@@ -212,24 +212,34 @@ export default function PrivacyPage() {
 
       <h3>3.5 Membership registration</h3>
       <p>
-        The Membership Registration form is operated through a third-party online form service and is used to
-        facilitate an applicant&apos;s membership with the International Society of Automation.
+        The Website provides a Membership enquiry form, operated by ISA-RAIT on the Website, for
+        students of Ramrao Adik Institute of Technology. It is used to contact the applicant and
+        arrange a call to facilitate their membership with the International Society of
+        Automation.
       </p>
-      <p>Depending on the applicable form, information collected may include:</p>
+      <p>Information submitted through this form includes:</p>
       <ul>
         <li>name;</li>
         <li>email address;</li>
-        <li>contact number;</li>
-        <li>college or institution;</li>
-        <li>academic information;</li>
-        <li>membership-related information;</li>
-        <li>account information;</li>
-        <li>payment or membership-related information; and</li>
+        <li>mobile number, and whether the applicant may be contacted on WhatsApp at that number;</li>
+        <li>roll number, branch and year of study;</li>
+        <li>the applicant&apos;s preferred time to be called;</li>
+        <li>any optional message the applicant chooses to include; and</li>
         <li>
-          an account password where such credential information is required to complete the
-          membership process on the applicant&apos;s behalf.
+          the applicant&apos;s confirmation of consent to this Privacy Policy and that they are 18
+          years of age or older.
         </li>
       </ul>
+      <p>
+        ISA-RAIT uses these details to contact the applicant by phone, WhatsApp or email and to
+        set up their membership with them on a call. Each submission is given a reference number,
+        which is shown to the applicant. The form does not ask for passwords or payment details.
+      </p>
+      <p>
+        In the course of completing the membership process, further information may be requested,
+        including account information, payment or membership-related information, and, where
+        required, an account password, as described in Section 3.5.1.
+      </p>
 
       <h3>3.5.1 Processing of account credentials</h3>
       <p>
@@ -329,7 +339,7 @@ export default function PrivacyPage() {
       </p>
 
       <h3>4.6 Membership administration</h3>
-      <p>Information submitted through the Membership Registration form is processed to:</p>
+      <p>Information submitted through the Membership enquiry form is processed to:</p>
       <ul>
         <li>process membership requests;</li>
         <li>facilitate membership;</li>
@@ -453,19 +463,20 @@ export default function PrivacyPage() {
           certificate-related communications.
         </li>
         <li>
-          <strong>Online form services.</strong> Categories of information: membership and
+          <strong>Online form services.</strong> Categories of information:
           committee-application information, Artemis registration information, and payment proof.
           Purpose: hosting and processing the relevant forms.
         </li>
         <li>
           <strong>Database services.</strong> Categories of information: UID, name, college, email,
-          and attendance information; Support/Query submissions; and rate-limiting counters.
-          Purpose: database infrastructure supporting the certificate portal, the Support/Query
-          form, and the Website&apos;s security controls.
+          and attendance information; Support/Query and Membership enquiry submissions; and
+          rate-limiting counters. Purpose: database infrastructure supporting the certificate
+          portal, the Support/Query and Membership enquiry forms, and the Website&apos;s security
+          controls.
         </li>
         <li>
-          <strong>Spreadsheet services.</strong> Categories of information: Support/Query
-          submissions. Purpose: making submissions available to authorised committee members.
+          <strong>Spreadsheet services.</strong> Categories of information: Support/Query and
+          Membership enquiry submissions. Purpose: making submissions available to authorised committee members.
         </li>
         <li>
           <strong>Cloud file storage.</strong> Categories of information: certificate files.
@@ -702,7 +713,8 @@ export default function PrivacyPage() {
         <li>The Website is served using HTTPS.</li>
         <li>
           Access to Support/Query submissions is restricted to authorised committee members, who
-          sign in individually, and actions taken on submissions are logged.
+          sign in individually, and actions taken on submissions are logged. Membership enquiries,
+          which include mobile numbers, are further restricted to senior committee members.
         </li>
         <li>
           Access to membership credentials is restricted to persons authorised to process the

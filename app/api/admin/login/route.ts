@@ -2,6 +2,7 @@
 // The next screen is the same either way, so the form can't be used to find
 // out who the admins are.
 
+import { after } from "next/server";
 import { adminMailConfigured, sendLoginCode } from "@/lib/admin/mail";
 import { adminRedirect } from "@/lib/admin/session";
 import { createLoginCode, loginLimiters, normaliseEmail, roleOf } from "@/lib/admin/store";
@@ -28,7 +29,15 @@ export async function POST(request: Request) {
 
     if (!adminMailConfigured()) return adminRedirect(request, "/login?error=unavailable");
 
-    if (await roleOf(email)) await sendLoginCode(email, await createLoginCode(email));
+    // Sent after the response, so an admin address doesn't answer measurably
+    // slower than any other one.
+    after(async () => {
+      try {
+        if (await roleOf(email)) await sendLoginCode(email, await createLoginCode(email));
+      } catch (error) {
+        console.error("[admin login] code not sent:", error);
+      }
+    });
   } catch {
     return adminRedirect(request, "/login?error=unavailable");
   }

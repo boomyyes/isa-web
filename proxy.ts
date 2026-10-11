@@ -17,9 +17,11 @@ import { CSP_DIRECTIVES } from "@/lib/csp";
 // *.ably-realtime.com; *.ably.io is the older endpoint, kept for safety.
 // R2: the ISAAC issue PDF is PUT straight to the private bucket with a
 // presigned URL, since it's too big to pass through a function.
+// Only this account's endpoint, not every R2 bucket on the internet.
+const R2_ORIGIN = process.env.R2_ACCOUNT_ID ? `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com` : "";
 const ADMIN_CSP = CSP_DIRECTIVES.map((d) =>
   d.startsWith("connect-src")
-    ? `${d} https://*.ably.net wss://*.ably.net https://*.ably.io wss://*.ably.io https://*.ably-realtime.com wss://*.ably-realtime.com https://*.r2.cloudflarestorage.com`
+    ? `${d} https://*.ably.net wss://*.ably.net https://*.ably.io wss://*.ably.io https://*.ably-realtime.com wss://*.ably-realtime.com ${R2_ORIGIN}`
     : d
 ).join("; ");
 

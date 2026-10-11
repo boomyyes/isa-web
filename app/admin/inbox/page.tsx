@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AdminShell, buttonClass, formatTime, Notice, tableHeadClass, tableRowClass, tableWrapClass } from "@/components/admin/AdminShell";
 import { fieldClass } from "@/components/ui/formStyles";
 import { requireAdmin } from "@/lib/admin/session";
-import { listSubmissions } from "@/lib/admin/submissions";
+import { formVisibleTo, listSubmissions } from "@/lib/admin/submissions";
 import { FORMS } from "@/lib/forms/schemas";
 import { shownValue } from "@/lib/forms/sheet";
 
@@ -16,7 +16,7 @@ export default async function InboxPage({
   const session = await requireAdmin();
   const { base } = session;
   const { form, q, denied, error } = await searchParams;
-  const subs = await listSubmissions({ form, q });
+  const subs = await listSubmissions({ form, q, role: session.role });
 
   return (
     <AdminShell session={session} base={base} title="Inbox">
@@ -32,7 +32,9 @@ export default async function InboxPage({
         />
         <select name="form" defaultValue={form ?? ""} className={`${fieldClass} w-auto`}>
           <option value="">All forms</option>
-          {Object.entries(FORMS).map(([name, { label }]) => (
+          {Object.entries(FORMS)
+            .filter(([name]) => formVisibleTo(session.role, name as keyof typeof FORMS))
+            .map(([name, { label }]) => (
             <option key={name} value={name}>
               {label}
             </option>

@@ -32,6 +32,7 @@ const ERRORS: Record<string, string> = {
   email: "Enter a valid email address.",
   fixed: "That address is an Admin set in Vercel (ADMIN_OWNERS) and can only be changed there.",
   domain: "Joint Core need a domain.",
+  leadership: "Only the Faculty Advisor or Admin can grant, change or remove the Faculty Advisor, President or Treasurer roles.",
 };
 
 export default async function TeamPage({

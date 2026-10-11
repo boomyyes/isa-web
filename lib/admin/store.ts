@@ -262,10 +262,12 @@ export async function createLoginCode(email: string): Promise<string> {
  * Tries are counted before comparing, so parallel guesses can't exceed the
  * limit; a correct code is spent by whoever's DEL actually removes it.
  */
-export async function verifyLoginCode(email: string, code: string): Promise<"ok" | "wrong" | "expired"> {
+export async function verifyLoginCode(email: string, code: string): Promise<"ok" | "wrong" | "expired" | "none"> {
   const key = otpKey(email);
   const stored = await redis().hget<string>(key, "hash");
-  if (!stored) return "expired";
+  // "none" is shown to the person exactly like "wrong", so the answer doesn't
+  // reveal whether the address is an admin with a live code.
+  if (!stored) return "none";
   const tries = await redis().hincrby(key, "tries", 1);
   if (tries > MAX_CODE_TRIES) {
     await redis().del(key);
@@ -327,6 +329,7 @@ export async function revokeSessions(email: string) {
 let loginIp: Ratelimit | null = null;
 let loginEmail: Ratelimit | null = null;
 let codeIp: Ratelimit | null = null;
+let codeEmail: Ratelimit | null = null;
 
 export function loginLimiters() {
   loginIp ??= new Ratelimit({
@@ -350,7 +353,16 @@ export function loginLimiters() {
     ephemeralCache: new Map(),
     analytics: false,
   });
-  return { ip: loginIp, email: loginEmail, codeIp };
+  // Each new code resets its 5 tries, so this caps guesses per address across
+  // codes: a slow attack from many IPs gets 20 a day, not hundreds.
+  codeEmail ??= new Ratelimit({
+    redis: redis(),
+    limiter: Ratelimit.fixedWindow(20, "24 h"),
+    prefix: "rl:admin-otp-email",
+    ephemeralCache: new Map(),
+    analytics: false,
+  });
+  return { ip: loginIp, email: loginEmail, codeIp, codeEmail };
 }
 
 // ----------------------------------------------------------------- audit log

@@ -21,6 +21,7 @@
 // With neither set the magazine falls back to the single cover file, so the
 // reader still opens with something in it rather than erroring.
 
+import "server-only";
 import { ISAAC_COVER_VERSION, ISAAC_ISSUE } from "./isaac";
 import { R2_PREFIX } from "./isaac.pdf";
 import { getObject } from "./r2";

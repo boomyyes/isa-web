@@ -4,8 +4,8 @@
 // return byte-identical responses, since UIDs are sequential and enumerable.
 
 import { normalizeUid, type CertRecord } from "@/lib/certificates";
-import { redisKey, toPublicView, verifyPassword } from "@/lib/certificates.server";
-import { clientIp, lookupIpLimiter, lookupUidLimiter, redis } from "@/lib/redis";
+import { burnPasswordCheck, redisKey, toPublicView, verifyPassword } from "@/lib/certificates.server";
+import { clientIp, lookupIpLimiter, lookupUidCapLimiter, lookupUidLimiter, redis } from "@/lib/redis";
 
 /** The single failure body. Used for both failure modes — do not specialise it. */
 const REJECTED = {
@@ -61,11 +61,13 @@ export async function POST(request: Request) {
   // Both limits are checked before touching the record, so a flood costs one
   // Redis round-trip rather than a scrypt verification.
   try {
-    const [byIp, byUid] = await Promise.all([
-      lookupIpLimiter().limit(clientIp(request)),
-      lookupUidLimiter().limit(uid),
+    const ip = clientIp(request);
+    const [byIp, byUid, byUidCap] = await Promise.all([
+      lookupIpLimiter().limit(ip),
+      lookupUidLimiter().limit(`${uid}:${ip}`),
+      lookupUidCapLimiter().limit(uid),
     ]);
-    if (!byIp.success || !byUid.success) return tooMany();
+    if (!byIp.success || !byUid.success || !byUidCap.success) return tooMany();
   } catch {
     return unavailable();
   }
@@ -78,6 +80,7 @@ export async function POST(request: Request) {
   }
 
   if (!record || !record.passwordHash) {
+    await burnPasswordCheck(password);
     return Response.json(REJECTED, { status: 401, headers: PRIVATE_HEADERS });
   }
 

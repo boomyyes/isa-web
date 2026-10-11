@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 const ERRORS: Record<string, string> = {
   format: "Enter the 6-digit code from the email.",
-  wrong: "That code isn't right. Check the latest email and try again; a code stops working after 5 wrong tries.",
+  wrong: "That code isn't right. Check the latest email and try again, or request a new code; a code stops working after 5 wrong tries.",
   limit: "Too many attempts from this network. Wait an hour and try again.",
 };
 

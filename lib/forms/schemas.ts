@@ -88,8 +88,45 @@ export const querySchema = z
 export type QueryInput = z.input<typeof querySchema>;
 export type QueryData = z.output<typeof querySchema>;
 
+/** Indian mobile number. Spaces, dashes and a +91 or 0 prefix are accepted; stored as +91XXXXXXXXXX. */
+const phone = z
+  .string()
+  .transform((value) => value.replace(/[\s()-]/g, "").replace(/^(\+?91|0)(?=\d{10}$)/, ""))
+  .pipe(z.string().regex(/^[6-9]\d{9}$/, "Enter a 10-digit Indian mobile number."))
+  .transform((digits) => `+91${digits}`);
+
+export const MEMBERSHIP_YEARS = ["FE", "SE", "TE", "BE"] as const;
+export const MEMBERSHIP_CALL_TIMES = [
+  "Weekday mornings",
+  "Weekday afternoons",
+  "Weekday evenings",
+  "Weekends",
+  "Any time",
+] as const;
+
+/**
+ * Membership enquiries from RAIT students. The point is a phone call: the
+ * committee rings the applicant and sets the membership up with them, so this
+ * only asks for what that call needs. No ISA account details or passwords.
+ */
+export const membershipSchema = z.object({
+  name,
+  email,
+  phone,
+  whatsapp: z.boolean().default(false),
+  rollNumber: line("Roll number", 2, 30),
+  branch: line("Branch", 2, 80),
+  year: z.enum(MEMBERSHIP_YEARS, "Choose your year."),
+  callTime: z.enum(MEMBERSHIP_CALL_TIMES, "Choose when we can call you."),
+  message: z.string().default("").pipe(text("Message", 0, 1000)),
+  ...declarations,
+});
+
+export type MembershipInput = z.input<typeof membershipSchema>;
+
 export const FORMS = {
   query: { schema: querySchema, prefix: "Q", label: "query" },
+  membership: { schema: membershipSchema, prefix: "M", label: "membership enquiry" },
 } as const;
 
 export type FormName = keyof typeof FORMS;

@@ -2,6 +2,8 @@
 
 import "server-only";
 import { redis } from "@/lib/redis";
+import { can, type Role } from "@/lib/admin/store";
+import type { FormName } from "@/lib/forms/schemas";
 import {
   ERASE_KEY,
   INDEX_KEY,
@@ -11,6 +13,9 @@ import {
   type StoredSubmission,
   type SubmissionStatus,
 } from "@/lib/forms/server";
+
+/** Membership enquiries carry phone numbers, so only Core and above see them. */
+export const formVisibleTo = (role: Role, form: FormName) => form !== "membership" || can(role, "core");
 
 const REF = /^[A-Z]-[0-9A-Z]{6}$/;
 const PAGE = 200;
@@ -25,7 +30,7 @@ async function load(ids: string[]): Promise<StoredSubmission[]> {
 }
 
 /** Newest first. `q` is a ref or an email address; anything else is ignored. */
-export async function listSubmissions({ form, q }: { form?: string; q?: string }) {
+export async function listSubmissions({ form, q, role }: { form?: string; q?: string; role: Role }) {
   const query = (q ?? "").trim();
   let ids: string[];
   if (REF.test(query.toUpperCase())) ids = [query.toUpperCase()];
@@ -34,7 +39,7 @@ export async function listSubmissions({ form, q }: { form?: string; q?: string }
 
   const subs = await load(ids);
   return subs
-    .filter((s) => !form || s.form === form)
+    .filter((s) => formVisibleTo(role, s.form) && (!form || s.form === form))
     .sort((a, b) => b.receivedAt.localeCompare(a.receivedAt));
 }
 

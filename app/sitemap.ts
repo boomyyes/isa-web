@@ -8,6 +8,7 @@ const STATIC_ROUTES = [
   "/community",
   "/artemis",
   "/membership",
+  "/membership/apply",
   "/certificates",
   "/help",
   "/privacy",

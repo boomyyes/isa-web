@@ -1,9 +1,9 @@
 // POST status and/or note on one submission. Editors and owners.
 
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
-import { updateSubmission } from "@/lib/admin/submissions";
+import { formVisibleTo, getSubmission, updateSubmission } from "@/lib/admin/submissions";
 import { audit, can } from "@/lib/admin/store";
-import { SUBMISSION_STATUSES } from "@/lib/forms/server";
+import { FORM_STATUSES } from "@/lib/forms/server";
 import { sameOrigin } from "@/lib/security";
 
 export const runtime = "nodejs";
@@ -19,7 +19,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const form = await request.formData().catch(() => null);
   const rawStatus = form?.get("status");
   const rawNote = form?.get("note");
-  const status = SUBMISSION_STATUSES.find((s) => s === rawStatus);
+  const sub = await getSubmission(id);
+  if (!sub || !formVisibleTo(session.role, sub.form)) return adminRedirect(request, "/inbox?error=missing");
+  const status = FORM_STATUSES[sub.form].find((s) => s === rawStatus);
   const note = typeof rawNote === "string" ? rawNote.trim().slice(0, 1000) : "";
 
   if (!status && !note) return adminRedirect(request, `/s/${id}`);

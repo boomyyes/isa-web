@@ -30,6 +30,7 @@ export const emailKey = (email: string) => `subs:email:${email}`;
 /** Retention, enforced by Redis expiry. Mirrors section 9 of the privacy policy. */
 const RETENTION_SECONDS: Record<FormName, number> = {
   query: 365 * 24 * 60 * 60,
+  membership: 365 * 24 * 60 * 60,
 };
 
 const DEDUPE_SECONDS = 24 * 60 * 60;
@@ -46,8 +47,13 @@ export type StoredSubmission = {
   notes?: { by: string; at: string; text: string }[];
 };
 
-export const SUBMISSION_STATUSES = ["new", "in progress", "resolved", "spam"] as const;
-export type SubmissionStatus = (typeof SUBMISSION_STATUSES)[number];
+/** The steps each form's submissions move through in the admin inbox. */
+export const FORM_STATUSES: Record<FormName, readonly string[]> = {
+  query: ["new", "in progress", "resolved", "spam"],
+  // Contact, then a call to set the membership up.
+  membership: ["new", "contacted", "call scheduled", "member", "not proceeding", "spam"],
+};
+export type SubmissionStatus = string;
 
 const PRIVATE_HEADERS = { "Cache-Control": "no-store" };
 

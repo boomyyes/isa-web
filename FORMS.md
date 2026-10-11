@@ -4,6 +4,14 @@ The site's forms are built in. Submissions are stored in Upstash (the same
 database as certificates) and copied into a Google Sheet every five minutes,
 which is where the committee reads them.
 
+Two forms exist: the **query** form on /help (refs `Q-…`, tab "Queries") and the
+**membership enquiry** on /membership/apply (refs `M-…`, tab "Membership"). The
+membership form asks for a phone number so the committee can call the student
+and set up their membership; only Core and above see these in the admin inbox,
+which has Call / WhatsApp / Email buttons and the statuses new → contacted →
+call scheduled → member (or not proceeding / spam). The tab is created by the
+sheet script on its next sync.
+
 ```
 browser ──POST /api/forms/<form>──▶ checks ──▶ Upstash (expires after retention)
                                                    │

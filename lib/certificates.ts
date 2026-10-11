@@ -19,7 +19,8 @@ export interface WorkshopMeta {
  */
 export const WORKSHOPS: WorkshopMeta[] = [
   { id: "iaw", title: "Industrial Automation Workshop", date: "2026-08-01", sheetLabel: "IAW" },
-  { id: "ros", title: "ROS2 Bootcamp", date: "2026-08-21", sheetLabel: "ROS" }
+  { id: "ros", title: "ROS2 Bootcamp", date: "2026-08-21", sheetLabel: "ROS" },
+  { id: "artemis", title: "Artemis Hackathon 2026", date: "2026-09-26", sheetLabel: "ARTEMIS" }
 ]
 export interface WorkshopRecord {
   /** Gates both the digital and the physical copy. */
@@ -87,5 +88,25 @@ export function validateAccessCode(code: unknown): string | null {
   if (normalizePassword(code).length < MIN_CODE_LENGTH) {
     return `Use at least ${MIN_CODE_LENGTH} letters or numbers. Spaces and punctuation are ignored.`;
   }
+  if (isWeakCode(normalizePassword(code))) {
+    return "That code is too easy to guess. Mix letters and numbers, and avoid sequences.";
+  }
   return null;
+}
+
+const COMMON_CODES = new Set([
+  "PASSWORD", "PASSWORD1", "PASSWORD123", "QWERTY", "QWERTY123", "QWERTYUIOP", "ASDFGH", "ASDFGHJKL",
+  "ZXCVBN", "ABC123", "ABCDEF", "ABCDEFG", "ABCDEFGH", "LETMEIN", "WELCOME", "WELCOME1", "ADMIN123",
+  "ILOVEYOU", "MONKEY", "DRAGON", "FOOTBALL", "CRICKET", "SUNSHINE", "PRINCESS", "IISA", "ISARAIT",
+  "RAIT", "RAIT123", "ISA123", "STUDENT", "CHANGEME", "SECRET", "TRUSTNO1", "PASSWORD@123",
+]);
+
+/** All digits, one repeated character, a run like ABCDEF/123456, or a well-known password. */
+function isWeakCode(code: string): boolean {
+  if (/^\d+$/.test(code)) return true;
+  if (/^(.)\1+$/.test(code)) return true;
+  if (COMMON_CODES.has(code)) return true;
+  const steps = new Set<number>();
+  for (let i = 1; i < code.length; i++) steps.add(code.charCodeAt(i) - code.charCodeAt(i - 1));
+  return steps.size === 1 && [1, -1].includes([...steps][0]);
 }

@@ -41,18 +41,38 @@ export function lookupIpLimiter(): Ratelimit {
   return ipLimiter;
 }
 
-/** UIDs are guessable, so the access code is the only real secret. */
+let uidCapLimiter: Ratelimit | null = null;
+
+/**
+ * UIDs are guessable, so the access code is the only real secret. Keyed by
+ * UID + network, so a stranger's failed guesses don't lock the student out;
+ * lookupUidCapLimiter is the backstop against guessing from many networks.
+ */
 export function lookupUidLimiter(): Ratelimit {
   if (uidLimiter) return uidLimiter;
 
   uidLimiter = new Ratelimit({
     redis: redis(),
     limiter: Ratelimit.slidingWindow(10, "10 m"),
-    prefix: "rl:cert-uid",
+    prefix: "rl:cert-uid-ip",
     ephemeralCache: new Map(),
     analytics: false,
   });
   return uidLimiter;
+}
+
+/** Per UID across all networks. Loose enough that one attacker can't easily exhaust it. */
+export function lookupUidCapLimiter(): Ratelimit {
+  if (uidCapLimiter) return uidCapLimiter;
+
+  uidCapLimiter = new Ratelimit({
+    redis: redis(),
+    limiter: Ratelimit.slidingWindow(50, "1 h"),
+    prefix: "rl:cert-uid",
+    ephemeralCache: new Map(),
+    analytics: false,
+  });
+  return uidCapLimiter;
 }
 
 let resetIp: Ratelimit | null = null;
@@ -132,9 +152,15 @@ export function formAnonIpLimiter(): Ratelimit {
   return formAnonIp;
 }
 
-/** `NextRequest.ip` was removed in Next 15. */
+/**
+ * `NextRequest.ip` was removed in Next 15. Headers the platform sets itself come
+ * first; in X-Forwarded-For the client can write the leading entries, so only
+ * the last one (added by the nearest proxy) is trusted.
+ */
 export function clientIp(request: Request): string {
+  const platform = request.headers.get("x-vercel-forwarded-for") ?? request.headers.get("x-real-ip");
+  if (platform) return platform.split(",")[0].trim();
   const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
-  return request.headers.get("x-real-ip") ?? "unknown";
+  if (forwarded) return forwarded.split(",").at(-1)!.trim();
+  return "unknown";
 }

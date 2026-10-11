@@ -94,7 +94,13 @@ export async function presignGet(
 export async function presignPut(key: string, ttlSeconds: number): Promise<string> {
   const url = new URL(objectUrl(key));
   url.searchParams.set("X-Amz-Expires", String(ttlSeconds));
-  const signed = await aws().sign(url.toString(), { method: "PUT", aws: { signQuery: true } });
+  // Content-Type is signed in (allHeaders: aws4fetch skips it by default), so
+  // the link only accepts a PDF upload.
+  const signed = await aws().sign(url.toString(), {
+    method: "PUT",
+    headers: { "Content-Type": "application/pdf" },
+    aws: { signQuery: true, allHeaders: true },
+  });
   return signed.url;
 }
 

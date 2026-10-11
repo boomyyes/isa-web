@@ -91,7 +91,7 @@ export default async function DashboardPage({
   const { today, weekAgo, in60Days } = clock();
 
   const [subs, unread, awaiting, budgets, ledger, upcoming, year] = await Promise.all([
-    soft(listSubmissions({}), []),
+    soft(listSubmissions({ role: session.role }), []),
     live ? soft(unreadCount(session.email), 0) : 0,
     live && approves ? soft(countBills("submitted"), 0) : 0,
     live && seesTreasury ? soft(budgetSummary(), []) : [],

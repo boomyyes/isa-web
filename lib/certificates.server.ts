@@ -97,10 +97,25 @@ export async function verifyPassword(password: string, stored: string): Promise<
   return timingSafeEqual(derived, expected);
 }
 
+let dummyHash: Promise<string> | null = null;
+
+/**
+ * Costs the same as a real check, for a UID that doesn't exist, so response
+ * time doesn't reveal which UIDs are registered.
+ */
+export async function burnPasswordCheck(password: string): Promise<void> {
+  dummyHash ??= hashPassword(generatePassword());
+  await verifyPassword(password, await dummyHash);
+}
+
 // --------------------------------------------------------------------- tokens
 
-function sign(encodedPayload: string): string {
-  return createHmac("sha256", secret()).update(encodedPayload).digest("base64url");
+/**
+ * The purpose is signed in, so a token of one kind (download, reset) never
+ * verifies as the other, whatever its payload happens to look like.
+ */
+function sign(purpose: "dl" | "rs", encodedPayload: string): string {
+  return createHmac("sha256", secret()).update(`${purpose}.${encodedPayload}`).digest("base64url");
 }
 
 /**
@@ -119,7 +134,7 @@ export function signDownloadToken(
     "utf8"
   ).toString("base64url");
   // Sign the encoded form, so verification never depends on a decode round-trip.
-  return `${encoded}.${sign(encoded)}`;
+  return `${encoded}.${sign("dl", encoded)}`;
 }
 
 export function verifyDownloadToken(
@@ -130,7 +145,7 @@ export function verifyDownloadToken(
 
   const encoded = token.slice(0, dot);
   const provided = Buffer.from(token.slice(dot + 1));
-  const expected = Buffer.from(sign(encoded));
+  const expected = Buffer.from(sign("dl", encoded));
   // timingSafeEqual throws on length mismatch, and the length isn't secret.
   if (provided.length !== expected.length) return null;
   if (!timingSafeEqual(provided, expected)) return null;
@@ -174,7 +189,7 @@ export function signResetToken(
     ].join(":"),
     "utf8"
   ).toString("base64url");
-  return `${encoded}.${sign(encoded)}`;
+  return `${encoded}.${sign("rs", encoded)}`;
 }
 
 /** `currentPasswordHash` comes from the record being reset. */
@@ -187,7 +202,7 @@ export function verifyResetToken(
 
   const encoded = token.slice(0, dot);
   const provided = Buffer.from(token.slice(dot + 1));
-  const expected = Buffer.from(sign(encoded));
+  const expected = Buffer.from(sign("rs", encoded));
   if (provided.length !== expected.length) return null;
   if (!timingSafeEqual(provided, expected)) return null;
 

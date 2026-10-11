@@ -13,12 +13,17 @@ import {
   normaliseEmail,
   removeAdmin,
   ROLE_LABELS,
+  roleOf,
+  type Role,
   setAdmin,
   setName,
 } from "@/lib/admin/store";
 import { sameOrigin } from "@/lib/security";
 
 export const runtime = "nodejs";
+
+/** Peers with the same reach: one of them alone mustn't be able to sideline the others. */
+const LEADERSHIP: readonly Role[] = ["advisor", "president", "treasurer"];
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -37,6 +42,14 @@ export async function POST(request: Request) {
 
   if (!EMAIL.test(email)) return adminRedirect(request, "/team?error=email");
   if (bootstrapOwners().includes(email)) return adminRedirect(request, "/team?error=fixed");
+
+  // Only the Advisor (or Admin) may grant, change or remove a leadership role.
+  const current = await roleOf(email);
+  const touchesLeadership =
+    (current && LEADERSHIP.includes(current)) || (action === "set" && isAssignableRole(role) && LEADERSHIP.includes(role));
+  if (touchesLeadership && session.role !== "advisor" && session.role !== "admin") {
+    return adminRedirect(request, "/team?error=leadership");
+  }
 
   if (action === "set" && isAssignableRole(role)) {
     // The Advisor, President and Treasurer span every domain; Core and Coordinators may

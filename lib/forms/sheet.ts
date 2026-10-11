@@ -16,6 +16,20 @@ export const SHEET_LAYOUT: Record<FormName, { tab: string; columns: [string, str
       ["message", "Message"],
     ],
   },
+  membership: {
+    tab: "Membership",
+    columns: [
+      ["name", "Name"],
+      ["email", "Email"],
+      ["phone", "Phone"],
+      ["whatsapp", "On WhatsApp"],
+      ["rollNumber", "Roll number"],
+      ["branch", "Branch"],
+      ["year", "Year"],
+      ["callTime", "Best time to call"],
+      ["message", "Message"],
+    ],
+  },
 };
 
 /**
@@ -25,7 +39,7 @@ export const SHEET_LAYOUT: Record<FormName, { tab: string; columns: [string, str
  */
 export function safeCell(value: unknown): string {
   const text = value === undefined || value === null ? "" : String(value);
-  return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+  return /^[\s=+\-@]/.test(text) ? `'${text}` : text;
 }
 
 /**
@@ -35,6 +49,7 @@ export function safeCell(value: unknown): string {
 export function shownValue(sub: Pick<StoredSubmission, "data">, key: string): string {
   if (sub.data.anonymous === true && key === "name") return "Anonymous";
   const value = sub.data[key];
+  if (typeof value === "boolean") return value ? "yes" : "no";
   return value === undefined || value === null ? "" : String(value);
 }
 

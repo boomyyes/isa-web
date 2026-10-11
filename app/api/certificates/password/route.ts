@@ -9,8 +9,8 @@ import {
   validateAccessCode,
   type CertRecord,
 } from "@/lib/certificates";
-import { hashPassword, redisKey, verifyPassword } from "@/lib/certificates.server";
-import { clientIp, lookupIpLimiter, lookupUidLimiter, redis } from "@/lib/redis";
+import { burnPasswordCheck, hashPassword, redisKey, verifyPassword } from "@/lib/certificates.server";
+import { clientIp, lookupIpLimiter, lookupUidCapLimiter, lookupUidLimiter, redis } from "@/lib/redis";
 
 export const runtime = "nodejs";
 
@@ -68,11 +68,13 @@ export async function POST(request: Request) {
   // rather than two scrypt runs.
   const uid = normalizeUid(rawUid);
   try {
-    const [byIp, byUid] = await Promise.all([
-      lookupIpLimiter().limit(clientIp(request)),
-      lookupUidLimiter().limit(uid),
+    const ip = clientIp(request);
+    const [byIp, byUid, byUidCap] = await Promise.all([
+      lookupIpLimiter().limit(ip),
+      lookupUidLimiter().limit(`${uid}:${ip}`),
+      lookupUidCapLimiter().limit(uid),
     ]);
-    if (!byIp.success || !byUid.success) return tooMany();
+    if (!byIp.success || !byUid.success || !byUidCap.success) return tooMany();
   } catch {
     return unavailable();
   }
@@ -85,6 +87,7 @@ export async function POST(request: Request) {
   }
 
   if (!record || !record.passwordHash) {
+    await burnPasswordCheck(password);
     return Response.json(REJECTED, { status: 401, headers: PRIVATE_HEADERS });
   }
   if (!(await verifyPassword(password, record.passwordHash))) {

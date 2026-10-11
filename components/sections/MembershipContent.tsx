@@ -3,7 +3,6 @@
 import * as React from "react";
 import { m } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 import {
   BookOpen,
   TrendingUp,
@@ -25,8 +24,8 @@ import {
 } from "lucide-react";
 import { HolographicCard } from "@/components/ui/HolographicCard";
 
-/** External sign-up destination. */
-const JOIN_URL = "https://forms.gle/ZL1QSLHD2SkmDpS66";
+/** The membership enquiry form. */
+const JOIN_URL = "/membership/apply";
 
 const badges = [
   { icon: Globe, label: "Global Network" },
@@ -341,7 +340,7 @@ export function MembershipContent() {
             style={{ background: "var(--border-active)" }}
           />
 
-          <div className="relative grid items-center gap-12 lg:grid-cols-[1.6fr_1fr]">
+          <div className="relative">
             {/* Left: text + button + trust badges */}
             <div>
               <h2 className="font-inter text-4xl font-black leading-[0.95] tracking-tighter text-[var(--text-primary)] md:text-6xl">
@@ -370,8 +369,6 @@ export function MembershipContent() {
               <div className="mt-10">
                 <Link
                   href={JOIN_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="clip-angular group relative inline-flex items-center gap-3 bg-[var(--accent-color)] px-10 py-5 font-jetbrains text-base font-black uppercase tracking-widest text-[var(--bg-color)] transition-transform duration-300 hover:scale-[1.02] md:text-lg"
                   style={{ boxShadow: "0 0 45px color-mix(in srgb, var(--accent-color) 65%, transparent)" }}
                 >
@@ -386,38 +383,10 @@ export function MembershipContent() {
                     className="transition-transform duration-300 group-hover:translate-x-1"
                   />
                 </Link>
+                <p className="mt-4 font-jetbrains text-[10px] uppercase tracking-widest text-[var(--text-secondary)]">
+                  *Terms and conditions apply.
+                </p>
               </div>
-            </div>
-
-            {/* Right: Scan to Join QR placeholder */}
-            <div className="flex flex-col items-center gap-4">
-              <p className="font-jetbrains text-xs font-bold uppercase tracking-[0.3em] text-[var(--border-active)]">
-                Scan to Join
-              </p>
-              <Link
-                href={JOIN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Scan or open the ISA membership join link"
-                className="clip-angular relative flex h-44 w-44 items-center justify-center border border-[var(--border-active)] bg-white p-3 transition-transform duration-300 hover:scale-[1.03]"
-                style={{ boxShadow: "0 0 35px color-mix(in srgb, var(--border-active) 40%, transparent)" }}
-              >
-                {/* corner ticks */}
-                <span className="absolute left-2 top-2 h-4 w-4 border-l-2 border-t-2 border-[var(--border-active)]" />
-                <span className="absolute right-2 top-2 h-4 w-4 border-r-2 border-t-2 border-[var(--border-active)]" />
-                <span className="absolute bottom-2 left-2 h-4 w-4 border-b-2 border-l-2 border-[var(--border-active)]" />
-                <span className="absolute bottom-2 right-2 h-4 w-4 border-b-2 border-r-2 border-[var(--border-active)]" />
-                <Image
-                  src="/membership-qr.png"
-                  alt="QR code linking to the ISA membership page"
-                  width={512}
-                  height={512}
-                  className="h-full w-full"
-                />
-              </Link>
-              <p className="text-center font-jetbrains text-[10px] uppercase tracking-widest text-[var(--text-secondary)]">
-                *Terms and conditions apply.
-              </p>
             </div>
           </div>
         </m.div>

@@ -43,6 +43,14 @@ const rupees = (label: string) =>
   z.preprocess(parseRupees, z.number(`${label}: enter an amount like 1250 or 1250.50.`).int().positive(`${label} must be more than zero.`));
 
 /** India's financial year: April to March. 2026-10-07 -> 2026 (FY 2026-27). */
+/** YYYY-MM-DD that is a real calendar day (no 2026-13-45). */
+const calendarDate = (message: string) =>
+  z.string().refine((value) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const date = new Date(`${value}T00:00:00Z`);
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+  }, message);
+
 export const fyOf = (isoDate: string) => {
   const [y, m] = isoDate.split("-").map(Number);
   return m >= 4 ? y : y - 1;
@@ -61,7 +69,7 @@ export const budgetSchema = z.object({
 export const billSchema = z.object({
   budgetId: z.string().regex(UUID, "Choose a budget."),
   amountPaise: rupees("Amount"),
-  billDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Enter the bill date."),
+  billDate: calendarDate("Enter the bill date."),
   vendor: z.string("Enter who was paid or who issued the bill.").trim().min(1, "Enter who was paid or who issued the bill.").max(120),
   description: z.string("Say what it was for.").trim().min(1, "Say what it was for.").max(1000),
 });
@@ -70,14 +78,14 @@ export const entrySchema = z.object({
   budgetId: z.string().regex(UUID, "Choose a budget."),
   kind: z.enum(["income", "expense"], "Choose income or expense."),
   amountPaise: rupees("Amount"),
-  entryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Enter the date."),
+  entryDate: calendarDate("Enter the date."),
   description: z.string("Describe the entry.").trim().min(1, "Describe the entry.").max(500),
 });
 
 export const paySchema = z.object({
   paidTo: z.string("Who was paid?").trim().min(1, "Who was paid?").max(120),
   payMode: z.enum(PAY_MODES, "Choose how it was paid."),
-  paidOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Enter the payment date."),
+  paidOn: calendarDate("Enter the payment date."),
 });
 
 // -------------------------------------------------------------------- budgets

@@ -32,7 +32,8 @@ export type Collection = {
   itemTitle?: string;
 };
 
-const SITE_PATH = /^\/[A-Za-z0-9/_.-]*$/;
+// "//host" would be read by browsers as another site, so a second leading slash is refused.
+const SITE_PATH = /^\/(?!\/)[A-Za-z0-9/_.-]*$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 const memberFields: Field[] = [

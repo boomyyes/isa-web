@@ -21,10 +21,14 @@ export async function POST(request: Request) {
   if (!/^\d{6}$/.test(code)) return adminRedirect(request, back("format"));
 
   try {
-    if (!(await loginLimiters().codeIp.limit(clientIp(request))).success) {
-      return adminRedirect(request, back("limit"));
-    }
+    const limits = loginLimiters();
+    const [byIp, byEmail] = await Promise.all([limits.codeIp.limit(clientIp(request)), limits.codeEmail.limit(email)]);
+    if (!byIp.success || !byEmail.success) return adminRedirect(request, back("limit"));
     const result = await verifyLoginCode(email, code);
+    // No code on file looks the same as a wrong one, so this can't be used to
+    // test which addresses are admins. Only real codes are audited.
+    if (result === "none") return adminRedirect(request, back("wrong"));
+    if (result !== "ok") await audit(email, "entered a wrong sign-in code");
     if (result === "wrong") return adminRedirect(request, back("wrong"));
     // Removed since the code was sent: the code dies with the access.
     if (result === "expired" || !(await roleOf(email))) return adminRedirect(request, "/login?error=expired");

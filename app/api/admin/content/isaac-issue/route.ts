@@ -20,7 +20,7 @@ import { randomBytes } from "node:crypto";
 import { sessionFrom } from "@/lib/admin/session";
 import { audit, hasCap } from "@/lib/admin/store";
 import { ConflictError, readFile, toJsonText, writeFile } from "@/lib/content/github";
-import { ISAAC_MAX_UPLOAD_BYTES as MAX_ISSUE_BYTES, ISAAC_MAX_UPLOAD_MB, type IsaacIssue } from "@/lib/isaac";
+import { ISAAC_ISSUE, ISAAC_MAX_UPLOAD_BYTES as MAX_ISSUE_BYTES, ISAAC_MAX_UPLOAD_MB, type IsaacIssue } from "@/lib/isaac";
 import { pdfPageCount, R2_PREFIX, renderPdfPage } from "@/lib/isaac.pdf";
 import { issuePageKey, issuePagePrefix, issuePdfKey } from "@/lib/isaac.server";
 import { deleteObject, headObject, listKeys, presignPut, putObject } from "@/lib/r2";
@@ -81,6 +81,11 @@ export async function POST(request: Request) {
 
   const version = typeof body.version === "string" && VERSION.test(body.version) ? body.version : null;
   if (!version) return json({ error: "Invalid request." }, 400);
+  // The issue on the site (and the one kept before it) is never re-checked,
+  // re-drawn or re-published, so a failed check can't delete what readers see.
+  if (version === ISAAC_ISSUE.version || version === versionOfKey(ISAAC_ISSUE.previous ?? "")) {
+    return json({ error: "Invalid request." }, 400);
+  }
   const pdf = issuePdfKey(version);
   const source = `${R2_PREFIX}${pdf}`;
 
