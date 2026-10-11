@@ -151,6 +151,18 @@ export const chatMessages = pgTable(
 // Amounts are integer paise (₹1 = 100), never floats. Members' bank or UPI
 // details are deliberately not stored: a payment records who was paid and how.
 
+/**
+ * The chapter's treasury for one financial year (April to March), keyed by
+ * the year it starts in (2026 = FY 2026-27). Set by the Faculty Advisor,
+ * President or Treasurer; "remaining" is measured against it.
+ */
+export const treasuryYears = pgTable("treasury_years", {
+  fy: integer("fy").primaryKey(),
+  amountPaise: bigint("amount_paise", { mode: "number" }).notNull(),
+  setBy: text("set_by").notNull(),
+  setAt: timestamp("set_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const budgets = pgTable("budgets", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),

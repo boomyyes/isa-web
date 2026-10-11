@@ -12,7 +12,7 @@ import {
 import { CashChart, type CashPoint } from "@/components/admin/CashChart";
 import { unreadCount } from "@/lib/admin/announcements";
 import { itemsBetween } from "@/lib/admin/calendar";
-import { budgetSummary, countBills, formatPaise, listLedger } from "@/lib/admin/finance";
+import { budgetSummary, countBills, formatPaise, listLedger, treasurySummary } from "@/lib/admin/finance";
 import { requireAdmin } from "@/lib/admin/session";
 import { hasAnyCap, hasCap } from "@/lib/admin/store";
 import { listSubmissions } from "@/lib/admin/submissions";
@@ -85,22 +85,30 @@ export default async function DashboardPage({
   const range: Range = isRange(sp.range) ? sp.range : "1Y";
 
   const seesTreasury = hasAnyCap(session, ["finance.approve", "finance.audit"]);
-  const approves = hasCap(session, "finance.approve");
+  // The "bills need your decision" prompt is for the President and Treasurer.
+  const approves = hasCap(session, "finance.decide");
   const live = dbConfigured();
   const { today, weekAgo, in60Days } = clock();
 
-  const [subs, unread, awaiting, budgets, ledger, upcoming] = await Promise.all([
+  const [subs, unread, awaiting, budgets, ledger, upcoming, year] = await Promise.all([
     soft(listSubmissions({}), []),
     live ? soft(unreadCount(session.email), 0) : 0,
     live && approves ? soft(countBills("submitted"), 0) : 0,
     live && seesTreasury ? soft(budgetSummary(), []) : [],
     live && seesTreasury ? soft(listLedger({}), []) : [],
     live ? soft(itemsBetween(today, in60Days), []) : [],
+    live && seesTreasury ? soft(treasurySummary(), null) : null,
   ]);
 
   const newThisWeek = subs.filter((s) => s.receivedAt >= weekAgo).length;
-  const remaining = budgets.filter((b) => !b.archived).reduce((sum, b) => sum + b.remaining, 0);
-  const allocated = budgets.filter((b) => !b.archived).reduce((sum, b) => sum + b.allocated, 0);
+  // Against the year's treasury once it's set; until then, against open budgets.
+  const yearly = year && year.amount !== null ? year : null;
+  const remaining = yearly
+    ? (yearly.remaining ?? 0)
+    : budgets.filter((b) => !b.archived).reduce((sum, b) => sum + b.remaining, 0);
+  const allocated = yearly
+    ? (yearly.amount ?? 0)
+    : budgets.filter((b) => !b.archived).reduce((sum, b) => sum + b.allocated, 0);
   const next = upcoming.find((e) => (e.endDate ?? e.date) >= today);
   const firstName = session.name?.split(" ")[0];
 
@@ -134,7 +142,9 @@ export default async function DashboardPage({
               </div>
               <p className={cn("mt-4 text-4xl font-bold tabular-nums", remaining < 0 && "text-red-400")}>{formatPaise(remaining)}</p>
               <p className="mt-1 font-jetbrains text-xs text-[var(--text-secondary)]">
-                of {formatPaise(allocated)} allocated, after approved bills
+                {yearly
+                  ? `of the FY ${yearly.label} treasury of ${formatPaise(allocated)}, after approved bills`
+                  : `of ${formatPaise(allocated)} allocated, after approved bills`}
               </p>
               {allocated > 0 && (
                 <div className="mt-4 h-1 overflow-hidden rounded-full bg-white/[0.06]" aria-hidden>

@@ -12,7 +12,7 @@ const OUTER_BILL = sql.raw('"bills"."id"');
 const OUTER_ENTRY = sql.raw('"ledger_entries"."id"');
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { billReceipts, bills, budgets, ledgerEntries } from "@/lib/db/schema";
+import { billReceipts, bills, budgets, ledgerEntries, treasuryYears } from "@/lib/db/schema";
 import { deleteObject } from "@/lib/r2";
 
 export const PAY_MODES = ["Cash", "UPI", "Bank transfer", "Cheque", "Other"] as const;
@@ -252,6 +252,63 @@ export async function reverseEntry(id: string, reason: string, by: string): Prom
   }
 }
 
+// ------------------------------------------------------------ yearly treasury
+
+export const treasurySchema = z.object({
+  fy: z.coerce.number("Choose a financial year.").int().min(2020).max(2100),
+  amountPaise: rupees("Treasury amount"),
+});
+
+/** The financial year today falls in, e.g. 2026 for FY 2026-27. */
+export const currentFy = () => fyOf(todayIst());
+
+export async function setTreasuryYear(fy: number, amountPaise: number, by: string) {
+  await db()
+    .insert(treasuryYears)
+    .values({ fy, amountPaise, setBy: by })
+    .onConflictDoUpdate({ target: treasuryYears.fy, set: { amountPaise, setBy: by, setAt: new Date() } });
+}
+
+export async function getTreasuryYear(fy: number) {
+  const [row] = await db().select().from(treasuryYears).where(eq(treasuryYears.fy, fy));
+  return row ?? null;
+}
+
+/**
+ * One financial year measured against its treasury. The amount is fixed for
+ * the year: income is reported but doesn't add to what's left (the chapter's
+ * decision). Remaining = treasury − spent − approved but unpaid, all dated in
+ * the year. `amount` is null until someone sets it.
+ */
+export async function treasurySummary(fy = currentFy()) {
+  const { from, to } = fyRange(fy);
+  const [set, totals] = await Promise.all([
+    getTreasuryYear(fy),
+    db().execute(sql`select
+      coalesce((select sum(amount_paise) from ${ledgerEntries} where kind = 'expense' and entry_date between ${from} and ${to}), 0)::bigint as spent,
+      coalesce((select sum(amount_paise) from ${ledgerEntries} where kind = 'income' and entry_date between ${from} and ${to}), 0)::bigint as income,
+      coalesce((select sum(amount_paise) from ${bills} where status = 'approved' and bill_date between ${from} and ${to}), 0)::bigint as committed,
+      coalesce((select sum(allocated_paise) from ${budgets} where archived = false), 0)::bigint as allocated`),
+  ]);
+  const t = totals.rows[0] as Record<string, string | number>;
+  const [spent, income, committed, allocated] = ["spent", "income", "committed", "allocated"].map((k) => Number(t[k]));
+  const amount = set ? Number(set.amountPaise) : null;
+  return {
+    fy,
+    label: fyLabel(fy),
+    amount,
+    setBy: set?.setBy ?? null,
+    setAt: set?.setAt ?? null,
+    spent,
+    income,
+    committed,
+    allocated,
+    remaining: amount === null ? null : amount - spent - committed,
+    /** Treasury not yet promised to any open budget. Negative means over-allocated. */
+    unallocated: amount === null ? null : amount - allocated,
+  };
+}
+
 // -------------------------------------------------------------------- reports
 
 /** Per budget: allocated, income, spent, committed (approved but unpaid), awaiting decision, and what's left. */
@@ -331,6 +388,8 @@ export async function purgeYear(fy: number) {
     billIds.length
       ? db().delete(bills).where(inArray(bills.id, billIds)).returning({ id: bills.id })
       : db().execute(sql`select 1`),
+    // The year's treasury amount goes with its records.
+    db().delete(treasuryYears).where(eq(treasuryYears.fy, fy)),
   ]);
 
   // Files after the rows: a failed file delete leaves an orphan in private storage, never a broken record.

@@ -57,7 +57,8 @@ export const CAPABILITIES = {
   forum: "Moderate the forum and chat",
   chat: "Use team chat",
   "finance.submit": "Submit bills",
-  "finance.approve": "Approve and pay bills, manage budgets",
+  "finance.approve": "Manage budgets and the ledger",
+  "finance.decide": "Approve, reject and pay bills",
   "finance.audit": "View the treasury overview and exports",
 } as const;
 export type Capability = keyof typeof CAPABILITIES;
@@ -68,7 +69,11 @@ export const CAPABILITY_NAMES = Object.keys(CAPABILITIES) as Capability[];
  * Coordinators: Joint Core's reach, but no treasury and no website content.
  */
 export function capsFor(role: Role, domain: Domain | null): Capability[] {
-  if (can(role, "president")) return [...CAPABILITY_NAMES];
+  // Only the President and the Treasurer decide on bills, their own included.
+  if (can(role, "president")) {
+    const decides = role === "president" || role === "treasurer";
+    return CAPABILITY_NAMES.filter((c) => c !== "finance.decide" || decides);
+  }
   if (role === "coordinator") return ["chat"];
   const tech: Capability[] = domain === "technical" ? ["content", "events"] : [];
   if (role === "core") return [...new Set<Capability>([...tech, "events", "announce", "forum", "chat", "finance.submit", "finance.approve"])];

@@ -109,7 +109,7 @@ export default async function NoticePage({
           <ul className="list-disc space-y-2 pl-5">
             <li>Chat channels and forum categories: the members they are open to (everyone, Core and above, or one domain).</li>
             <li>Announcements and the shared calendar: all workspace members.</li>
-            <li>Your bills and receipts: you, Core and above (who approve and pay them), and the Faculty Advisor, the President and the Treasurer (who audit them). Exports of the accounts may be given to faculty or the institute for audit.</li>
+            <li>Your bills and receipts: you, the President and the Treasurer (who approve and pay them), Core and above (who manage budgets), and the Faculty Advisor, the President and the Treasurer (who audit them). Exports of the accounts may be given to faculty or the institute for audit.</li>
             <li>The activity log and the team list: the Faculty Advisor, the President, the Treasurer and Admins.</li>
           </ul>
           <p>

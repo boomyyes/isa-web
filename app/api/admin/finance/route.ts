@@ -1,8 +1,9 @@
 // POST action=… for the treasury. Rules, enforced here:
 //   finance.submit  — submit bills, attach receipts to their own submitted bills
-//   finance.approve — budgets, approve/reject/pay bills, ledger entries, reversals
-//   president+      — the financial-year purge
-// Nobody approves, rejects or pays a bill they submitted themselves.
+//   finance.approve — budgets, ledger entries, reversals
+//   finance.decide  — approve, reject and pay bills (President and Treasurer only)
+//   president+      — the yearly treasury amount, and the financial-year purge
+// Deciders may act on their own bills too; every decision is in the audit log.
 
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
 import { audit, can, hasCap } from "@/lib/admin/store";
@@ -19,6 +20,7 @@ import {
   getBill,
   getBudget,
   getReceipt,
+  getTreasuryYear,
   isUuid,
   MAX_RECEIPTS,
   payBill,
@@ -29,6 +31,8 @@ import {
   reverseEntry,
   saveBudget,
   setBudgetArchived,
+  setTreasuryYear,
+  treasurySchema,
 } from "@/lib/admin/finance";
 import { sameOrigin } from "@/lib/security";
 import { checkUpload, storePrivate } from "@/lib/uploads";
@@ -61,6 +65,7 @@ async function handle(request: Request) {
   const get = (k: string) => form?.get(k) ?? undefined;
   const action = get("action");
   const approver = hasCap(session, "finance.approve");
+  const decider = hasCap(session, "finance.decide");
   const submitter = hasCap(session, "finance.submit");
   const me = session.email;
 
@@ -113,7 +118,7 @@ async function handle(request: Request) {
     const { bill } = found;
     const back = `/finance/bills/${bill.id}`;
     if (bill.status !== "submitted") return adminRedirect(request, `${back}?${err("Receipts are fixed once a bill is decided.")}`);
-    if (bill.submittedBy !== me && !approver) return adminRedirect(request, `${back}?${err("Only the submitter can change receipts.")}`);
+    if (bill.submittedBy !== me && !approver && !decider) return adminRedirect(request, `${back}?${err("Only the submitter can change receipts.")}`);
 
     if (action === "receipt-remove") {
       const receipt = await getReceipt(String(get("receiptId") ?? ""));
@@ -140,8 +145,7 @@ async function handle(request: Request) {
     if (!found) return adminRedirect(request, `/finance/bills?${err("That bill no longer exists.")}`);
     const { bill } = found;
     const back = `/finance/bills/${bill.id}`;
-    if (!approver) return adminRedirect(request, `${back}?${err("Only approvers can do that.")}`);
-    if (bill.submittedBy === me) return adminRedirect(request, `${back}?${err("You can't approve, reject or pay a bill you submitted.")}`);
+    if (!decider) return adminRedirect(request, `${back}?${err("Only the President or the Treasurer can approve, reject or pay bills.")}`);
 
     if (action === "bill-pay") {
       const parsed = paySchema.safeParse({ paidTo: get("paidTo"), payMode: get("payMode"), paidOn: get("paidOn") });
@@ -191,6 +195,25 @@ async function handle(request: Request) {
     if (result !== "ok") return adminRedirect(request, `/finance/ledger?${err(messages[result])}`);
     await audit(me, "reversed a ledger entry", String(get("entryId")));
     return adminRedirect(request, "/finance/ledger?saved=1");
+  }
+
+  // ------------------------------------------------------ yearly treasury
+  if (action === "treasury-set") {
+    if (!can(session.role, "president")) {
+      return adminRedirect(request, `/finance?${err("Only the Faculty Advisor, the President, the Treasurer or Admin can set the yearly treasury.")}`);
+    }
+    const parsed = treasurySchema.safeParse({ fy: get("fy"), amountPaise: get("amount") });
+    if (!parsed.success) return adminRedirect(request, `/finance?${err(parsed.error.issues[0].message)}`);
+    const { fy, amountPaise } = parsed.data;
+    const before = await getTreasuryYear(fy);
+    await setTreasuryYear(fy, amountPaise, me);
+    await audit(
+      me,
+      before
+        ? `changed the FY ${fyLabel(fy)} treasury: ${formatPaise(Number(before.amountPaise))} → ${formatPaise(amountPaise)}`
+        : `set the FY ${fyLabel(fy)} treasury to ${formatPaise(amountPaise)}`
+    );
+    return adminRedirect(request, "/finance?saved=1");
   }
 
   // --------------------------------------------------------------- purge

@@ -33,8 +33,8 @@ export default async function BillPage({
 
   const { bill, budgetName, receipts } = found;
   const approver = hasCap(session, "finance.approve");
-  const canDecide = approver && !mine;
-  const canEditReceipts = bill.status === "submitted" && (mine || approver);
+  const canDecide = hasCap(session, "finance.decide");
+  const canEditReceipts = bill.status === "submitted" && (mine || approver || canDecide);
 
   return (
     <AdminShell session={session} base={base} title={`${bill.vendor} · ${formatPaise(bill.amountPaise)}`}>
@@ -159,8 +159,8 @@ export default async function BillPage({
         </form>
       )}
 
-      {mine && approver && ["submitted", "approved"].includes(bill.status) && (
-        <p className="text-xs text-[var(--text-secondary)]">You submitted this bill, so another approver has to decide and pay it.</p>
+      {!canDecide && ["submitted", "approved"].includes(bill.status) && (
+        <p className="text-xs text-[var(--text-secondary)]">The President or the Treasurer approves and pays bills.</p>
       )}
     </AdminShell>
   );

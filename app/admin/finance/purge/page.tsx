@@ -22,8 +22,8 @@ export default async function PurgePage({ searchParams }: { searchParams: Promis
           become eligible for deletion here. Nothing is deleted automatically.
         </p>
         <p>
-          Deleting a year removes its ledger entries, its paid and rejected bills, and their receipt files,
-          permanently. Bills from that year still awaiting a decision or payment are kept.
+          Deleting a year removes its ledger entries, its paid and rejected bills, their receipt files and the
+          year&apos;s treasury amount, permanently. Bills from that year still awaiting a decision or payment are kept.
         </p>
         <p className="text-[var(--text-primary)]">
           Before deleting, make sure the year&apos;s accounts have been audited, and export the ledger and bills

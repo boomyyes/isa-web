@@ -115,7 +115,7 @@ export async function AdminShell({
   subtitle?: ReactNode;
   children: ReactNode;
 }) {
-  const canApprove = hasCap(session, "finance.approve");
+  const canApprove = hasCap(session, "finance.decide");
 
   // Badges, not blockers. Started here but never awaited: the promise goes to
   // the client nav, which shows each count when it arrives, so the page itself
