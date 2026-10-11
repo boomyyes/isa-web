@@ -90,8 +90,8 @@ async function main() {
 
   if (!mailerConfigured()) {
     console.log(
-      "\nSMTP is not configured, so no email was sent — the code above is set and working.\n" +
-        "Fill in SMTP_* and MAIL_FROM in .env.local to have this delivered automatically."
+      "\nMail is not configured, so no email was sent — the code above is set and working.\n" +
+        "Set RESEND_API_KEY in .env.local to have this delivered automatically."
     );
     return;
   }
@@ -101,7 +101,7 @@ async function main() {
     console.log(`\nEmailed it to ${record.email}.`);
   } catch (error) {
     console.error(`\nThe code is set, but the email failed — ${(error as Error).message}`);
-    console.error("Pass it on by hand, or fix SMTP and re-run.");
+    console.error("Pass it on by hand, or fix mail and re-run.");
   }
 }
 

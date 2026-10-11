@@ -10,7 +10,7 @@ import { redis } from "@/lib/redis";
 import { deliverPendingCodes, parseSheet, reconcile } from "@/lib/roster";
 import { MAIL_HELD_MESSAGE, OFFICIAL_MAIL_HELD, mailerConfigured } from "@/lib/mailer";
 
-/** nodemailer needs a TCP socket, so this must not run on the edge. */
+/** Node runtime only. */
 export const runtime = "nodejs";
 
 /** Access codes are issued one at a time and scrypt is deliberately slow. */
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
         : {
             warning: OFFICIAL_MAIL_HELD
               ? `${MAIL_HELD_MESSAGE} New students stay queued.`
-              : "SMTP is not configured — no codes can be sent.",
+              : "Mail is not configured — no codes can be sent.",
           }),
       warnings: parsed.warnings,
     },

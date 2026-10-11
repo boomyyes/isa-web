@@ -153,7 +153,7 @@ async function main() {
   }
 
   if (!mailerConfigured()) {
-    console.error("\n--send given but SMTP is not configured (see .env.example). Students stay queued.");
+    console.error("\n--send given but Mail is not configured (see .env.example). Students stay queued.");
     process.exit(1);
   }
 

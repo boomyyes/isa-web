@@ -132,16 +132,10 @@ kept for one year.
 | Variable | Value |
 |---|---|
 | `ADMIN_OWNERS` | Comma-separated owner emails, e.g. `a@x.com,b@y.com` |
-| `ADMIN_SMTP_USER` | `isarait.forms@gmail.com` |
-| `ADMIN_SMTP_PASS` | A Gmail app password for that account (below) |
+| `RESEND_API_KEY` | The Resend API key (isarait.in is verified there) |
 
-Sign-in emails come from isarait.forms@gmail.com, never from the account that
-sends certificate mail.
-
-**Gmail app password:** signed in as isarait.forms@gmail.com, turn on 2-Step
-Verification (Google Account → Security), then open
-<https://myaccount.google.com/apppasswords>, create one named "ISA admin", and
-paste the 16 characters (without spaces) into `ADMIN_SMTP_PASS`.
+All mail, sign-in codes included, is sent as no-reply@isarait.in through
+Resend. There is no other sender.
 
 ### Sheet columns
 

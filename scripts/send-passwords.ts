@@ -5,7 +5,7 @@
  *   npx tsx scripts/send-passwords.ts --send
  *
  * Manual fallback; the sheet's sync drains the same queue on its own. Use it when
- * SMTP was down during a sync or you've just filled in a missing address.
+ * mail was down during a sync or you've just filled in a missing address.
  *
  * Can't double-send: the queue only holds students with no code at all, and a
  * code is generated, emailed and dequeued in one step. Sending is opt-in because
@@ -83,8 +83,7 @@ async function main() {
 
   if (!mailerConfigured()) {
     console.error(
-      "\nSMTP is not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS and\n" +
-        "MAIL_FROM in .env.local — see .env.example."
+      "\nMail is not configured. Set RESEND_API_KEY in .env.local — see .env.example."
     );
     process.exit(1);
   }

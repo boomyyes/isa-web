@@ -328,7 +328,7 @@ export async function deliverPendingCodes(
   const result: DeliveryResult = { sent: 0, failed: 0, skippedNoEmail: 0, remaining: 0 };
 
   if (!mailerConfigured()) {
-    throw new Error("SMTP is not configured — cannot deliver access codes");
+    throw new Error("Mail is not configured — cannot deliver access codes");
   }
 
   // One command in the common case, where nobody is waiting. String() because

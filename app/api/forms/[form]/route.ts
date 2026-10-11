@@ -3,7 +3,7 @@
 import { isFormName } from "@/lib/forms/schemas";
 import { handleSubmission } from "@/lib/forms/server";
 
-/** node:dns and nodemailer need the Node runtime. */
+/** node:dns needs the Node runtime. */
 export const runtime = "nodejs";
 
 export async function POST(request: Request, { params }: { params: Promise<{ form: string }> }) {

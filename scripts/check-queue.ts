@@ -107,7 +107,7 @@ async function main() {
   }
 
   if (!mailerConfigured()) {
-    console.log("\nNote: SMTP is not configured here, so nothing can drain the queue.");
+    console.log("\nNote: Mail is not configured here, so nothing can drain the queue.");
   }
 
   console.log();

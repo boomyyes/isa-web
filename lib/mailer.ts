@@ -1,22 +1,20 @@
-// Transport + templates, shared by the API routes and the CLI scripts so message
-// wording lives in one place. Node runtime only — nodemailer needs a TCP socket.
+// Sending + templates, shared by the API routes and the CLI scripts so message
+// wording lives in one place. Everything goes out as no-reply@isarait.in through
+// Resend (lib/resend.ts).
 
-import nodemailer, { type Transporter } from "nodemailer";
-
-let transport: Transporter | null = null;
+import { resendConfigured, sendMail } from "./resend";
 
 /**
- * Hold on ALL mail from the official account (MAIL_FROM, isa.rait@rait.ac.in),
+ * Hold on ALL student mail (certificate codes, resets, form pings, scripts),
  * set 7 Oct 2026 at the chapter's request. Lift it only when they say so.
  * A constant rather than an env var, so a dashboard edit can't release it.
  *
  * While held: welcome codes stay queued and go out once lifted; reset requests
  * answer "unavailable"; form pings are skipped; scripts refuse to send.
- * Admin sign-in links use a different account (lib/admin/mail.ts) and are not held.
+ * Admin sign-in codes (lib/admin/mail.ts) are not held.
  */
 export const OFFICIAL_MAIL_HELD = true;
-export const MAIL_HELD_MESSAGE =
-  "Outgoing mail from the official account is on hold (OFFICIAL_MAIL_HELD in lib/mailer.ts).";
+export const MAIL_HELD_MESSAGE = "Outgoing student mail is on hold (OFFICIAL_MAIL_HELD in lib/mailer.ts).";
 
 let warned = false;
 
@@ -26,38 +24,17 @@ export function mailerConfigured(): boolean {
     warned = true;
     return false;
   }
-  return Boolean(
-    process.env.SMTP_HOST &&
-      process.env.SMTP_USER &&
-      process.env.SMTP_PASS &&
-      process.env.MAIL_FROM
-  );
+  return resendConfigured();
 }
 
-export function mailer(): Transporter {
+/** Kept in the old transport's shape so the scripts' send/close calls still work. */
+export function mailer() {
   // Second line of defence, for any caller that skips mailerConfigured().
   if (OFFICIAL_MAIL_HELD) throw new Error(MAIL_HELD_MESSAGE);
-  if (transport) return transport;
-
-  const host = process.env.SMTP_HOST;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  if (!host || !user || !pass || !process.env.MAIL_FROM) {
-    throw new Error("SMTP_HOST / SMTP_USER / SMTP_PASS / MAIL_FROM are not set");
-  }
-
-  const port = Number(process.env.SMTP_PORT ?? 587);
-  transport = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465, // 465 is implicit TLS; 587 upgrades via STARTTLS
-    auth: { user, pass },
-    // Pooled but single-connection — consumer relays throttle parallel bursts.
-    pool: true,
-    maxConnections: 1,
-    maxMessages: 50,
-  });
-  return transport;
+  return {
+    sendMail: (mail: { to: string; subject: string; text: string; html: string }) => sendMail(mail),
+    close: () => {},
+  };
 }
 
 export function siteUrl(): string {
@@ -132,7 +109,6 @@ ${button(`${url}/certificates`, "Collect your certificates")}
   );
 
   await mailer().sendMail({
-    from: process.env.MAIL_FROM,
     to: opts.to,
     subject: "Your ISA-RAIT certificate access code",
     text,
@@ -169,7 +145,6 @@ export async function sendCustomEmail(opts: { to: string; subject: string; body:
     .join("\n");
 
   await mailer().sendMail({
-    from: process.env.MAIL_FROM,
     to: opts.to,
     subject: opts.subject,
     text,
@@ -213,7 +188,6 @@ ${button(opts.link, "Get a new access code")}
   );
 
   await mailer().sendMail({
-    from: process.env.MAIL_FROM,
     to: opts.to,
     subject: "Reset your ISA-RAIT access code",
     text,
