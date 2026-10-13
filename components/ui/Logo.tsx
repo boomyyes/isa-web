@@ -22,7 +22,18 @@ const SOURCES = {
     light: { src: "/isa-lockup-black.png", width: 1057, height: 414 },
     dark: { src: "/isa-lockup-white.png", width: 1057, height: 414 },
   },
+  /** The institute's crest and wordmark (D Y Patil University, RAIT). */
+  rait: {
+    light: { src: "/RAIT LOGO PNG.png", width: 1300, height: 572 },
+    dark: { src: "/RAIT LOGO grey.png", width: 1300, height: 572 },
+  },
 } as const;
+
+const ALT: Record<keyof typeof SOURCES, string> = {
+  mark: "ISA RAIT Student Section",
+  lockup: "ISA RAIT Student Section",
+  rait: "Ramrao Adik Institute of Technology, D Y Patil University",
+};
 
 interface LogoProps {
   /** Which artwork to render. The lockup already contains the wordmark, so
@@ -35,7 +46,7 @@ interface LogoProps {
   /** Rendered CSS width, e.g. "112px", matching the height set in className.
    *  Required in practice: the height utilities size these images with CSS, and
    *  without `sizes` the browser assumes 100vw and pulls a 1080px-wide file for a
-   *  ~112px logo. Roughly height x 2.55 for the lockup, height x 1 for the mark. */
+   *  ~112px logo. Roughly height x 2.55 for the lockup, x 2.27 for rait, x 1 for the mark. */
   sizes?: string;
 }
 
@@ -59,7 +70,7 @@ export function Logo({ variant = "lockup", className, eager = false, sizes }: Lo
       {/* Light mode → dark artwork */}
       <Image
         src={light.src}
-        alt="ISA RAIT Student Section"
+        alt={ALT[variant]}
         width={light.width}
         height={light.height}
         sizes={sizes}

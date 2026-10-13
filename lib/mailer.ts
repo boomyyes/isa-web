@@ -6,14 +6,15 @@ import { closeMail, mailConfigured, MAIL_FROM_ADDRESS, sendMail, type OutgoingMa
 
 /**
  * Hold on ALL student mail (certificate codes, resets, form pings, scripts),
- * set 7 Oct 2026 at the chapter's request. Lift it only when they say so.
+ * set 7 Oct 2026 at the chapter's request and lifted 14 Oct 2026. Set it back to
+ * true to pause student mail again.
  * A constant rather than an env var, so a dashboard edit can't release it.
  *
  * While held: welcome codes stay queued and go out once lifted; reset requests
  * answer "unavailable"; form pings are skipped; scripts refuse to send.
  * Admin sign-in codes (lib/admin/mail.ts) are not held.
  */
-export const OFFICIAL_MAIL_HELD = true;
+export const OFFICIAL_MAIL_HELD = false;
 export const MAIL_HELD_MESSAGE = "Outgoing student mail is on hold (OFFICIAL_MAIL_HELD in lib/mailer.ts).";
 
 let warned = false;

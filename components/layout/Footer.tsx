@@ -30,8 +30,17 @@ export function Footer() {
             <Link href="/" className="inline-block" aria-label="ISA RAIT — home">
               {/* The lockup already reads "International Society of Automation,
                   Ramrao Adik Institute of Technology", so no text label beside it. */}
-              <Logo className="h-16 lg:h-20" sizes="204px" />
+              <Logo className="h-20 lg:h-28" sizes="286px" />
             </Link>
+            <a
+              href="https://www.rait.ac.in"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-fit"
+              aria-label="Ramrao Adik Institute of Technology (opens in a new tab)"
+            >
+              <Logo variant="rait" className="h-20 lg:h-28" sizes="254px" />
+            </a>
             <p className="text-sm text-[var(--text-secondary)]">
               Setting the standard of Automation. For the students, by the students.
             </p>

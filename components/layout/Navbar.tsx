@@ -40,6 +40,41 @@ const NAV_LINKS: NavLink[] = [
 const ACCENT_FILL =
   "linear-gradient(135deg, #F2D08A 0%, #D9A94C 45%, #B4873A 100%)";
 
+/**
+ * The brand logos' zoom in and out of the island (see the comment where they're
+ * used). Shared by the ISA lockup on the left and the RAIT crest on the right.
+ */
+const BRAND_VARIANTS = {
+  // Opacity is deliberately out of step with width in both directions.
+  // The wrapper clips (overflow-hidden) as its width animates, so if the
+  // fade tracked the spring the lockup would be fully opaque while still
+  // half-clipped — it read as a wipe cutting words mid-letter. Fading out
+  // fast, and in only once the box is nearly open, keeps it a zoom.
+  shown: {
+    width: "auto",
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 32,
+      opacity: { delay: 0.12, duration: 0.22, ease: "easeOut" },
+    },
+  },
+  hidden: {
+    width: 0,
+    opacity: 0,
+    scale: 0.5,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 32,
+      opacity: { duration: 0.15, ease: "easeIn" },
+    },
+  },
+} as const;
+
+
 function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
@@ -85,7 +120,7 @@ export function Navbar() {
         <div
           className={cn(
             "flex items-center px-3 transition-[height] duration-300 ease-out sm:px-4",
-            atTop ? "h-16 sm:h-20" : "h-14"
+            atTop ? "h-[4.5rem] sm:h-24" : "h-14"
           )}
         >
           {/* Brand. The lockup's lower two lines are only legible at size, so it
@@ -96,35 +131,7 @@ export function Navbar() {
           <m.div
             initial={false}
             animate={atTop ? "shown" : "hidden"}
-            variants={{
-              // Opacity is deliberately out of step with width in both directions.
-              // The wrapper clips (overflow-hidden) as its width animates, so if the
-              // fade tracked the spring the lockup would be fully opaque while still
-              // half-clipped — it read as a wipe cutting words mid-letter. Fading out
-              // fast, and in only once the box is nearly open, keeps it a zoom.
-              shown: {
-                width: "auto",
-                opacity: 1,
-                scale: 1,
-                transition: {
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 32,
-                  opacity: { delay: 0.12, duration: 0.22, ease: "easeOut" },
-                },
-              },
-              hidden: {
-                width: 0,
-                opacity: 0,
-                scale: 0.5,
-                transition: {
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 32,
-                  opacity: { duration: 0.15, ease: "easeIn" },
-                },
-              },
-            }}
+            variants={BRAND_VARIANTS}
             inert={!atTop}
             style={{ transformOrigin: "left center" }}
             className="flex shrink-0 items-center overflow-hidden pr-2 sm:pr-3"
@@ -136,7 +143,7 @@ export function Navbar() {
               className="flex shrink-0 items-center"
             >
               {/* The lockup carries the wordmark itself, so no text label beside it. */}
-              <Logo className="h-12 sm:h-16" sizes="163px" eager />
+              <Logo className="h-14 sm:h-20" sizes="204px" eager />
             </Link>
             {/* Divider lives in the brand, not the nav, so it collapses with it
                 instead of being left dangling at the island's edge. */}
@@ -209,6 +216,21 @@ export function Navbar() {
             <div className="mx-1 h-5 w-px bg-[var(--border-color)]/70" />
             <ThemeToggle disabled={!!themeLock} disabledReason={themeLock?.reason} />
           </nav>
+
+          {/* The institute's crest: the brand's mirror image, with the same zoom
+              out on scroll, anchored to the right edge instead. Hidden on phones,
+              where the two logos and the controls don't fit side by side. */}
+          <m.div
+            initial={false}
+            animate={atTop ? "shown" : "hidden"}
+            variants={BRAND_VARIANTS}
+            aria-hidden={!atTop}
+            style={{ transformOrigin: "right center" }}
+            className="hidden shrink-0 items-center overflow-hidden pl-2 sm:flex sm:pl-3"
+          >
+            <div className="mr-2 hidden h-5 w-px bg-[var(--border-color)]/70 sm:mr-3 md:block" />
+            <Logo variant="rait" className="h-14 sm:h-20" sizes="182px" eager />
+          </m.div>
 
           {/* Mobile controls */}
           <div className="flex items-center gap-2 md:hidden">
