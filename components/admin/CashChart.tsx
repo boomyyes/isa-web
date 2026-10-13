@@ -97,23 +97,28 @@ export function CashChart({ points }: { points: CashPoint[] }) {
         Today: <span className="tabular-nums text-[var(--text-primary)]">{formatPaise(last.paise)}</span>. Hover the chart
         for any day. Includes every budget; reversals are netted out.
       </figcaption>
-      <table className="sr-only">
-        <caption>Net cash position by date</caption>
-        <thead>
-          <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Net cash</th>
-          </tr>
-        </thead>
-        <tbody>
-          {points.map((p) => (
-            <tr key={p.date}>
-              <td>{shortDate(p.date)}</td>
-              <td>{formatPaise(p.paise)}</td>
+      {/* sr-only on a wrapper, not the table: a <table> ignores the 1px box
+          sr-only sets and grows to fit its rows, which left the page scrolling
+          a long way past the dashboard. */}
+      <div className="sr-only">
+        <table>
+          <caption>Net cash position by date</caption>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Net cash</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {points.map((p) => (
+              <tr key={p.date}>
+                <td>{shortDate(p.date)}</td>
+                <td>{formatPaise(p.paise)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </figure>
   );
 }
