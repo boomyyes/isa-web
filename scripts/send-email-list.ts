@@ -156,7 +156,7 @@ async function main() {
 
   if (!mailerConfigured()) {
     console.error(
-      "\nMail is not configured. Set RESEND_API_KEY in .env.local — see .env.example."
+      "\nMail is not configured. Set SMTP_USER and SMTP_PASS in .env.local — see .env.example."
     );
     process.exitCode = 1;
     return;

@@ -1,10 +1,10 @@
-// Admin sign-in codes, sent as no-reply@isarait.in through Resend (lib/resend.ts).
+// Admin sign-in codes, sent from the official account (lib/send-mail.ts). Never held.
 
 import "server-only";
 import { LOGIN_TTL_SECONDS } from "./config";
-import { resendConfigured, sendMail, type OutgoingMail } from "@/lib/resend";
+import { mailConfigured, sendMail, type OutgoingMail } from "@/lib/send-mail";
 
-export const adminMailConfigured = resendConfigured;
+export const adminMailConfigured = mailConfigured;
 
 const send = (message: OutgoingMail) => sendMail(message, "ISA-RAIT Admin");
 

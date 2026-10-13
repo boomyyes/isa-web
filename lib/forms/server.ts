@@ -4,10 +4,12 @@
 // success so it learns nothing about which check caught it.
 
 import "server-only";
+import { after } from "next/server";
 import { createHash, randomInt } from "node:crypto";
 import { resolveMx } from "node:dns/promises";
 import { clientIp, formAnonIpLimiter, formEmailLimiter, formIpLimiter, redis } from "@/lib/redis";
-import { mailerConfigured, sendCustomEmail } from "@/lib/mailer";
+import { mailerConfigured, sendFormReceipt, sendFormRecordToCommittee } from "@/lib/mailer";
+import { SHEET_LAYOUT, shownValue } from "./sheet";
 import { sameOrigin } from "@/lib/security";
 import {
   FORMS,
@@ -214,24 +216,32 @@ export async function handleSubmission(request: Request, form: FormName): Promis
     return json({ error: "Submissions are unavailable right now. Please try again later." }, 503);
   }
 
-  await notifyCommittee(label, id);
+  after(() => emailSubmission(record, label));
   return json({ ok: true, ref: id });
 }
 
+/** What the sender is told happens next, per form. */
+const NEXT_STEP: Record<FormName, string> = {
+  query: "The committee will reply to this address.",
+  membership: "Someone from the committee will contact you at the time you chose to set up your membership on a short call.",
+};
+
 /**
- * One line, no personal data: the inbox is not where submissions should live,
- * and mail can't be made to expire. Never blocks or fails the submission.
+ * The full submission to the committee inbox, and a receipt to the sender
+ * (anonymous queries have no address, so they get none). Runs after the
+ * response, and a failure never affects the stored submission. Held with
+ * the rest of student mail (OFFICIAL_MAIL_HELD in lib/mailer.ts).
  */
-async function notifyCommittee(label: string, id: string) {
-  const to = process.env.FORMS_NOTIFY_TO;
-  if (!to || !mailerConfigured()) return;
-  try {
-    await sendCustomEmail({
-      to,
-      subject: `New ${label} ${id}`,
-      body: `A new ${label} (${id}) has been submitted. It will appear in the submissions sheet within a few minutes.`,
-    });
-  } catch {
-    // The submission is already stored; a missed ping is not worth a failure.
+async function emailSubmission(record: StoredSubmission, label: string) {
+  if (!mailerConfigured()) return;
+  const fields: [string, string][] = SHEET_LAYOUT[record.form].columns.map(([key, title]) => [title, shownValue(record, key)]);
+  const copy = { ref: record.id, label, fields };
+  const email = typeof record.data.email === "string" ? record.data.email : undefined;
+  const results = await Promise.allSettled([
+    sendFormRecordToCommittee(copy, email),
+    email ? sendFormReceipt(copy, email, String(record.data.name ?? ""), NEXT_STEP[record.form]) : Promise.resolve(),
+  ]);
+  for (const result of results) {
+    if (result.status === "rejected") console.error(`[forms] email for ${record.id} not sent:`, result.reason);
   }
 }

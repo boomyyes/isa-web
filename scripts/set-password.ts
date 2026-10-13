@@ -91,7 +91,7 @@ async function main() {
   if (!mailerConfigured()) {
     console.log(
       "\nMail is not configured, so no email was sent — the code above is set and working.\n" +
-        "Set RESEND_API_KEY in .env.local to have this delivered automatically."
+        "Set SMTP_USER and SMTP_PASS in .env.local to have this delivered automatically."
     );
     return;
   }

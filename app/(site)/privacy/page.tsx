@@ -37,7 +37,7 @@ function Address() {
 // Keep the two in sync, and change both dates whenever the substance changes.
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" effective="7 October 2026" updated="11 October 2026">
+    <LegalPage title="Privacy Policy" effective="7 October 2026" updated="14 October 2026">
       <h2>1. Identity of the Data Fiduciary</h2>
       <p>
         This Website (&ldquo;Website&rdquo;) is operated by the ISA-RAIT Student Chapter, the
@@ -203,7 +203,9 @@ export default function PrivacyPage() {
       </p>
       <p>
         Each submission is given a reference number, which is shown to the submitter and may be
-        quoted in correspondence about the enquiry.
+        quoted in correspondence about the enquiry. A copy of each submission is emailed to
+        ISA-RAIT&apos;s official mailbox and, where an email address was given, to the submitter
+        as a confirmation.
       </p>
       <p>
         Such information is processed for the purpose of responding to and managing the relevant
@@ -233,7 +235,9 @@ export default function PrivacyPage() {
       <p>
         ISA-RAIT uses these details to contact the applicant by phone, WhatsApp or email and to
         set up their membership with them on a call. Each submission is given a reference number,
-        which is shown to the applicant. The form does not ask for passwords or payment details.
+        which is shown to the applicant. A copy of each submission is emailed to ISA-RAIT&apos;s
+        official mailbox and to the applicant as a confirmation. The form does not ask for
+        passwords or payment details.
       </p>
       <p>
         In the course of completing the membership process, further information may be requested,

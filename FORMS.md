@@ -140,10 +140,11 @@ kept for one year.
 | Variable | Value |
 |---|---|
 | `ADMIN_OWNERS` | Comma-separated owner emails, e.g. `a@x.com,b@y.com` |
-| `RESEND_API_KEY` | The Resend API key (isarait.in is verified there) |
+| `SMTP_USER` | `isa.rait@rait.ac.in` |
+| `SMTP_PASS` | An App Password for that account |
 
-All mail, sign-in codes included, is sent as no-reply@isarait.in through
-Resend. There is no other sender.
+All mail, sign-in codes included, is sent from isa.rait@rait.ac.in over
+Google's SMTP. There is no other sender.
 
 ### Sheet columns
 

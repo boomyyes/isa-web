@@ -1,8 +1,8 @@
 // Sending + templates, shared by the API routes and the CLI scripts so message
-// wording lives in one place. Everything goes out as no-reply@isarait.in through
-// Resend (lib/resend.ts).
+// wording lives in one place. Everything goes out from the official account
+// (lib/send-mail.ts).
 
-import { resendConfigured, sendMail } from "./resend";
+import { closeMail, mailConfigured, MAIL_FROM_ADDRESS, sendMail, type OutgoingMail } from "./send-mail";
 
 /**
  * Hold on ALL student mail (certificate codes, resets, form pings, scripts),
@@ -24,7 +24,7 @@ export function mailerConfigured(): boolean {
     warned = true;
     return false;
   }
-  return resendConfigured();
+  return mailConfigured();
 }
 
 /** Kept in the old transport's shape so the scripts' send/close calls still work. */
@@ -32,8 +32,8 @@ export function mailer() {
   // Second line of defence, for any caller that skips mailerConfigured().
   if (OFFICIAL_MAIL_HELD) throw new Error(MAIL_HELD_MESSAGE);
   return {
-    sendMail: (mail: { to: string; subject: string; text: string; html: string }) => sendMail(mail),
-    close: () => {},
+    sendMail: (mail: OutgoingMail) => sendMail(mail),
+    close: closeMail,
   };
 }
 
@@ -194,3 +194,61 @@ ${button(opts.link, "Get a new access code")}
     html,
   });
 }
+
+// ------------------------------------------------------------ form submissions
+
+/** A submitted form as label/value pairs, in the order the sheet shows them. */
+export type FormRecord = { ref: string; label: string; fields: [string, string][] };
+
+const filled = (fields: [string, string][]) => fields.filter(([, value]) => value !== "");
+
+function recordTable(fields: [string, string][]) {
+  const rows = filled(fields)
+    .map(
+      ([label, value]) =>
+        `    <tr><td style="padding:8px 14px;color:#64748B;vertical-align:top;white-space:nowrap">${escapeHtml(label)}</td><td style="padding:8px 14px;white-space:pre-wrap">${escapeHtml(value)}</td></tr>`
+    )
+    .join("\n");
+  return `  <table style="border-collapse:collapse;margin:16px 0;background:#F4F7FA;border-radius:8px">\n${rows}\n  </table>`;
+}
+
+const recordText = (fields: [string, string][]) =>
+  filled(fields)
+    .map(([label, value]) => `${label}: ${value}`)
+    .join("\n");
+
+/** Where committee copies go: FORMS_NOTIFY_TO, else the official inbox. */
+export const committeeInbox = () => process.env.FORMS_NOTIFY_TO || MAIL_FROM_ADDRESS;
+
+/** The full submission, to the committee. Reply-To is the sender, so a reply goes straight to them. */
+export async function sendFormRecordToCommittee(record: FormRecord, replyTo?: string) {
+  const intro = `A new ${record.label} (${record.ref}) was submitted on the website.`;
+  const footer = `It is also in the admin inbox and the submissions sheet.${replyTo ? " Replying to this email reaches the sender." : ""}`;
+  await mailer().sendMail({
+    to: committeeInbox(),
+    replyTo,
+    subject: `New ${record.label} ${record.ref}`,
+    text: `${intro}\n\n${recordText(record.fields)}\n\n${footer}`,
+    html: shell(`  <p>${escapeHtml(intro)}</p>
+${recordTable(record.fields)}
+  <p style="color:#64748B;font-size:14px">${escapeHtml(footer)}</p>`),
+  });
+}
+
+/** A copy for the person who sent it, with their reference and what happens next. */
+export async function sendFormReceipt(record: FormRecord, to: string, name: string, next: string) {
+  const greeting = `Hi ${firstNameOf(name)},`;
+  const intro = `We've received your ${record.label}. Your reference is ${record.ref}; quote it if you follow up.`;
+  const notYou = "If this wasn't you, reply to this email and let us know.";
+  await mailer().sendMail({
+    to,
+    subject: `We received your ${record.label} (${record.ref})`,
+    text: [greeting, "", `${intro} ${next}`, "", "What you sent:", recordText(record.fields), "", notYou, "", "— ISA RAIT Student Chapter"].join("\n"),
+    html: shell(`  <p>${escapeHtml(greeting)}</p>
+  <p>${escapeHtml(intro)} ${escapeHtml(next)}</p>
+  <p style="margin-bottom:0">What you sent:</p>
+${recordTable(record.fields)}
+  <p style="color:#64748B;font-size:14px">${escapeHtml(notYou)}</p>`),
+  });
+}
+
