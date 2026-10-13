@@ -1,7 +1,9 @@
 // POST action=create|update|delete. Posting and editing need `announce`.
 
+import { after } from "next/server";
+import { adminMailConfigured, sendAnnouncementEmails } from "@/lib/admin/mail";
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
-import { audit, hasCap } from "@/lib/admin/store";
+import { audit, hasCap, listAdmins, nameOf } from "@/lib/admin/store";
 import {
   announcementSchema,
   createAnnouncement,
@@ -12,6 +14,8 @@ import {
 import { sameOrigin } from "@/lib/security";
 
 export const runtime = "nodejs";
+// Room for the announcement email, which goes out after the response.
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return new Response("Forbidden", { status: 403 });
@@ -47,6 +51,21 @@ export async function POST(request: Request) {
   } else {
     await createAnnouncement(parsed.data, session.email);
     await audit(session.email, `posted announcement "${parsed.data.title}"`);
+    // Everyone else on the team hears about it by email. New posts only, not
+    // edits, so fixing a typo doesn't mail the whole team again.
+    const { title, body } = parsed.data;
+    const poster = session.email;
+    after(async () => {
+      if (!adminMailConfigured()) return;
+      try {
+        const recipients = (await listAdmins()).map((a) => a.email).filter((email) => email !== poster);
+        const postedBy = (await nameOf(poster)) ?? poster;
+        const failed = await sendAnnouncementEmails(recipients, { title, body, postedBy });
+        await audit(poster, `emailed announcement "${title}" to ${recipients.length - failed} of ${recipients.length} members`);
+      } catch (error) {
+        console.error("[announcements] emails not sent:", error);
+      }
+    });
   }
   return adminRedirect(request, "/announcements?saved=1");
 }

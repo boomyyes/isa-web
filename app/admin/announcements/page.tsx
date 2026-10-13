@@ -53,8 +53,11 @@ export default async function AnnouncementsPage({
                 <input id="expiresAt" name="expiresAt" type="datetime-local" className={`${fieldClass} w-auto`} />
               </div>
             </div>
-            <div>
+            <div className="flex flex-wrap items-center gap-4">
               <button className={buttonClass}>Post</button>
+              <p className="text-xs text-[var(--text-secondary)]">
+                Posting emails it to everyone on the team. Edits don&apos;t send another email.
+              </p>
             </div>
           </form>
         </details>

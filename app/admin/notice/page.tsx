@@ -116,8 +116,8 @@ export default async function NoticePage({
             The workspace relies on service providers for hosting, databases, file storage, real-time
             message delivery and email delivery. The real-time delivery provider receives only a pseudonymous
             identifier and a signal that a channel has changed; it never receives message text or your email
-            address. The email delivery provider receives your email address and each sign-in code sent to
-            it. The
+            address. The email delivery provider receives your email address, each sign-in code sent to
+            it, and each announcement emailed to you. The
             categories of these providers are listed in the public Privacy Policy, and you may ask for their
             identities.
           </p>

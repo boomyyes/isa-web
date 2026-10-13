@@ -8,7 +8,7 @@ export const MAIL_FROM_ADDRESS = "isa.rait@rait.ac.in";
 
 export const mailConfigured = () => Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
 
-export type OutgoingMail = { to: string; subject: string; text: string; html: string; replyTo?: string };
+export type OutgoingMail = { to: string; subject: string; text: string; html: string; replyTo?: string; bcc?: string[] };
 
 let transport: Transporter | null = null;
 
