@@ -1,3 +1,5 @@
+import { FlowGradient } from "@/components/layout/FlowGradient";
+
 /**
  * Flickering dot grid under a nebula wash, at z-0. After Magic UI's Flickering
  * Grid (MIT), rebuilt in CSS (see .fx-flicker-grid in globals.css).
@@ -12,14 +14,17 @@
  * element paints above non-positioned in-flow content, so without them this
  * would cover the footer and every page body.
  */
+/** Static film grain: an SVG turbulence tile, so it costs nothing per frame. */
+const GRAIN =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
+
+/**
+ * Layered back to front: the CSS nebula wash (what shows if WebGL can't run),
+ * the animated FlowGradient over it, film grain, then the dot grid on top.
+ */
 export function GlobalBackground() {
   return (
     <>
-      <div aria-hidden="true" className="fx-flicker-grid pointer-events-none fixed inset-0 z-0">
-        <span />
-        <span />
-        <span />
-      </div>
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 z-0 opacity-45 dark:opacity-55"
@@ -28,6 +33,17 @@ export function GlobalBackground() {
             "radial-gradient(circle at 15% 20%, rgba(75, 25, 130, 0.5) 0%, transparent 40%), radial-gradient(circle at 85% 70%, rgba(10, 60, 120, 0.4) 0%, transparent 45%), radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.05) 0%, transparent 60%)",
         }}
       />
+      <FlowGradient />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.05] mix-blend-overlay dark:opacity-[0.07]"
+        style={{ backgroundImage: GRAIN }}
+      />
+      <div aria-hidden="true" className="fx-flicker-grid pointer-events-none fixed inset-0 z-0">
+        <span />
+        <span />
+        <span />
+      </div>
     </>
   );
 }

@@ -79,7 +79,16 @@ export function Hero() {
 
         {/* Right column: the dithered gear (md+ only). */}
         <div className="relative hidden w-full h-[40vh] sm:h-[50vh] lg:h-[80vh] items-center justify-center pointer-events-none md:flex">
-          <HeroGear />
+          {/* A soft shadow pool behind the gear, so its dots keep their contrast
+              over the animated background (light mode most of all). Static, so
+              it costs nothing per frame, unlike a filter on the gear's canvas. */}
+          <div
+            aria-hidden
+            className="absolute left-1/2 top-1/2 aspect-square w-[85%] max-w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,transparent_36%,rgba(11,18,32,0.3)_62%,rgba(11,18,32,0.12)_82%,transparent)] blur-2xl dark:bg-[radial-gradient(closest-side,rgba(0,0,0,0.65),rgba(0,0,0,0.3)_55%,transparent)]"
+          />
+          <div className="relative h-full w-full">
+            <HeroGear />
+          </div>
         </div>
 
       </div>
