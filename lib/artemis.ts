@@ -363,3 +363,26 @@ export const EPILOGUE = {
   ],
   signature: "~ ISA-RAIT Student Chapter",
 } as const;
+
+/* ------------------------------------------------------------------ *
+ * Finale — what the page opens on now that the hunt is over: the
+ * epilogue, a promise of next year, and the way back into the record.
+ * ------------------------------------------------------------------ */
+
+export const FINALE = {
+  /** Above the epilogue, between two stars. */
+  eyebrow: "Artemis 2026 · The Hunt Is Done",
+  /** The "next year" card. */
+  returnEyebrow: "Until the Next Moon",
+  returnTitle: "Come back next year",
+  returnBody:
+    "The bow is unstrung, not laid down. Artemis returns next year with new trials, new patrons and another night under the stars. Sharpen your arrows; the hunt will call again.",
+  /** The button that opens the rest of the page. */
+  openLabel: "Relive the Hunt",
+  openHint: "Open the chronicle of Artemis 2026",
+  /** Shown in the button's place once the chronicle is open. */
+  openedNote: "The chronicle lies below",
+  /** Heads the reopened page, so it reads as a record rather than an invitation. */
+  chronicleEyebrow: "The Chronicle",
+  chronicleTitle: "Artemis 2026, as it was",
+} as const;

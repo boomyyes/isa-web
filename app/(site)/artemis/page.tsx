@@ -8,9 +8,8 @@ import { GuidelinesSection } from "@/components/artemis/GuidelinesSection";
 import { OdysseyTimeline } from "@/components/artemis/OdysseyTimeline";
 import { BoonsSection } from "@/components/artemis/BoonsSection";
 import { OracleQuotes } from "@/components/artemis/OracleQuotes";
-import { RegisterSection } from "@/components/artemis/RegisterSection";
 import { ArtemisFaq } from "@/components/artemis/ArtemisFaq";
-import { EpilogueNote } from "@/components/artemis/EpilogueNote";
+import { ArtemisFinale } from "@/components/artemis/ArtemisFinale";
 import { BackToTop } from "@/components/artemis/BackToTop";
 import { ARTEMIS } from "@/lib/artemis";
 import { pageMetadata } from "@/lib/seo";
@@ -60,25 +59,29 @@ export default function ArtemisPage() {
       <main className="relative min-h-screen">
         <ArtemisSky />
 
-        <ArtemisHero />
-        <ProloguePanel />
-        {/* `serverNow` is what the countdown measures the visitor's clock
-            against, so the seal breaks on the server's hour rather than on a
-            laptop that happens to be running fast. `releaseAt` is handed down
-            for the same reason: the clock and the gate have to be reading the
-            same instant, rehearsal or not. */}
-        <TrialsSection
-          statements={statements}
-          serverNow={serverNow}
-          releaseAt={releaseAt}
-        />
-        <GuidelinesSection />
-        <OdysseyTimeline />
-        <BoonsSection />
-        <OracleQuotes />
-        <RegisterSection />
-        <ArtemisFaq />
-        <EpilogueNote />
+        {/* The hunt is over, so the page opens on its epilogue and a promise of
+            next year. Everything that was the event page is now the chronicle,
+            folded away behind the finale's button. Registration is gone from it:
+            there is nothing left to register for. */}
+        <ArtemisFinale>
+          <ArtemisHero archived />
+          <ProloguePanel />
+          {/* `serverNow` is what the countdown measures the visitor's clock
+              against, so the seal breaks on the server's hour rather than on a
+              laptop that happens to be running fast. `releaseAt` is handed down
+              for the same reason: the clock and the gate have to be reading the
+              same instant, rehearsal or not. */}
+          <TrialsSection
+            statements={statements}
+            serverNow={serverNow}
+            releaseAt={releaseAt}
+          />
+          <GuidelinesSection />
+          <OdysseyTimeline />
+          <BoonsSection />
+          <OracleQuotes />
+          <ArtemisFaq />
+        </ArtemisFinale>
 
         {/* Fixed to the viewport, so its position in the tree is only about
             reading order — last, after the content it scrolls you back through. */}

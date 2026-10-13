@@ -580,6 +580,18 @@
     animation: artemis-twinkle 3.2s ease-in-out infinite;
   }
 
+  /* The finale's "Relive the Hunt" button breathing gold. On the wrapper as a
+     drop-shadow, because the button itself is clip-path'd and would clip a
+     box-shadow away. */
+  @keyframes artemis-halo {
+    0%, 100% { filter: drop-shadow(0 0 10px rgba(217, 169, 76, 0.35)); }
+    50% { filter: drop-shadow(0 0 26px rgba(242, 208, 138, 0.75)); }
+  }
+
+  .animate-artemis-halo {
+    animation: artemis-halo 2.6s ease-in-out infinite;
+  }
+
   /* Pre-paint hidden states for the anime.js reveals in
      components/artemis/reveal.ts.
 
@@ -672,6 +684,10 @@
     .artemis [data-unfurl] {
       opacity: 1;
       clip-path: none;
+    }
+
+    .animate-artemis-halo {
+      animation: none;
     }
   }
 }

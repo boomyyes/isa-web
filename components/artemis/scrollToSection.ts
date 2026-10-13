@@ -70,10 +70,19 @@ export function scrollToSection(
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   if ("button" in event && event.button !== 0) return;
 
-  const target = document.getElementById(targetId);
-  if (!target) return;
+  if (!document.getElementById(targetId)) return;
 
   event.preventDefault();
+  scrollToId(targetId);
+}
+
+/**
+ * The scroll itself, for callers with no click to hand over — the finale's
+ * button scrolls once the chronicle it has just opened is in the DOM.
+ */
+export function scrollToId(targetId: string) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
 
   // A second click mid-flight retargets rather than running two animations
   // against the same scroll position.

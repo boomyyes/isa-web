@@ -35,7 +35,13 @@ import { ARTEMIS } from "@/lib/artemis";
 /** Where the lockup lands, in milliseconds after mount. */
 const LOGO_AT = 380;
 
-export function ArtemisHero() {
+/**
+ * `archived`: the hackathon is over and this hero sits inside the finale's
+ * chronicle, under the page's real <h1> — so the lockup steps down to an <h2>
+ * and the Register call goes, leaving only the way into the record.
+ */
+export function ArtemisHero({ archived = false }: { archived?: boolean }) {
+  const Heading = archived ? "h2" : "h1";
   const root = useArtemisAnime<HTMLElement>((self) => {
     const el = self.root as HTMLElement;
 
@@ -196,7 +202,7 @@ export function ArtemisHero() {
             pause it, which is exactly what that preference is about. Only the
             matching source is ever fetched, so the still costs nothing to the
             people who never see it. */}
-        <h1 data-hero-logo data-reveal className="mt-4 block">
+        <Heading data-hero-logo data-reveal className="mt-4 block">
           <picture>
             <source
               media="(prefers-reduced-motion: reduce)"
@@ -214,7 +220,7 @@ export function ArtemisHero() {
               className="h-auto w-[min(92vw,760px)]"
             />
           </picture>
-        </h1>
+        </Heading>
 
         <div data-hero-rule data-unroll className="mt-2 w-full">
           <MeanderDivider className="text-[var(--artemis-gold)] opacity-70" />
@@ -256,13 +262,15 @@ export function ArtemisHero() {
           data-reveal
           className="mt-10 flex flex-wrap items-center justify-center gap-4"
         >
-          <AngularButton
-            href="#register"
-            onClick={(e) => scrollToSection(e, "register")}
-            className="font-cinzel tracking-[0.2em]"
-          >
-            Register
-          </AngularButton>
+          {!archived && (
+            <AngularButton
+              href="#register"
+              onClick={(e) => scrollToSection(e, "register")}
+              className="font-cinzel tracking-[0.2em]"
+            >
+              Register
+            </AngularButton>
+          )}
           <AngularButton
             href="#prologue"
             variant="outline"
