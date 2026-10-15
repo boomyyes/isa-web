@@ -157,11 +157,13 @@
       "domain": "Administration",
       "members": [
         {
-          "id": "jc-admin-1",
+          "id": "jc-admin-2",
           "role": "Administration Head",
-          "name": "Ayan Varekar",
-          "photo": "/team/ayan-varekar.jpg",
-          "linkedin": "https://www.linkedin.com/in/ayanvarekar/"
+          "name": "Atharv Bhoir",
+          "photo": "/team/atharv-bhoir-ced675.jpg",
+          "linkedin": "https://www.linkedin.com/in/atharv-bhoir-800352388",
+          "github": "https://github.com/AtharvKB",
+          "technical": true
         },
         {
           "id": "jc-admin-gharat",
@@ -171,13 +173,11 @@
           "hidden": true
         },
         {
-          "id": "jc-admin-2",
+          "id": "jc-admin-1",
           "role": "Administration Co-head",
-          "name": "Atharv Bhoir",
-          "photo": "/team/atharv-bhoir-ced675.jpg",
-          "linkedin": "https://www.linkedin.com/in/atharv-bhoir-800352388",
-          "github": "https://github.com/AtharvKB",
-          "technical": true
+          "name": "Ayan Varekar",
+          "photo": "/team/ayan-varekar.jpg",
+          "linkedin": "https://www.linkedin.com/in/ayanvarekar/"
         },
         {
           "id": "jc-admin-3",
