@@ -16,7 +16,7 @@
 // locks the page (a modal) should call useLenis()?.stop(), as IsaacReader does.
 
 import "lenis/dist/lenis.css";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { ReactLenis, useLenis } from "lenis/react";
 
@@ -58,13 +58,26 @@ function ResetOnNavigate({ pathname }: { pathname: string }) {
     return () => window.removeEventListener("popstate", onPop);
   }, []);
 
-  useEffect(() => {
+  // Layout effect, so the jump lands before the new page's first paint.
+  useLayoutEffect(() => {
     if (!lenis || previous.current === pathname) return;
     previous.current = pathname;
     const restore = traversing.current || window.location.hash !== "";
     traversing.current = false;
+    const jumped = !restore && window.scrollY > 0;
     lenis.resize();
     lenis.scrollTo(restore ? window.scrollY : 0, { immediate: true, force: true });
+    if (!jumped) return;
+    // Coming from further down the old page, the snap to the top swamps the
+    // page's small slide-in. Flag it so the new page fades up instead
+    // (html[data-route-jump] in globals.css), which hides the jump. The flag
+    // stays until the next navigation: removing it mid-page would swap the
+    // animation and replay the slide.
+    const root = document.documentElement;
+    root.dataset.routeJump = "";
+    return () => {
+      delete root.dataset.routeJump;
+    };
   }, [lenis, pathname]);
 
   return null;

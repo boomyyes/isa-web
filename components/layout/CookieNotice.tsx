@@ -54,7 +54,8 @@ export function CookieNotice() {
           <button
             type="button"
             onClick={hide}
-            className="rounded-lg bg-[var(--accent-color)] px-4 py-2 text-sm font-semibold text-[var(--bg-color)] transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-color)]"
+            data-text="Hide cookie message"
+            className="btn-glitch relative px-4 py-2 text-sm font-semibold"
           >
             Hide cookie message
           </button>

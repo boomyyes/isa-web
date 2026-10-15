@@ -68,10 +68,10 @@ export function Hero() {
           <div
             className="animate-hero-nudge flex flex-col sm:flex-row gap-6 w-full sm:w-auto"
           >
-            <AngularButton variant="primary" href="/membership/apply" className="w-full sm:w-48">
+            <AngularButton variant="primary" href="/membership/apply" className="w-full sm:w-auto">
               Join the Committee
             </AngularButton>
-            <AngularButton variant="outline" href="/initiatives#projects" className="w-full sm:w-48">
+            <AngularButton variant="outline" href="/initiatives#projects" className="w-full sm:w-auto">
               Explore Projects
             </AngularButton>
           </div>

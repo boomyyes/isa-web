@@ -369,14 +369,9 @@ export function MembershipContent() {
               <div className="mt-10">
                 <Link
                   href={JOIN_URL}
-                  className="clip-angular group relative inline-flex items-center gap-3 bg-[var(--accent-color)] px-10 py-5 font-jetbrains text-base font-black uppercase tracking-widest text-[var(--bg-color)] transition-transform duration-300 hover:scale-[1.02] md:text-lg"
-                  style={{ boxShadow: "0 0 45px color-mix(in srgb, var(--accent-color) 65%, transparent)" }}
+                  data-text="Join ISA Today!"
+                  className="btn-glitch group relative inline-flex items-center gap-3 px-10 py-5 font-jetbrains text-base font-black uppercase tracking-widest md:text-lg"
                 >
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 -z-10 opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-80"
-                    style={{ background: "var(--accent-color)" }}
-                  />
                   Join ISA Today!
                   <ArrowRight
                     size={22}

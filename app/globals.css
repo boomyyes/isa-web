@@ -404,6 +404,18 @@
     animation: page-enter 0.4s ease-out both;
   }
 
+  /* A navigation that started scrolled down (SmoothScroll's ResetOnNavigate
+     sets the flag): fade the new page up so the snap to the top isn't seen.
+     Only on client navigations, so first-load paint (LCP) is untouched. */
+  @keyframes page-enter-jump {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  html[data-route-jump] .animate-page-enter {
+    animation: page-enter-jump 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   .animate-hero-rise {
     animation: hero-rise 0.5s cubic-bezier(0.33, 1, 0.68, 1) both;
   }
@@ -644,6 +656,7 @@
     .animate-hero-rise,
     .animate-hero-nudge,
     .animate-page-enter,
+    html[data-route-jump] .animate-page-enter,
     .fx-flicker-grid > span,
     .fx-row-in,
     .fx-word-in {
@@ -706,3 +719,154 @@
   }
 }
 
+
+/* ------------------------------------------------------------------ *
+ * Buttons (components/ui/AngularButton.tsx). Both adapted from the
+ * Uiverse.io community library (MIT), recoloured to the theme tokens.
+ * ------------------------------------------------------------------ */
+@layer components {
+  /* Cyberpunk glitch button, from Uiverse.io by namecho. */
+  .btn-glitch,
+  .btn-glitch::after {
+    background: linear-gradient(45deg, transparent 10px, var(--accent-color) 10px);
+    color: var(--bg-color);
+    box-shadow: 5px 0 0 var(--border-active);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .btn-glitch:hover {
+    box-shadow: 7px 0 0 var(--border-active);
+  }
+
+  .btn-glitch:active {
+    transform: translate(2px, 1px);
+    box-shadow: 3px 0 0 var(--border-active);
+  }
+
+  .btn-glitch:focus-visible {
+    outline: 2px solid var(--border-active);
+    outline-offset: 4px;
+  }
+
+  .btn-glitch::after {
+    --slice-0: inset(50% 50% 50% 50%);
+    --slice-1: inset(80% -6px 0 0);
+    --slice-2: inset(50% -6px 30% 0);
+    --slice-3: inset(10% -6px 85% 0);
+    --slice-4: inset(40% -6px 43% 0);
+    --slice-5: inset(80% -6px 5% 0);
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(
+      45deg,
+      transparent 7px,
+      var(--border-active) 7px,
+      var(--border-active) 11px,
+      var(--accent-color) 11px
+    );
+    text-shadow: -2px -2px 0 #f8f005, 2px 2px 0 var(--border-active);
+    clip-path: var(--slice-0);
+    pointer-events: none;
+  }
+
+  .btn-glitch:hover::after,
+  .btn-glitch:focus-visible::after {
+    animation: btn-glitch 1s steps(2, end);
+  }
+
+  @keyframes btn-glitch {
+    0% { clip-path: var(--slice-1); transform: translate(-20px, -10px); }
+    10% { clip-path: var(--slice-3); transform: translate(10px, 10px); }
+    20% { clip-path: var(--slice-1); transform: translate(-10px, 10px); }
+    30% { clip-path: var(--slice-3); transform: translate(0, 5px); }
+    40% { clip-path: var(--slice-2); transform: translate(-5px, 0); }
+    50% { clip-path: var(--slice-3); transform: translate(5px, 0); }
+    60% { clip-path: var(--slice-4); transform: translate(5px, 10px); }
+    70% { clip-path: var(--slice-2); transform: translate(-10px, 10px); }
+    80% { clip-path: var(--slice-5); transform: translate(20px, -10px); }
+    90% { clip-path: var(--slice-1); transform: translate(-10px, 0); }
+    100% { clip-path: var(--slice-1); transform: translate(0); }
+  }
+
+  /* Corner-bracket button, from Uiverse.io by Shoh2008. */
+  .btn-bracket {
+    --b: 2px; /* bracket thickness */
+    --s: 0.55em; /* bracket length */
+    --_p: var(--s);
+    color: var(--text-primary);
+    background:
+      conic-gradient(from 90deg at var(--b) var(--b), #0000 90deg, var(--border-active) 0)
+      var(--_p) var(--_p) / calc(100% - var(--b) - 2 * var(--_p)) calc(100% - var(--b) - 2 * var(--_p));
+    outline: var(--b) solid #0000;
+    outline-offset: 0.5em;
+    transition: 0.3s linear, color 0s, background-color 0s;
+  }
+
+  .btn-bracket:hover,
+  .btn-bracket:focus-visible {
+    --_p: 0px;
+    outline-color: var(--border-active);
+    outline-offset: 0.05em;
+  }
+
+  .btn-bracket:active {
+    background: var(--border-active);
+    color: var(--bg-color);
+  }
+
+  /* Spinning gradient border, from Uiverse.io by ShadowShahriar. The border
+     is a masked conic gradient whose hue cycles while hovered (Footer CTA). */
+  .btn-prism {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .btn-prism::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    padding: 2px;
+    border-radius: inherit;
+    background-image: conic-gradient(
+      var(--border-active),
+      var(--accent-color),
+      #7c4dff,
+      var(--border-active)
+    );
+    mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    animation: btn-prism 0.9s linear infinite;
+    animation-play-state: paused;
+  }
+
+  .btn-prism:hover::after,
+  .btn-prism:focus-visible::after {
+    animation-play-state: running;
+  }
+
+  .btn-prism:active::after {
+    padding: 3px;
+  }
+
+  @keyframes btn-prism {
+    to { filter: hue-rotate(1turn); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn-prism::after,
+    .btn-glitch:hover::after,
+    .btn-glitch:focus-visible::after {
+      animation: none;
+    }
+    .btn-bracket {
+      transition: none;
+    }
+  }
+}

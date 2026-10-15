@@ -86,7 +86,7 @@ export function Footer() {
         </h2>
 
         <JoinLink
-          className="group mt-12 inline-flex min-h-12 items-center gap-4 rounded-full border border-[var(--text-primary)]/30 py-2 pl-7 pr-3 text-sm font-medium text-[var(--text-primary)] backdrop-blur-sm transition-colors hover:border-[var(--border-active)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]"
+          className="btn-prism group mt-12 inline-flex min-h-12 items-center gap-4 rounded-full bg-[var(--bg-color)]/60 py-2 pl-7 pr-3 text-sm font-medium text-[var(--text-primary)] backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]"
         >
           <span
             aria-hidden
@@ -105,7 +105,7 @@ export function Footer() {
               <Logo className="h-20 lg:h-24" sizes="246px" />
             </Link>
             <a
-              href="https://www.rait.ac.in"
+              href="https://dypatil.edu/schools/ramrao-adik-institute-of-technology"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Ramrao Adik Institute of Technology (opens in a new tab)"
