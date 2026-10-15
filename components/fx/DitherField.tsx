@@ -23,9 +23,14 @@ const TEETH = 12;
 // 4x4 Bayer matrix, normalised to 0-1 thresholds.
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
 
-function readColor(name: string): string {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-}
+// globals.css tokens per theme: gear = --border-active, highlight = --fx-highlight.
+// Picked from the theme name, not read from CSS: next-themes swaps the <html>
+// class in its own effect, which runs after this component's, so reading the
+// custom properties here got the previous theme's colours.
+const COLORS = {
+  dark: { gear: "#00E5FF", highlight: "#FF5A00" },
+  light: { gear: "#E65100", highlight: "#00A3C4" },
+};
 
 export function DitherField({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -38,9 +43,7 @@ export function DitherField({ className }: { className?: string }) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Read after the theme class has been applied, so these are the live values.
-    const gear = readColor("--border-active");
-    const highlight = readColor("--fx-highlight");
+    const { gear, highlight } = COLORS[resolvedTheme === "light" ? "light" : "dark"];
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     let cols = 0;

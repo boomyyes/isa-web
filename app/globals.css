@@ -240,6 +240,19 @@
       animation-timeline: view();
       animation-range: entry 0% entry 60%;
     }
+
+    /* Footer statement (components/layout/Footer.tsx): each word brightens in
+       turn as the footer scrolls up, staggered by its --i index. */
+    @keyframes fx-word-in {
+      from { opacity: 0.12; transform: translateY(0.35em); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fx-word-in {
+      animation: fx-word-in linear both;
+      animation-timeline: view();
+      animation-range: entry calc(20% + var(--i) * 4%) entry calc(60% + var(--i) * 4%);
+    }
   }
 
   /* ------------------------------------------------------------------ *
@@ -632,7 +645,8 @@
     .animate-hero-nudge,
     .animate-page-enter,
     .fx-flicker-grid > span,
-    .fx-row-in {
+    .fx-row-in,
+    .fx-word-in {
       animation: none;
     }
 
