@@ -166,13 +166,6 @@
           "technical": true
         },
         {
-          "id": "jc-admin-gharat",
-          "role": "Administration Co-head",
-          "name": "Atharv Gharat",
-          "linkedin": "https://www.linkedin.com/in/atharva-gharat-b12a6b306/",
-          "hidden": true
-        },
-        {
           "id": "jc-admin-1",
           "role": "Administration Co-head",
           "name": "Ayan Varekar",
@@ -180,15 +173,23 @@
           "linkedin": "https://www.linkedin.com/in/ayanvarekar/"
         },
         {
+          "id": "jc-admin-3",
+          "name": "Paras Gandre",
+          "role": "Admin Co-head",
+          "linkedin": "https://www.linkedin.com/in/paras-abhay-gandre-7a7050249/"
+        },
+        {
+          "id": "jc-admin-gharat",
+          "role": "Administration Co-head",
+          "name": "Atharv Gharat",
+          "linkedin": "https://www.linkedin.com/in/atharva-gharat-b12a6b306/",
+          "hidden": true
+        },
+        {
           "id": "jc-admin-ishan",
           "role": "Administration Co-Head",
           "name": "Ishan Hedao",
           "hidden": true
-        },
-        {
-          "id": "jc-admin-3",
-          "name": "Paras Gandre",
-          "role": "Admin Co-head"
         }
       ]
     },
