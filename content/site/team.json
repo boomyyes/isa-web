@@ -180,9 +180,15 @@
           "linkedin": "https://www.linkedin.com/in/ayanvarekar/"
         },
         {
-          "id": "jc-admin-3",
+          "id": "jc-admin-ishan",
           "role": "Administration Co-Head",
-          "name": "Ishan Hedao"
+          "name": "Ishan Hedao",
+          "hidden": true
+        },
+        {
+          "id": "jc-admin-3",
+          "name": "Paras Gandre",
+          "role": "Admin Co-head"
         }
       ]
     },
