@@ -40,8 +40,6 @@ export async function POST(request: Request) {
 
   const { uid: rawUid, password } = (body ?? {}) as { uid?: unknown; password?: unknown };
 
-  // Hand-rolled validation: the repo carries no schema library and shouldn't
-  // gain one for two string fields.
   if (
     typeof rawUid !== "string" ||
     typeof password !== "string" ||

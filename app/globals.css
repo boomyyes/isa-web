@@ -756,6 +756,7 @@
     --slice-4: inset(40% -6px 43% 0);
     --slice-5: inset(80% -6px 5% 0);
     content: attr(data-text);
+    content: attr(data-text) / ""; /* decorative: keep it out of the accessible name */
     position: absolute;
     inset: 0;
     z-index: 20;
@@ -774,7 +775,7 @@
     pointer-events: none;
   }
 
-  .btn-glitch:hover::after,
+  .btn-glitch:not(:disabled):hover::after,
   .btn-glitch:focus-visible::after {
     animation: btn-glitch 1s steps(2, end);
   }
@@ -861,7 +862,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .btn-prism::after,
-    .btn-glitch:hover::after,
+    .btn-glitch:not(:disabled):hover::after,
     .btn-glitch:focus-visible::after {
       animation: none;
     }

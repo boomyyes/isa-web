@@ -228,7 +228,8 @@ async function handle(request: Request) {
     }
     const result = await purgeYear(fy);
     await audit(me, `deleted financial records for FY ${fyLabel(fy)}: ${result.entries} ledger entries, ${result.bills} bills, ${result.files} receipt files`);
-    const note = result.filesFailed ? ` ${result.filesFailed} receipt file(s) couldn't be deleted from storage; run the purge again to retry.` : "";
+    if (result.failedKeys.length) await audit(me, `couldn't delete ${result.failedKeys.length} receipt file(s) from storage; delete by hand: ${result.failedKeys.join(", ")}`);
+    const note = result.failedKeys.length ? ` ${result.failedKeys.length} receipt file(s) couldn't be deleted from storage; their names are in the audit log for deleting by hand.` : "";
     return adminRedirect(request, `/finance/purge?done=${encodeURIComponent(`FY ${fyLabel(fy)} deleted: ${result.entries} ledger entries, ${result.bills} bills, ${result.files} receipt files.${note}`)}`);
   }
 

@@ -315,7 +315,11 @@ export async function readSession(id: string | undefined): Promise<Session | nul
 }
 
 export async function destroySession(id: string | undefined) {
-  if (id) await redis().del(sessionKey(id));
+  if (!id) return;
+  const email = await sessionEmail(id);
+  const tx = redis().multi().del(sessionKey(id));
+  if (email) tx.srem(sessionsOfKey(email), sha(id));
+  await tx.exec();
 }
 
 export async function revokeSessions(email: string) {

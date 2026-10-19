@@ -21,6 +21,11 @@ export const MAX_RECEIPTS = 5;
 
 const UUID = /^[0-9a-f-]{36}$/;
 export const isUuid = (v: unknown): v is string => typeof v === "string" && UUID.test(v);
+/** Postgres 23505. Drizzle wraps driver errors, keeping the original as `cause`. */
+const isUniqueViolation = (e: unknown): boolean => {
+  const err = e as { code?: string; cause?: { code?: string } } | null;
+  return err?.code === "23505" || err?.cause?.code === "23505";
+};
 const blank = (v: unknown) => (typeof v === "string" && v.trim() === "" ? undefined : v);
 
 // ---------------------------------------------------------------------- money
@@ -206,7 +211,11 @@ export async function payBill(id: string, p: z.infer<typeof paySchema>, by: stri
       billId: bill.id,
       createdBy: by,
     }),
-  ]);
+  ]).catch((e) => {
+    // ledger_entries_bill_id_unique: a parallel request already paid it.
+    if (isUniqueViolation(e)) return [[]] as const;
+    throw e;
+  });
   return updated.length > 0;
 }
 
@@ -254,9 +263,10 @@ export async function reverseEntry(id: string, reason: string, by: string): Prom
       createdBy: by,
     });
     return "ok";
-  } catch {
+  } catch (e) {
     // The unique constraint on reverses_id: someone reversed it first.
-    return "already";
+    if (isUniqueViolation(e)) return "already";
+    throw e;
   }
 }
 
@@ -401,18 +411,18 @@ export async function purgeYear(fy: number) {
   ]);
 
   // Files after the rows: a failed file delete leaves an orphan in private storage, never a broken record.
-  let filesDeleted = 0;
+  // The rows that named it are gone, so the key is returned for the audit log and a manual delete.
+  const failedKeys: string[] = [];
   for (const f of files) {
     try {
       await deleteObject(f.key);
-      filesDeleted++;
     } catch {
-      // Reported below; safe to retry later.
+      failedKeys.push(f.key);
     }
   }
   const entries = (results[1] as unknown[]).length;
   const billCount = billIds.length;
-  return { entries, bills: billCount, files: filesDeleted, filesFailed: files.length - filesDeleted };
+  return { entries, bills: billCount, files: files.length - failedKeys.length, failedKeys };
 }
 
 /** Today's date in India, "YYYY-MM-DD", for form defaults. */

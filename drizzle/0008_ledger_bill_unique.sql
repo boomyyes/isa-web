@@ -1,0 +1,1 @@
+ALTER TABLE "ledger_entries" ADD CONSTRAINT "ledger_entries_bill_id_unique" UNIQUE("bill_id");

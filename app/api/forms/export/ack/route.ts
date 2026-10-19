@@ -33,7 +33,8 @@ export async function POST(request: Request) {
 
   if (ids.length + erased.length > 0) {
     const tx = redis().multi();
-    for (const id of ids) tx.lrem(PENDING_KEY, 0, id);
+    // 1, not 0: only the copy the sheet read. An edit queued since then stays for the next pull.
+    for (const id of ids) tx.lrem(PENDING_KEY, 1, id);
     for (const id of erased) tx.lrem(ERASE_KEY, 0, id);
     await tx.exec();
   }

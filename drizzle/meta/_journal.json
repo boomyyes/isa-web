@@ -57,6 +57,13 @@
       "when": 1791730940786,
       "tag": "0007_treasury_years",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792446896211,
+      "tag": "0008_ledger_bill_unique",
+      "breakpoints": true
     }
   ]
 }

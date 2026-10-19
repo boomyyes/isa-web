@@ -26,6 +26,38 @@ export const PENDING_KEY = "roster:pending";
 
 export const MAX_DELETE_FRACTION = 0.2;
 
+/** SET KEYS[1] to ARGV[1], but keep the stored code if there is one. Only the hash fields are touched. */
+const KEEP_CURRENT_HASH = `
+local cur = redis.call("get", KEYS[1])
+if cur then
+  local ok, old = pcall(cjson.decode, cur)
+  if ok and type(old) == "table" and type(old.passwordHash) == "string" and old.passwordHash ~= "" then
+    local new = cjson.decode(ARGV[1])
+    new.passwordHash = old.passwordHash
+    new.passwordEmailedAt = old.passwordEmailedAt
+    return redis.call("set", KEYS[1], cjson.encode(new))
+  end
+end
+return redis.call("set", KEYS[1], ARGV[1])`;
+
+/**
+ * One roster writer at a time. reconcile and delivery read records and write
+ * them back later; two overlapping runs would write back each other's stale
+ * hashes and email a student a code that no longer works. Throws when held.
+ */
+const LOCK_KEY = "roster:lock";
+const LOCK_SECONDS = 300; // past the longest serverless run, so a crash can't wedge it
+async function takeRosterLock(redis: Redis): Promise<() => Promise<void>> {
+  const token = generatePassword();
+  if ((await redis.set(LOCK_KEY, token, { nx: true, ex: LOCK_SECONDS })) !== "OK") {
+    throw new Error("another roster sync is running; try again in a few minutes");
+  }
+  // Only our own lock: if it expired and someone else took it, leave theirs.
+  return async () => {
+    await redis.eval('if redis.call("get", KEYS[1]) == ARGV[1] then return redis.call("del", KEYS[1]) end return 0', [LOCK_KEY], [token]);
+  };
+}
+
 const TRUTHY = new Set(["true", "1", "yes", "y", "x", "✓"]);
 export const isChecked = (value: string | undefined) =>
   TRUTHY.has((value ?? "").trim().toLowerCase());
@@ -207,6 +239,21 @@ export async function reconcile(
   parsed: ParsedRow[],
   opts: { force?: boolean; dryRun?: boolean } = {}
 ): Promise<ReconcileResult> {
+  // A dry run writes nothing, so it can run beside a live sync.
+  if (opts.dryRun) return reconcileUnlocked(redis, parsed, opts);
+  const release = await takeRosterLock(redis);
+  try {
+    return await reconcileUnlocked(redis, parsed, opts);
+  } finally {
+    await release();
+  }
+}
+
+async function reconcileUnlocked(
+  redis: Redis,
+  parsed: ParsedRow[],
+  opts: { force?: boolean; dryRun?: boolean }
+): Promise<ReconcileResult> {
   const BATCH = 100;
 
   const existing = new Map<string, CertRecord>();
@@ -270,9 +317,13 @@ export async function reconcile(
     return { written: records.length, deleted: stale.length, registered, stored: knownKeys.length };
   }
 
+  // The hashes above were read seconds ago; a student may have changed their code
+  // since. The script keeps whatever hash is stored at write time.
   for (let i = 0; i < records.length; i += BATCH) {
     const pipeline = redis.pipeline();
-    for (const { key, record } of records.slice(i, i + BATCH)) pipeline.set(key, record);
+    for (const { key, record } of records.slice(i, i + BATCH)) {
+      pipeline.eval(KEEP_CURRENT_HASH, [key], [JSON.stringify(record)]);
+    }
     await pipeline.exec();
   }
 
@@ -324,6 +375,15 @@ export async function deliverPendingCodes(
   redis: Redis,
   opts: { limit?: number } = {}
 ): Promise<DeliveryResult> {
+  const release = await takeRosterLock(redis);
+  try {
+    return await deliverUnlocked(redis, opts);
+  } finally {
+    await release();
+  }
+}
+
+async function deliverUnlocked(redis: Redis, opts: { limit?: number }): Promise<DeliveryResult> {
   const limit = opts.limit ?? 25;
   const result: DeliveryResult = { sent: 0, failed: 0, skippedNoEmail: 0, remaining: 0 };
 

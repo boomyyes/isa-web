@@ -227,7 +227,8 @@ export const ledgerEntries = pgTable(
     amountPaise: bigint("amount_paise", { mode: "number" }).notNull(),
     entryDate: date("entry_date", { mode: "string" }).notNull(),
     description: text("description").notNull(),
-    billId: uuid("bill_id").references(() => bills.id, { onDelete: "set null" }),
+    // Unique: a bill is paid once, so two racing "Mark paid" clicks can't post it twice.
+    billId: uuid("bill_id").unique().references(() => bills.id, { onDelete: "set null" }),
     reversesId: uuid("reverses_id").unique(),
     createdBy: text("created_by").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
