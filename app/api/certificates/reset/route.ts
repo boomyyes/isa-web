@@ -4,6 +4,7 @@
 // anyone out — only send them an email they can ignore. The response is identical
 // whether or not the UID exists.
 
+import { after } from "next/server";
 import { normalizeUid, type CertRecord } from "@/lib/certificates";
 import { redisKey, signResetToken, RESET_TTL_SECONDS } from "@/lib/certificates.server";
 import { clientIp, redis, resetIpLimiter, resetUidLimiter } from "@/lib/redis";
@@ -73,17 +74,15 @@ export async function POST(request: Request) {
   if (record?.email) {
     const token = signResetToken(uid, record.passwordHash);
     const link = `${siteUrl()}/certificates/reset?t=${encodeURIComponent(token)}`;
-    try {
-      await sendResetEmail({
-        to: record.email,
-        name: record.name,
-        uid: record.uid,
-        link,
-        expiresMinutes: Math.round(RESET_TTL_SECONDS / 60),
-      });
-    } catch {
-      // Swallowed: surfacing a send failure would reveal the UID exists.
-    }
+    const { email: to, name, uid: recordUid } = record;
+    // After the response: waiting on SMTP would make a real UID answer measurably slower.
+    after(async () => {
+      try {
+        await sendResetEmail({ to, name, uid: recordUid, link, expiresMinutes: Math.round(RESET_TTL_SECONDS / 60) });
+      } catch (error) {
+        console.error("[certificates reset] link not sent:", error);
+      }
+    });
   }
 
   return Response.json(ACCEPTED, { headers: PRIVATE_HEADERS });

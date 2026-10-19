@@ -401,7 +401,16 @@ export async function purgeYear(fy: number) {
     db().execute(sql`select set_config('app.ledger_purge', 'on', true)`),
     db()
       .delete(ledgerEntries)
-      .where(and(gte(ledgerEntries.entryDate, from), lte(ledgerEntries.entryDate, to)))
+      .where(
+        and(
+          gte(ledgerEntries.entryDate, from),
+          lte(ledgerEntries.entryDate, to),
+          // An entry reversed after the year ends stays: deleting it would null its
+          // reversal's link, which ledger_amount_check rejects, failing the whole purge.
+          // The pair goes once the later year is purged; this year stays listed till then.
+          sql`not exists (select 1 from ${ledgerEntries} r where r.reverses_id = ${OUTER_ENTRY} and r.entry_date > ${to})`
+        )
+      )
       .returning({ id: ledgerEntries.id }),
     billIds.length
       ? db().delete(bills).where(inArray(bills.id, billIds)).returning({ id: bills.id })

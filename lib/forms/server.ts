@@ -239,7 +239,7 @@ async function emailSubmission(record: StoredSubmission, label: string) {
   const email = typeof record.data.email === "string" ? record.data.email : undefined;
   const results = await Promise.allSettled([
     sendFormRecordToCommittee(copy, email),
-    email ? sendFormReceipt(copy, email, String(record.data.name ?? ""), NEXT_STEP[record.form]) : Promise.resolve(),
+    email ? sendFormReceipt(copy, email, NEXT_STEP[record.form]) : Promise.resolve(),
   ]);
   for (const result of results) {
     if (result.status === "rejected") console.error(`[forms] email for ${record.id} not sent:`, result.reason);

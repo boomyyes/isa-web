@@ -204,8 +204,8 @@ export default function PrivacyPage() {
       <p>
         Each submission is given a reference number, which is shown to the submitter and may be
         quoted in correspondence about the enquiry. A copy of each submission is emailed to
-        ISA-RAIT&apos;s official mailbox and, where an email address was given, to the submitter
-        as a confirmation.
+        ISA-RAIT&apos;s official mailbox. Where an email address was given, the submitter is sent
+        a confirmation with the reference number, which does not repeat what they wrote.
       </p>
       <p>
         Such information is processed for the purpose of responding to and managing the relevant
@@ -236,7 +236,8 @@ export default function PrivacyPage() {
         ISA-RAIT uses these details to contact the applicant by phone, WhatsApp or email and to
         set up their membership with them on a call. Each submission is given a reference number,
         which is shown to the applicant. A copy of each submission is emailed to ISA-RAIT&apos;s
-        official mailbox and to the applicant as a confirmation. The form does not ask for
+        official mailbox, and the applicant is sent a confirmation with the reference number,
+        which does not repeat what they wrote. The form does not ask for
         passwords or payment details.
       </p>
       <p>

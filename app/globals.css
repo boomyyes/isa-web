@@ -424,53 +424,6 @@
     animation: hero-nudge 0.6s cubic-bezier(0.33, 1, 0.68, 1) both;
   }
 
-  /* Glitch on hover (components/fx/GlitchText.tsx). Two clipped copies of the
-     text in the theme's two colours, jittered with transform + clip-path only. */
-  @keyframes glitch-a {
-    0%, 100% { transform: translate(0); clip-path: inset(0 0 60% 0); }
-    25% { transform: translate(-2px, 1px); clip-path: inset(20% 0 40% 0); }
-    50% { transform: translate(2px, -1px); clip-path: inset(60% 0 10% 0); }
-    75% { transform: translate(-1px, 0); clip-path: inset(40% 0 30% 0); }
-  }
-
-  @keyframes glitch-b {
-    0%, 100% { transform: translate(0); clip-path: inset(55% 0 0 0); }
-    25% { transform: translate(2px, -1px); clip-path: inset(10% 0 70% 0); }
-    50% { transform: translate(-2px, 1px); clip-path: inset(70% 0 5% 0); }
-    75% { transform: translate(1px, 1px); clip-path: inset(30% 0 50% 0); }
-  }
-
-  .glitch {
-    position: relative;
-    display: inline-block;
-  }
-
-  .glitch::before,
-  .glitch::after {
-    content: attr(data-text);
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .glitch::before { color: var(--border-active); }
-  .glitch::after { color: var(--fx-highlight); }
-
-  .glitch:hover::before,
-  .group:hover .glitch::before,
-  .glitch:focus-visible::before {
-    opacity: 0.8;
-    animation: glitch-a 0.35s steps(2, end) infinite;
-  }
-
-  .glitch:hover::after,
-  .group:hover .glitch::after,
-  .glitch:focus-visible::after {
-    opacity: 0.8;
-    animation: glitch-b 0.35s steps(2, end) infinite;
-  }
-
   /* Neon "breathing" pulse for the gradient outline (see NeonFrame). Two ranges:
      a crisp ring that stays legible, and a softer halo that fades further out. */
   @keyframes neon-breathe {
@@ -661,11 +614,6 @@
     .fx-row-in,
     .fx-word-in {
       animation: none;
-    }
-
-    .glitch::before,
-    .glitch::after {
-      display: none;
     }
 
     /* Admin buttons: keep a gentle press so clicks still register, drop the

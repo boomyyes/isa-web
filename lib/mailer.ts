@@ -236,19 +236,21 @@ ${recordTable(record.fields)}
   });
 }
 
-/** A copy for the person who sent it, with their reference and what happens next. */
-export async function sendFormReceipt(record: FormRecord, to: string, name: string, next: string) {
-  const greeting = `Hi ${firstNameOf(name)},`;
+/**
+ * A receipt for the person who sent it: the reference and what happens next.
+ * Nothing they typed goes in it, not even their name. The address isn't
+ * verified, so echoing input would let anyone mail any text to any inbox from
+ * the official account.
+ */
+export async function sendFormReceipt(record: FormRecord, to: string, next: string) {
   const intro = `We've received your ${record.label}. Your reference is ${record.ref}; quote it if you follow up.`;
   const notYou = "If this wasn't you, reply to this email and let us know.";
   await mailer().sendMail({
     to,
     subject: `We received your ${record.label} (${record.ref})`,
-    text: [greeting, "", `${intro} ${next}`, "", "What you sent:", recordText(record.fields), "", notYou, "", "— ISA RAIT Student Chapter"].join("\n"),
-    html: shell(`  <p>${escapeHtml(greeting)}</p>
+    text: ["Hello,", "", `${intro} ${next}`, "", notYou, "", "— ISA RAIT Student Chapter"].join("\n"),
+    html: shell(`  <p>Hello,</p>
   <p>${escapeHtml(intro)} ${escapeHtml(next)}</p>
-  <p style="margin-bottom:0">What you sent:</p>
-${recordTable(record.fields)}
   <p style="color:#64748B;font-size:14px">${escapeHtml(notYou)}</p>`),
   });
 }
