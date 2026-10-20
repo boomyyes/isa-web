@@ -33,7 +33,7 @@ export default async function BillsPage({
   ]);
 
   return (
-    <AdminShell session={session} base={base} title={seesAll ? "Bills" : "My bills"}>
+    <AdminShell title={seesAll ? "Bills" : "My bills"}>
       {sp.error && <Notice tone="error">{sp.error}</Notice>}
       {hasCap(session, "finance.submit") && (
         <Link href={`${base}/finance/bills/new`} className={buttonClass}>Submit a bill</Link>

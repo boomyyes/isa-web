@@ -22,7 +22,7 @@ export default async function ProfilePage({
   const phone = await phoneOf(session.email).catch(() => null);
 
   return (
-    <AdminShell session={session} base={base} title="Your profile" subtitle="How you appear in the workspace">
+    <AdminShell title="Your profile" subtitle="How you appear in the workspace">
       {saved && <Notice>Saved.</Notice>}
       {error && ERRORS[error] && <Notice tone="error">{ERRORS[error]}</Notice>}
 

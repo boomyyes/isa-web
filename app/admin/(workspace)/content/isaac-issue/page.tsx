@@ -20,7 +20,7 @@ export default async function IsaacIssuePage() {
   }
 
   return (
-    <AdminShell session={session} base={base} title="ISAAC issue">
+    <AdminShell title="ISAAC issue">
       <Link href={`${base}/content`} className="text-sm text-[var(--accent-color)] underline underline-offset-2">
         All website content
       </Link>

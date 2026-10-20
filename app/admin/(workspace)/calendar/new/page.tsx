@@ -9,7 +9,7 @@ export default async function NewCalendarEventPage({ searchParams }: { searchPar
   const session = await requireCapability("events");
   const { error } = await searchParams;
   return (
-    <AdminShell session={session} base={session.base} title="Add internal event">
+    <AdminShell title="Add internal event">
       <Link href={`${session.base}/calendar`} className="text-sm text-[var(--accent-color)] underline underline-offset-2">Back to calendar</Link>
       {error && <Notice tone="error">{error}</Notice>}
       <p className="text-sm text-[var(--text-secondary)]">

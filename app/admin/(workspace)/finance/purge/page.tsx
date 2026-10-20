@@ -6,13 +6,12 @@ import { purgeableYears } from "@/lib/admin/finance";
 export const dynamic = "force-dynamic";
 
 export default async function PurgePage({ searchParams }: { searchParams: Promise<{ error?: string; done?: string }> }) {
-  const session = await requireAdmin("president");
-  const { base } = session;
+  await requireAdmin("president");
   const sp = await searchParams;
   const years = await purgeableYears();
 
   return (
-    <AdminShell session={session} base={base} title="Delete old financial records">
+    <AdminShell title="Delete old financial records">
       {sp.error && <Notice tone="error">{sp.error}</Notice>}
       {sp.done && <Notice>{sp.done}</Notice>}
 

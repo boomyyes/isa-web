@@ -13,7 +13,7 @@ export default async function NewBillPage({ searchParams }: { searchParams: Prom
   const open = await listBudgets({ includeArchived: false });
 
   return (
-    <AdminShell session={session} base={base} title="Submit a bill">
+    <AdminShell title="Submit a bill">
       <Link href={`${base}/finance/bills`} className="text-sm text-[var(--accent-color)] underline underline-offset-2">Back to bills</Link>
       {error && <Notice tone="error">{error}</Notice>}
       {open.length === 0 ? (

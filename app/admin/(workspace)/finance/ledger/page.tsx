@@ -14,7 +14,6 @@ export default async function LedgerPage({
   searchParams: Promise<{ budget?: string; from?: string; to?: string; kind?: string; error?: string; saved?: string }>;
 }) {
   const session = await requireAnyCapability(["finance.approve", "finance.audit"]);
-  const { base } = session;
   const sp = await searchParams;
   const approver = hasCap(session, "finance.approve");
   const filter = {
@@ -28,7 +27,7 @@ export default async function LedgerPage({
   const exportQs = new URLSearchParams({ ...(filter.from ? { from: filter.from } : {}), ...(filter.to ? { to: filter.to } : {}), ...(sp.budget ? { budget: sp.budget } : {}) });
 
   return (
-    <AdminShell session={session} base={base} title="Ledger">
+    <AdminShell title="Ledger">
       {sp.error && <Notice tone="error">{sp.error}</Notice>}
       {sp.saved && <Notice>Saved.</Notice>}
       <p className="text-sm text-[var(--text-secondary)]">

@@ -23,7 +23,7 @@ export default async function AnnouncementsPage({
   await markRead(session.email);
 
   return (
-    <AdminShell session={session} base={base} title="Announcements">
+    <AdminShell title="Announcements">
       {saved === "1" && <Notice>Saved.</Notice>}
       {saved === "deleted" && <Notice>Deleted.</Notice>}
       {error && <Notice tone="error">{error === "denied" ? "You don't have permission to post announcements." : error === "missing" ? "That announcement no longer exists." : error}</Notice>}

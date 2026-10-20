@@ -56,7 +56,7 @@ export default async function CalendarPage({
 
   if (!dbConfigured()) {
     return (
-      <AdminShell session={session} base={base} title="Calendar">
+      <AdminShell title="Calendar">
         <Notice tone="error">The calendar needs DATABASE_URL on this deployment.</Notice>
       </AdminShell>
     );
@@ -65,7 +65,7 @@ export default async function CalendarPage({
   const inMonth = items.filter((i) => i.date.slice(0, 7) === monthKey(first) || (i.endDate ?? i.date).slice(0, 7) === monthKey(first));
 
   return (
-    <AdminShell session={session} base={base} title="Calendar">
+    <AdminShell title="Calendar">
       {saved === "1" && <Notice>Saved.</Notice>}
       {saved === "deleted" && <Notice>Deleted.</Notice>}
       {error === "denied" && <Notice tone="error">You don&apos;t have permission to change the calendar.</Notice>}

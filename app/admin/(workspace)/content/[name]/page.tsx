@@ -31,7 +31,7 @@ export default async function ContentCollectionPage({
 
   if (!githubConfigured()) {
     return (
-      <AdminShell session={session} base={base} title={collection.label}>
+      <AdminShell title={collection.label}>
         <Notice tone="error">Publishing isn&apos;t set up: GITHUB_CONTENT_TOKEN is missing on this deployment.</Notice>
       </AdminShell>
     );
@@ -54,14 +54,14 @@ export default async function ContentCollectionPage({
     }
   } catch {
     return (
-      <AdminShell session={session} base={base} title={collection.label}>
+      <AdminShell title={collection.label}>
         <Notice tone="error">Couldn&apos;t load this from GitHub. Check the token, or try again shortly.</Notice>
       </AdminShell>
     );
   }
 
   return (
-    <AdminShell session={session} base={base} title={collection.label}>
+    <AdminShell title={collection.label}>
       <Link href={`${base}/content`} className="text-sm text-[var(--accent-color)] underline underline-offset-2">
         All content
       </Link>

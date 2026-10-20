@@ -23,7 +23,7 @@ export default async function ChatPage({
   const current = channels.find((ch) => ch.id === c) ?? active[0];
 
   return (
-    <AdminShell session={session} base={base} title={current ? `# ${current.name}` : "Chat"}>
+    <AdminShell title={current ? `# ${current.name}` : "Chat"}>
       {saved && <Notice>Saved.</Notice>}
       {error && <Notice tone="error">{error}</Notice>}
       {!ablyConfigured() && (

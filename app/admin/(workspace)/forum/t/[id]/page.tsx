@@ -26,7 +26,7 @@ export default async function ForumThreadPage({
 
   if (!thread || !category || !seesDomain(session, category.domain)) {
     return (
-      <AdminShell session={session} base={base} title="Not found">
+      <AdminShell title="Not found">
         <p className="text-sm text-[var(--text-secondary)]">That thread doesn&apos;t exist or was deleted.</p>
         <Link href={`${base}/forum`} className="text-sm text-[var(--accent-color)] underline">Back to the forum</Link>
       </AdminShell>
@@ -40,7 +40,7 @@ export default async function ForumThreadPage({
   const { rows } = await listPosts(thread.id, page);
 
   return (
-    <AdminShell session={session} base={base} title={thread.title}>
+    <AdminShell title={thread.title}>
       <Link href={`${base}/forum/c/${thread.categoryId}`} className="text-sm text-[var(--accent-color)] underline underline-offset-2">
         {category.name}
       </Link>

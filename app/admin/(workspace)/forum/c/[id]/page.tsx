@@ -22,7 +22,7 @@ export default async function ForumCategoryPage({
 
   if (!category || !seesDomain(session, category.domain)) {
     return (
-      <AdminShell session={session} base={base} title="Not found">
+      <AdminShell title="Not found">
         <Link href={`${base}/forum`} className="text-sm text-[var(--accent-color)] underline">Back to the forum</Link>
       </AdminShell>
     );
@@ -34,7 +34,7 @@ export default async function ForumCategoryPage({
   const qs = (p: number) => `?${new URLSearchParams({ ...(q ? { q } : {}), page: String(p) })}`;
 
   return (
-    <AdminShell session={session} base={base} title={category.name}>
+    <AdminShell title={category.name}>
       <Link href={`${base}/forum`} className="text-sm text-[var(--accent-color)] underline underline-offset-2">All categories</Link>
       {error && <Notice tone="error">{error}</Notice>}
       {saved === "deleted" && <Notice>Thread deleted.</Notice>}

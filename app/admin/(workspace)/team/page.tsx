@@ -40,13 +40,12 @@ export default async function TeamPage({
 }: {
   searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
-  const session = await requireAdmin("president");
-  const { base } = session;
+  await requireAdmin("president");
   const { saved, error } = await searchParams;
   const [admins, names, phones] = await Promise.all([listAdmins(), namesOf(), phonesOf()]);
 
   return (
-    <AdminShell session={session} base={base} title="Team">
+    <AdminShell title="Team">
       {saved && <Notice>Saved. Changes apply on the person&apos;s next click; removed admins are signed out immediately.</Notice>}
       {error && ERRORS[error] && <Notice tone="error">{ERRORS[error]}</Notice>}
 

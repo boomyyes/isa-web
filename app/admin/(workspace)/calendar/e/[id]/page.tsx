@@ -23,14 +23,14 @@ export default async function CalendarEventPage({
 
   if (!event) {
     return (
-      <AdminShell session={session} base={base} title="Not found">
+      <AdminShell title="Not found">
         <Link href={`${base}/calendar`} className="text-sm text-[var(--accent-color)] underline">Back to calendar</Link>
       </AdminShell>
     );
   }
 
   return (
-    <AdminShell session={session} base={base} title={event.title}>
+    <AdminShell title={event.title}>
       <Link href={`${base}/calendar?m=${event.date.slice(0, 7)}`} className="text-sm text-[var(--accent-color)] underline underline-offset-2">
         Back to calendar
       </Link>

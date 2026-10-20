@@ -24,7 +24,7 @@ export default async function EditAnnouncementPage({
   const a = await getAnnouncement(id);
 
   return (
-    <AdminShell session={session} base={base} title="Edit announcement">
+    <AdminShell title="Edit announcement">
       <Link href={`${base}/announcements`} className="text-sm text-[var(--accent-color)] underline underline-offset-2">Back to announcements</Link>
       {error && <Notice tone="error">{error}</Notice>}
       {!a ? (

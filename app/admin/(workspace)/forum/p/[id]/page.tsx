@@ -22,7 +22,7 @@ export default async function EditPostPage({
   const minutesLeft = post ? editMinutesLeft(post) : 0;
 
   return (
-    <AdminShell session={session} base={base} title="Edit post">
+    <AdminShell title="Edit post">
       {post && (
         <Link href={`${base}/forum/t/${post.threadId}`} className="text-sm text-[var(--accent-color)] underline underline-offset-2">Back to the thread</Link>
       )}

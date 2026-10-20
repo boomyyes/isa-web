@@ -5,11 +5,11 @@ import { listAudit } from "@/lib/admin/store";
 export const dynamic = "force-dynamic";
 
 export default async function AuditPage() {
-  const session = await requireAdmin("president");
+  await requireAdmin("president");
   const entries = await listAudit();
 
   return (
-    <AdminShell session={session} base={session.base} title="Audit log">
+    <AdminShell title="Audit log">
       <p className="text-sm text-[var(--text-secondary)]">
         Every sign-in and change, newest first. Entries are kept for one year.
       </p>

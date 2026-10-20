@@ -35,7 +35,7 @@ export default async function SubmissionPage({
 
   if (!sub) {
     return (
-      <AdminShell session={session} base={base} title="Not found">
+      <AdminShell title="Not found">
         <p className="text-sm text-[var(--text-secondary)]">
           No submission {id}. It may have passed its retention date or been erased.{" "}
           <Link href={`${base}/inbox`} className="text-[var(--accent-color)] underline">
@@ -50,7 +50,7 @@ export default async function SubmissionPage({
   const fields = SHEET_LAYOUT[sub.form].columns;
 
   return (
-    <AdminShell session={session} base={base} title={`${FORMS[sub.form].label} ${sub.id}`}>
+    <AdminShell title={`${FORMS[sub.form].label} ${sub.id}`}>
       {saved && <Notice>Saved. The sheet updates on its next sync.</Notice>}
       {error === "denied" && <Notice tone="error">Viewers can&apos;t change submissions.</Notice>}
 

@@ -1,6 +1,7 @@
 // Session lookups for admin pages (server components) and admin API routes.
 
 import "server-only";
+import { cache } from "react";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SESSION_COOKIE, SESSION_TTL_SECONDS, adminBase } from "./config";
@@ -11,17 +12,24 @@ import { can, hasAnyCap, hasCap, readSession, sessionEmail, sessionFor, type Cap
  * For pages: the session, or a redirect to the login page. Members who haven't
  * acknowledged the current internal notice are sent there first.
  */
-export async function requireAdmin(
-  min: Role = "jointcore",
-  { notice = true }: { notice?: boolean } = {}
-): Promise<Session & { base: string }> {
+// Once per request: the workspace layout and the page both ask, in parallel.
+const lookup = cache(async () => {
   const base = adminBase((await headers()).get("host"));
   // Two round trips, not three: once the cookie gives the email, access, name
   // and the notice check go out together. Every admin page waits on this, and
   // Redis and the database sit in different regions, so each hop counts.
   const email = await sessionEmail((await cookies()).get(SESSION_COOKIE)?.value);
-  if (!email) redirect(`${base}/login`);
-  const [session, mustAck] = await Promise.all([sessionFor(email), notice ? needsNotice(email) : false]);
+  if (!email) return { base, session: null, mustAck: false };
+  const [session, mustAck] = await Promise.all([sessionFor(email), needsNotice(email)]);
+  return { base, session, mustAck };
+});
+
+export async function requireAdmin(
+  min: Role = "jointcore",
+  { notice = true }: { notice?: boolean } = {}
+): Promise<Session & { base: string }> {
+  const { base, session, mustAck: unacked } = await lookup();
+  const mustAck = notice && unacked;
   if (!session) redirect(`${base}/login`);
   if (mustAck) redirect(`${base}/notice`);
   if (!can(session.role, min)) redirect(`${base}/?denied=1`);

@@ -25,7 +25,7 @@ export default async function BillPage({
   const seesAll = hasAnyCap(session, ["finance.approve", "finance.audit"]);
   if (!found || (!mine && !seesAll)) {
     return (
-      <AdminShell session={session} base={base} title="Bill not found">
+      <AdminShell title="Bill not found">
         <Link href={`${base}/finance/bills`} className="text-sm text-[var(--accent-color)] underline">Back to bills</Link>
       </AdminShell>
     );
@@ -37,7 +37,7 @@ export default async function BillPage({
   const canEditReceipts = bill.status === "submitted" && (mine || approver || canDecide);
 
   return (
-    <AdminShell session={session} base={base} title={`${bill.vendor} · ${formatPaise(bill.amountPaise)}`}>
+    <AdminShell title={`${bill.vendor} · ${formatPaise(bill.amountPaise)}`}>
       <Link href={`${base}/finance/bills`} className="text-sm text-[var(--accent-color)] underline underline-offset-2">Back to bills</Link>
       {sp.error && <Notice tone="error">{sp.error}</Notice>}
       {sp.saved && <Notice>Saved.</Notice>}

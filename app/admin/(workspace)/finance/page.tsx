@@ -32,7 +32,7 @@ export default async function FinanceOverviewPage({
   const exportQs = new URLSearchParams({ ...(from ? { from } : {}), ...(to ? { to } : {}) });
 
   return (
-    <AdminShell session={session} base={base} title="Treasury overview">
+    <AdminShell title="Treasury overview">
       {sp.error && <Notice tone="error">{sp.error}</Notice>}
       {sp.saved && <Notice>Saved.</Notice>}
 

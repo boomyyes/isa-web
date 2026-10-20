@@ -19,7 +19,7 @@ export default async function InboxPage({
   const subs = await listSubmissions({ form, q, role: session.role });
 
   return (
-    <AdminShell session={session} base={base} title="Inbox">
+    <AdminShell title="Inbox">
       {denied && <Notice tone="error">Your role doesn&apos;t allow that.</Notice>}
       {error === "missing" && <Notice tone="error">That submission no longer exists.</Notice>}
 

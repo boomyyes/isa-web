@@ -11,7 +11,7 @@ export default async function ContentIndexPage() {
   const { base } = session;
 
   return (
-    <AdminShell session={session} base={base} title="Website content">
+    <AdminShell title="Website content">
       {!githubConfigured() && (
         <Notice tone="error">Publishing isn&apos;t set up: GITHUB_CONTENT_TOKEN is missing on this deployment.</Notice>
       )}

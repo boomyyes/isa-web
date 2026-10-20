@@ -6,7 +6,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense, use, useLayoutEffect, useRef } from "react";
+import { Suspense, use, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
 import {
   BookOpen,
   CalendarDays,
@@ -57,8 +57,67 @@ export type AdminNavSection = {
   items: { href: string; label: string; icon: NavIcon; badge?: keyof NavCounts }[];
 };
 
+// The layout fetches the counts once; after that this store holds the latest,
+// shared by the sidebar badges, the bell and the drawer. Null until it changes.
+let live: NavCounts | null = null;
+const listeners = new Set<() => void>();
+const setLive = (next: NavCounts) => {
+  live = next;
+  listeners.forEach((notify) => notify());
+};
+const subscribe = (notify: () => void) => {
+  listeners.add(notify);
+  return () => void listeners.delete(notify);
+};
+
+const onAnnouncements = (pathname: string) => /\/announcements\/?$/.test(pathname);
+
+function useCount(counts: Promise<NavCounts>, name: keyof NavCounts) {
+  const here = onAnnouncements(usePathname());
+  const initial = use(counts);
+  const current = useSyncExternalStore(subscribe, () => live, () => null) ?? initial;
+  useEffect(() => {
+    // Opening Announcements marks everything read on the server.
+    if (here && (live ?? initial).unread) setLive({ ...(live ?? initial), unread: 0 });
+  }, [here, initial]);
+  return name === "unread" && here ? 0 : current[name];
+}
+
+/**
+ * Keeps the badges current without a reload. The server publishes a bare
+ * "something changed" on Ably; this refetches the counts from our own API, so
+ * nothing about announcements or bills passes through Ably. Renders nothing.
+ */
+export function LiveUpdates() {
+  useEffect(() => {
+    let closed = false;
+    let realtime: import("ably").Realtime | null = null;
+    const refetch = async () => {
+      const res = await fetch("/api/admin/live/counts", { cache: "no-store" }).catch(() => null);
+      if (!res?.ok || closed) return;
+      const next = await res.json().catch(() => null);
+      if (next) setLive(next);
+    };
+    // Loaded after the page, so the Ably client never weighs on first paint.
+    import("ably").then(({ Realtime }) => {
+      if (closed) return;
+      realtime = new Realtime({ authUrl: "/api/admin/live/token", authMethod: "GET" });
+      // Every (re)connect refetches, which also covers signals missed while asleep or offline.
+      realtime.connection.on("connected", refetch);
+      realtime.channels.get("chat:_workspace").subscribe(refetch); // WORKSPACE_ID in lib/ably.ts
+    }).catch(() => {
+      // Offline or a failed chunk: badges update on the next load instead.
+    });
+    return () => {
+      closed = true;
+      realtime?.close();
+    };
+  }, []);
+  return null;
+}
+
 function CountBadge({ counts, name }: { counts: Promise<NavCounts>; name: keyof NavCounts }) {
-  const n = use(counts)[name];
+  const n = useCount(counts, name);
   if (!n) return null;
   return (
     <span className="rounded-full bg-[var(--accent-color)] px-1.5 py-0.5 font-jetbrains text-[10px] font-bold tabular-nums text-[var(--bg-color)]">
@@ -70,7 +129,7 @@ function CountBadge({ counts, name }: { counts: Promise<NavCounts>; name: keyof 
 
 /** The unread dot on the top-bar bell. */
 export function BellDot({ counts }: { counts: Promise<NavCounts> }) {
-  const n = use(counts).unread;
+  const n = useCount(counts, "unread");
   if (!n) return null;
   return (
     <>
@@ -102,13 +161,11 @@ function currentHref(sections: AdminNavSection[], pathname: string, home: string
   return best;
 }
 
-const PILL_KEY = "admin-nav-pill";
-
 /**
- * Slides the glowing pill onto the current item. Each admin page renders a
- * fresh shell, so the pill's last position is kept in sessionStorage (per tab)
- * and the new pill starts there, then glides to its own item. Positioned in a
- * layout effect, before paint, and written straight to the DOM: no re-render.
+ * Slides the glowing pill onto the current item. The nav persists across
+ * pages, so the pill glides from wherever it last was; the first placement
+ * skips the transition. Positioned in a layout effect, before paint, and
+ * written straight to the DOM: no re-render.
  */
 function useSlidingPill(navRef: React.RefObject<HTMLElement | null>, pillRef: React.RefObject<HTMLDivElement | null>) {
   const pathname = usePathname();
@@ -121,29 +178,16 @@ function useSlidingPill(navRef: React.RefObject<HTMLElement | null>, pillRef: Re
       return;
     }
     // The copy inside the closed mobile drawer has no layout; measuring it
-    // would save a zero position and fling the desktop pill to the top.
+    // would put the pill at the top.
     if (target.offsetHeight === 0) return;
-    const to = { top: target.offsetTop, height: target.offsetHeight };
-    let from = to;
-    try {
-      from = JSON.parse(sessionStorage.getItem(PILL_KEY) ?? "null") ?? to;
-    } catch {
-      // Storage blocked: the pill just appears in place.
-    }
-    const place = ({ top, height }: { top: number; height: number }) => {
-      pill.style.transform = `translateY(${top}px)`;
-      pill.style.height = `${height}px`;
-    };
-    pill.style.transition = "none";
+    const first = pill.style.opacity !== "1";
+    if (first) pill.style.transition = "none";
+    pill.style.transform = `translateY(${target.offsetTop}px)`;
+    pill.style.height = `${target.offsetHeight}px`;
     pill.style.opacity = "1";
-    place(from);
-    void pill.offsetHeight; // commit the start position before animating
-    pill.style.transition = "";
-    place(to);
-    try {
-      sessionStorage.setItem(PILL_KEY, JSON.stringify(to));
-    } catch {
-      // Not remembered; next page starts the pill in place.
+    if (first) {
+      void pill.offsetHeight; // commit the position before re-enabling transitions
+      pill.style.transition = "";
     }
   }, [navRef, pillRef, pathname]);
 }
@@ -161,6 +205,8 @@ export function AdminNav({
   const navRef = useRef<HTMLElement>(null);
   const pillRef = useRef<HTMLDivElement>(null);
   useSlidingPill(navRef, pillRef);
+  // The frame persists across pages, so the mobile drawer has to be shut by hand.
+  useEffect(() => navRef.current?.closest("details")?.removeAttribute("open"), [pathname]);
   // On admin.isarait.in the URL has no /admin prefix while `home` may be ""
   // (subdomain) or "/admin" (path mode); normalise both to compare.
   const root = home || "/";

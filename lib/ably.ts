@@ -38,8 +38,15 @@ export function subscribeTokenRequest(email: string, channelIds: string[] | null
   });
 }
 
-/** Tells listeners to refetch. Best effort: a missed signal is caught by the client's periodic refresh. */
-export async function signal(channelId: string, kind: "new" | "deleted") {
+/**
+ * Every admin tab listens on this one for "a sidebar count changed", then
+ * refetches its own counts. A chat channel id because the API key only covers
+ * chat:*; real ids are UUIDs, so it can't collide. Keep in step with LiveUpdates.
+ */
+export const WORKSPACE_ID = "_workspace";
+
+/** Tells listeners to refetch. Best effort: a missed signal is caught by the client's periodic refresh or reconnect. */
+export async function signal(channelId: string, kind: "new" | "deleted" | "announcements" | "bills") {
   if (!ablyConfigured()) return;
   try {
     await client().channels.get(channelName(channelId)).publish(kind, null);

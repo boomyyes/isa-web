@@ -2,6 +2,7 @@
 
 import { after } from "next/server";
 import { adminMailConfigured, sendAnnouncementEmails } from "@/lib/admin/mail";
+import { signal, WORKSPACE_ID } from "@/lib/ably";
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
 import { audit, hasCap, listAdmins, nameOf } from "@/lib/admin/store";
 import {
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
     const existing = await getAnnouncement(id);
     if (!existing || !(await deleteAnnouncement(id))) return adminRedirect(request, "/announcements?error=missing");
     await audit(session.email, `deleted announcement "${existing.title}"`);
+    after(() => signal(WORKSPACE_ID, "announcements"));
     return adminRedirect(request, "/announcements?saved=deleted");
   }
 
@@ -51,6 +53,7 @@ export async function POST(request: Request) {
   } else {
     await createAnnouncement(parsed.data, session.email);
     await audit(session.email, `posted announcement "${parsed.data.title}"`);
+    after(() => signal(WORKSPACE_ID, "announcements"));
     // Everyone else on the team hears about it by email. New posts only, not
     // edits, so fixing a typo doesn't mail the whole team again.
     const { title, body } = parsed.data;

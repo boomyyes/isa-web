@@ -8,14 +8,13 @@ export const dynamic = "force-dynamic";
 
 export default async function BudgetsPage({ searchParams }: { searchParams: Promise<{ error?: string; saved?: string }> }) {
   const session = await requireAnyCapability(["finance.approve", "finance.audit"]);
-  const { base } = session;
   const sp = await searchParams;
   const approver = hasCap(session, "finance.approve");
   const list = await listBudgets();
   const blank = { id: "", name: "", description: null as string | null, allocatedPaise: 0, archived: false };
 
   return (
-    <AdminShell session={session} base={base} title="Budgets">
+    <AdminShell title="Budgets">
       {sp.error && <Notice tone="error">{sp.error}</Notice>}
       {sp.saved && <Notice>Saved.</Notice>}
       <p className="text-sm text-[var(--text-secondary)]">

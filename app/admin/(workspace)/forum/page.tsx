@@ -16,7 +16,7 @@ export default async function ForumPage({ searchParams }: { searchParams: Promis
   const categories = all.filter((c) => seesDomain(session, c.domain));
 
   return (
-    <AdminShell session={session} base={base} title="Forum">
+    <AdminShell title="Forum">
       {saved && <Notice>Saved.</Notice>}
       {error && <Notice tone="error">{error}</Notice>}
 

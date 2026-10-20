@@ -114,8 +114,6 @@ export default async function DashboardPage({
 
   return (
     <AdminShell
-      session={session}
-      base={base}
       title={
         firstName ? (
           <>

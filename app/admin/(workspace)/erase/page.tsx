@@ -9,12 +9,11 @@ export default async function ErasePage({
 }: {
   searchParams: Promise<{ done?: string; error?: string }>;
 }) {
-  const session = await requireAdmin("president");
-  const { base } = session;
+  await requireAdmin("president");
   const { done, error } = await searchParams;
 
   return (
-    <AdminShell session={session} base={base} title="Erasure requests">
+    <AdminShell title="Erasure requests">
       {done !== undefined && (
         <Notice>
           Erased {done} submission(s). Their sheet rows are deleted on the next sync. Reply to the

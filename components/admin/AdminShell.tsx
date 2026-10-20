@@ -2,11 +2,10 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Bell, LogOut, Menu, ScrollText } from "lucide-react";
 import { can, hasAnyCap, hasCap, ROLE_LABELS, type Capability, type Role, type Session } from "@/lib/admin/store";
-import { unreadCount } from "@/lib/admin/announcements";
-import { countBills } from "@/lib/admin/finance";
-import { dbConfigured } from "@/lib/db";
+import { navCounts } from "@/lib/admin/navCounts";
+import { ablyConfigured } from "@/lib/ably";
 import { Suspense } from "react";
-import { AdminNav, BellDot, type AdminNavSection, type NavCounts, type NavIcon } from "./AdminNav";
+import { AdminNav, BellDot, LiveUpdates, type AdminNavSection, type NavIcon } from "./AdminNav";
 
 type NavItem = { path: string; label: string; icon: NavIcon; role?: Role; cap?: Capability; anyCap?: Capability[] };
 
@@ -101,31 +100,17 @@ function initials(session: Session) {
   return (parts.length > 1 ? parts[0][0] + parts[1][0] : source.slice(0, 2)).toUpperCase();
 }
 
-export async function AdminShell({
-  session,
-  base,
-  title,
-  subtitle,
-  children,
-}: {
-  session: Session;
-  base: string;
-  title: ReactNode;
-  /** One line under the title. The dashboard uses it for the greeting. */
-  subtitle?: ReactNode;
-  children: ReactNode;
-}) {
+/**
+ * The sidebar and header, drawn once by app/admin/(workspace)/layout.tsx and
+ * kept across navigations, so only the page area (AdminShell) changes.
+ */
+export async function AdminFrame({ session, base, children }: { session: Session; base: string; children: ReactNode }) {
   const canApprove = hasCap(session, "finance.decide");
 
   // Badges, not blockers. Started here but never awaited: the promise goes to
   // the client nav, which shows each count when it arrives, so the page itself
-  // never waits on these queries. A failure just means no badge.
-  const counts: Promise<NavCounts> = dbConfigured()
-    ? Promise.all([
-        unreadCount(session.email).catch(() => 0),
-        canApprove ? countBills("submitted").catch(() => 0) : 0,
-      ]).then(([unread, awaiting]) => ({ unread, awaiting }))
-    : Promise.resolve({ unread: 0, awaiting: 0 });
+  // never waits on these queries. LiveUpdates keeps them current after that.
+  const counts = navCounts(session);
 
   const visible = (item: NavItem) =>
     (!item.role || can(session.role, item.role)) &&
@@ -185,10 +170,12 @@ export async function AdminShell({
         </aside>
 
         <div className="min-w-0 flex-1">
-          <header className="flex flex-wrap items-center gap-3 md:gap-4">
+          {/* One grid for the header row and the page below it. The page's title
+              (AdminShell) lands in the row's free column through display:contents. */}
+          <div className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-x-3 md:gap-x-4 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
             {/* Below lg the sidebar is a drawer. A <details>, so it needs no
-                JS, and it closes on its own because each page renders a fresh shell. */}
-            <details className="lg:hidden">
+                JS; AdminNav closes it after each navigation. */}
+            <details className="col-start-1 row-start-1 lg:hidden">
               <summary
                 aria-label="Menu"
                 className={`${iconButtonClass} cursor-pointer list-none [&::-webkit-details-marker]:hidden`}
@@ -201,16 +188,9 @@ export async function AdminShell({
               </div>
             </details>
 
-            <div className="min-w-0 flex-1">
-              <h1 className="truncate text-2xl font-semibold tracking-tight text-[var(--text-primary)] md:text-3xl">
-                {title}
-              </h1>
-              {subtitle && <p className="mt-0.5 text-sm text-[var(--text-secondary)]">{subtitle}</p>}
-            </div>
-
             <Link
               href={`${base}/announcements`}
-              className={iconButtonClass}
+              className={`${iconButtonClass} col-start-3 row-start-1 lg:col-start-2`}
             >
               <Bell aria-hidden className="size-5" />
               <span className="sr-only">Announcements</span>
@@ -221,7 +201,7 @@ export async function AdminShell({
             <Link
               href={`${base}/profile`}
               title="Your profile"
-              className="flex items-center gap-3 rounded-full py-1 pl-1 pr-3 transition hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]"
+              className="col-start-4 row-start-1 flex items-center gap-3 rounded-full py-1 pl-1 pr-3 transition lg:col-start-3 hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-active)]"
             >
               <span className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-[var(--border-active)]/40 to-[var(--accent-color)]/40 text-sm font-bold text-[var(--text-primary)]">
                 {initials(session)}
@@ -236,11 +216,60 @@ export async function AdminShell({
                 </span>
               </span>
             </Link>
-          </header>
-
-          <main className="mt-6 space-y-5">{children}</main>
+            <div className="contents">{children}</div>
+            {ablyConfigured() && <LiveUpdates />}
+          </div>
         </div>
       </div>
     </div>
+  );
+}
+
+const titleCell = "col-start-2 row-start-1 min-w-0 lg:col-start-1";
+const mainCell = "col-span-full mt-6 space-y-5";
+
+/** A page's title (into the frame's header row) and its content. */
+export function AdminShell({
+  title,
+  subtitle,
+  children,
+}: {
+  title: ReactNode;
+  /** One line under the title. The dashboard uses it for the greeting. */
+  subtitle?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <>
+      <div className={titleCell}>
+        <h1 className="truncate text-2xl font-semibold tracking-tight text-[var(--text-primary)] md:text-3xl">
+          {title}
+        </h1>
+        {subtitle && <p className="mt-0.5 text-sm text-[var(--text-secondary)]">{subtitle}</p>}
+      </div>
+      <main className={mainCell}>{children}</main>
+    </>
+  );
+}
+
+/** The page area while a page loads: the same cells, pulsing. */
+export function AdminShellSkeleton() {
+  // Real panels, empty, so the page fills in rather than swapping in.
+  const block = "admin-panel animate-pulse";
+  return (
+    <>
+      <div className={titleCell} aria-busy>
+        <div className="h-8 w-48 animate-pulse rounded-xl bg-white/[0.06] md:h-9" />
+        <span className="sr-only">Loading</span>
+      </div>
+      <main className={mainCell}>
+        <div className={`${block} h-28`} />
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className={`${block} h-48`} />
+          <div className={`${block} h-48`} />
+        </div>
+        <div className={`${block} h-64`} />
+      </main>
+    </>
   );
 }

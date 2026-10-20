@@ -5,7 +5,9 @@
 //   president+      — the yearly treasury amount, and the financial-year purge
 // Deciders may act on their own bills too; every decision is in the audit log.
 
+import { after } from "next/server";
 import { adminRedirect, sessionFrom } from "@/lib/admin/session";
+import { signal, WORKSPACE_ID } from "@/lib/ably";
 import { audit, can, hasCap } from "@/lib/admin/store";
 import {
   addEntry,
@@ -107,6 +109,7 @@ async function handle(request: Request) {
     if (!budget || budget.archived) return adminRedirect(request, `/finance/bills/new?${err("Choose an open budget.")}`);
     const id = await createBill(parsed.data, me);
     await audit(me, `submitted a bill of ${formatPaise(parsed.data.amountPaise)} to "${budget.name}"`, id);
+    after(() => signal(WORKSPACE_ID, "bills"));
     return adminRedirect(request, `/finance/bills/${id}?added=1`);
   }
 
@@ -159,6 +162,7 @@ async function handle(request: Request) {
       if (found.receipts.length === 0) return adminRedirect(request, `${back}?${err("A bill needs at least one receipt before it can be approved.")}`);
       if (!(await decideBill(bill.id, "approved", me))) return adminRedirect(request, `${back}?${err("This bill has already been decided.")}`);
       await audit(me, `approved a bill of ${formatPaise(bill.amountPaise)}`, bill.id);
+      after(() => signal(WORKSPACE_ID, "bills"));
       return adminRedirect(request, `${back}?saved=1`);
     }
 
@@ -166,6 +170,7 @@ async function handle(request: Request) {
     if (!reason) return adminRedirect(request, `${back}?${err("Give a reason for rejecting.")}`);
     if (!(await decideBill(bill.id, "rejected", me, reason))) return adminRedirect(request, `${back}?${err("This bill has already been decided.")}`);
     await audit(me, `rejected a bill of ${formatPaise(bill.amountPaise)}`, bill.id);
+    after(() => signal(WORKSPACE_ID, "bills"));
     return adminRedirect(request, `${back}?saved=1`);
   }
 

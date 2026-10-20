@@ -17,7 +17,6 @@ export default async function NoticePage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const session = await requireAdmin("jointcore", { notice: false });
-  const { base } = session;
   const { error } = await searchParams;
   let acked: Date | null = null;
   try {
@@ -27,7 +26,7 @@ export default async function NoticePage({
   }
 
   return (
-    <AdminShell session={session} base={base} title="Notice to committee members">
+    <AdminShell title="Notice to committee members">
       {error && <Notice tone="error">That couldn&apos;t be saved. Try again in a moment.</Notice>}
       {!acked && (
         <Notice>Please read this before using the workspace. It explains what the workspace holds about you.</Notice>
