@@ -1,8 +1,8 @@
 const STYLE: Record<string, string> = {
-  submitted: "bg-amber-500/15 text-amber-400",
+  submitted: "bg-warning/15 text-warning",
   approved: "bg-[var(--border-active)]/15 text-[var(--border-active)]",
-  rejected: "bg-red-500/15 text-red-400",
-  paid: "bg-emerald-500/15 text-emerald-400",
+  rejected: "bg-danger/15 text-danger",
+  paid: "bg-success/15 text-success",
 };
 
 export function BillStatus({ status }: { status: string }) {

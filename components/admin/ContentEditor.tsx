@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ChevronRight, Loader2, Plus, Trash2, Upload } from "lucide-react";
+import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import {
   collectionByName,
@@ -167,7 +168,7 @@ export function ContentEditor({
           </p>
         )}
         {status.kind === "error" && (
-          <p role="alert" className="text-sm text-red-400">
+          <p role="alert" className="text-sm text-danger">
             {status.message}
             {status.conflict && " Reload the page to get their version; copy anything you need first."}
           </p>
@@ -177,20 +178,19 @@ export function ContentEditor({
             {status.kind === "busy" && <Loader2 className="h-4 w-4 animate-spin" />}
             Publish to {commitBase}
           </button>
-          <button
+          <ConfirmButton
             type="button"
             className={btn}
             disabled={!dirty || status.kind === "busy"}
-            onClick={() => {
-              if (confirm("Discard all unpublished changes?")) {
-                setValue(base.value);
-                setErrors({});
-                setStatus({ kind: "idle" });
-              }
+            message="Discard all unpublished changes?"
+            onConfirm={() => {
+              setValue(base.value);
+              setErrors({});
+              setStatus({ kind: "idle" });
             }}
           >
             Discard changes
-          </button>
+          </ConfirmButton>
         </div>
       </div>
     </div>
@@ -250,7 +250,7 @@ function FieldEditor({
   const id = path.join("-");
   const error = errors[path.join(".")];
   const help = "help" in field && field.help ? <p className="mt-1 text-xs text-[var(--text-secondary)]">{field.help}</p> : null;
-  const err = error ? <p className="mt-1 text-xs text-red-400">{error}</p> : null;
+  const err = error ? <p className="mt-1 text-xs text-danger">{error}</p> : null;
   const label = (
     <label htmlFor={id} className={labelClass}>
       {field.label}
@@ -272,7 +272,7 @@ function FieldEditor({
             type={field.type === "date" ? "date" : "text"}
             value={str}
             onChange={(e) => update(path, e.target.value)}
-            className={`${fieldClass} ${error ? "!border-red-500/70" : ""}`}
+            className={`${fieldClass} ${error ? "!border-danger/70" : ""}`}
           />
           {help}
           {err}
@@ -282,7 +282,7 @@ function FieldEditor({
       return (
         <div>
           {label}
-          <textarea id={id} rows={5} value={str} onChange={(e) => update(path, e.target.value)} className={`${fieldClass} resize-y ${error ? "!border-red-500/70" : ""}`} />
+          <textarea id={id} rows={5} value={str} onChange={(e) => update(path, e.target.value)} className={`${fieldClass} resize-y ${error ? "!border-danger/70" : ""}`} />
           {help}
           {err}
         </div>
@@ -312,29 +312,8 @@ function FieldEditor({
       );
     case "image":
       return <ImageField field={field} id={id} value={str} path={path} update={update} label={label} help={help} err={err} />;
-    case "paragraphs": {
-      const items = Array.isArray(value) ? (value as string[]) : [];
-      return (
-        <div>
-          {label}
-          {help}
-          <div className="mt-2 space-y-3">
-            {items.map((p, i) => (
-              <div key={i} className="flex gap-2">
-                <textarea rows={4} value={p} onChange={(e) => update([...path, i], e.target.value)} className={`${fieldClass} resize-y`} aria-label={`Paragraph ${i + 1}`} />
-                <button type="button" className={btn} onClick={() => update(path, items.filter((_, j) => j !== i))} aria-label="Remove paragraph">
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
-            <button type="button" className={btn} onClick={() => update(path, [...items, ""])}>
-              <Plus className="h-3.5 w-3.5" /> Add paragraph
-            </button>
-          </div>
-          {err}
-        </div>
-      );
-    }
+    case "paragraphs":
+      return <ParagraphsEditor value={value} path={path} update={update} label={label} help={help} err={err} />;
     case "group":
       return (
         <fieldset className="rounded-2xl border border-[var(--border-color)] p-4">
@@ -349,6 +328,79 @@ function FieldEditor({
     case "list":
       return <ListEditor field={field} value={value} path={path} update={update} errors={errors} showLabel />;
   }
+}
+
+let lastKey = 0;
+const freshKeys = (n: number) => Array.from({ length: n }, () => ++lastKey);
+
+/**
+ * Edits to a list that keep a stable React key per item, so moving or removing
+ * one doesn't hand its open <details> or focused field to its neighbour.
+ */
+function useKeyedList<T extends Json>(items: T[], path: Path, update: (path: Path, next: Json) => void) {
+  const [keys, setKeys] = useState(() => freshKeys(items.length));
+  // Replaced from outside (Discard): start the keys over.
+  let current = keys;
+  if (keys.length !== items.length) {
+    current = freshKeys(items.length);
+    setKeys(current);
+  }
+  const apply = (nextItems: T[], nextKeys: number[]) => {
+    setKeys(nextKeys);
+    update(path, nextItems);
+  };
+  const without = <U,>(list: U[], i: number) => list.filter((_, j) => j !== i);
+  const moved = <U,>(list: U[], from: number, to: number) => {
+    const copy = [...list];
+    const [m] = copy.splice(from, 1);
+    copy.splice(to, 0, m);
+    return copy;
+  };
+  return {
+    keys: current,
+    move: (from: number, to: number) => apply(moved(items, from, to), moved(current, from, to)),
+    remove: (i: number) => apply(without(items, i), without(current, i)),
+    add: (item: T) => apply([...items, item], [...current, ...freshKeys(1)]),
+  };
+}
+
+function ParagraphsEditor({
+  value,
+  path,
+  update,
+  label,
+  help,
+  err,
+}: {
+  value: Json;
+  path: Path;
+  update: (path: Path, next: Json) => void;
+  label: React.ReactNode;
+  help: React.ReactNode;
+  err: React.ReactNode;
+}) {
+  const items = Array.isArray(value) ? (value as string[]) : [];
+  const { keys, remove, add } = useKeyedList(items, path, update);
+  return (
+    <div>
+      {label}
+      {help}
+      <div className="mt-2 space-y-3">
+        {items.map((p, i) => (
+          <div key={keys[i]} className="flex gap-2">
+            <textarea rows={4} value={p} onChange={(e) => update([...path, i], e.target.value)} className={`${fieldClass} resize-y`} aria-label={`Paragraph ${i + 1}`} />
+            <button type="button" className={btn} onClick={() => remove(i)} aria-label="Remove paragraph">
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ))}
+        <button type="button" className={btn} onClick={() => add("")}>
+          <Plus className="h-3.5 w-3.5" /> Add paragraph
+        </button>
+      </div>
+      {err}
+    </div>
+  );
 }
 
 function ListEditor({
@@ -367,12 +419,7 @@ function ListEditor({
   showLabel?: boolean;
 }) {
   const items = Array.isArray(value) ? (value as Record<string, Json>[]) : [];
-  const move = (from: number, to: number) => {
-    const copy = [...items];
-    const [moved] = copy.splice(from, 1);
-    copy.splice(to, 0, moved);
-    update(path, copy);
-  };
+  const { keys, move, remove, add } = useKeyedList(items, path, update);
   const prefix = path.join(".");
   const hasErrorIn = (i: number) =>
     Object.keys(errors).some((k) => k === `${prefix ? `${prefix}.` : ""}${i}` || k.startsWith(`${prefix ? `${prefix}.` : ""}${i}.`));
@@ -382,7 +429,7 @@ function ListEditor({
       {showLabel && <p className={labelClass}>{field.label}</p>}
       <div className="space-y-2">
         {items.map((item, i) => (
-          <details key={i} className={`group rounded-xl border bg-[var(--card-color)]/40 ${hasErrorIn(i) ? "border-red-500/60" : "border-[var(--border-color)]"}`} open={hasErrorIn(i) || undefined}>
+          <details key={keys[i]} className={`group rounded-xl border bg-[var(--card-color)]/40 ${hasErrorIn(i) ? "border-danger/60" : "border-[var(--border-color)]"}`} open={hasErrorIn(i) || undefined}>
             <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 text-sm text-[var(--text-primary)]">
               <ChevronRight className="h-4 w-4 shrink-0 transition group-open:rotate-90" />
               <span className="min-w-0 flex-1 truncate">
@@ -395,17 +442,15 @@ function ListEditor({
               <button type="button" className={btn} disabled={i === items.length - 1} onClick={(e) => { e.preventDefault(); move(i, i + 1); }} aria-label="Move down">
                 <ArrowDown className="h-3.5 w-3.5" />
               </button>
-              <button
+              <ConfirmButton
                 type="button"
                 className={btn}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (confirm(`Remove "${String(item?.[field.itemTitle] || "this item")}"?`)) update(path, items.filter((_, j) => j !== i));
-                }}
+                message={`Remove "${String(item?.[field.itemTitle] || "this item")}"?`}
+                onConfirm={() => remove(i)}
                 aria-label="Remove"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-              </button>
+              </ConfirmButton>
             </summary>
             <div className="space-y-5 border-t border-[var(--border-color)] p-4">
               {field.fields.map((f) => (
@@ -415,7 +460,7 @@ function ListEditor({
           </details>
         ))}
       </div>
-      <button type="button" className={`${btn} mt-3`} onClick={() => update(path, [...items, emptyItem(field.fields)])}>
+      <button type="button" className={`${btn} mt-3`} onClick={() => add(emptyItem(field.fields))}>
         <Plus className="h-3.5 w-3.5" /> Add {field.label === "Items" ? "item" : `to ${field.label.toLowerCase()}`}
       </button>
     </div>

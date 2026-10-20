@@ -17,7 +17,7 @@ export function StatusBlock({ label, value, progress, className, ...props }: Sta
       {...props}
     >
       <span className="text-[var(--text-secondary)]">[</span>
-      {label && <span className="text-[var(--text-secondary)]">{label} //</span>}
+      {label && <span className="text-[var(--text-secondary)]">{label}{" //"}</span>}
       <span className="text-[var(--border-active)]">{value}</span>
       
       {progress !== undefined && (

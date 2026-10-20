@@ -16,7 +16,7 @@ export const iconButtonClass =
 export const pillActiveClass = `${pillClass} admin-glow border-[var(--border-active)]/50 text-[var(--text-primary)]`;
 
 export const dangerButtonClass =
-  "admin-press admin-press-shake inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-red-500/50 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400";
+  "admin-press admin-press-shake inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-danger/50 bg-danger/10 px-4 py-2 text-sm font-medium text-danger hover:bg-danger/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger";
 
 /** Rounded panel with a top highlight (admin-panel in globals.css). */
 export const cardClass = "admin-panel p-5 md:p-6";
@@ -39,9 +39,10 @@ export const formatTime = (iso: string) =>
 export function Notice({ tone = "info", children }: { tone?: "info" | "error"; children: ReactNode }) {
   const styles =
     tone === "error"
-      ? "border-red-500/40 bg-red-500/10 text-red-400"
+      ? "border-danger/40 bg-danger/10 text-danger"
       : "border-[var(--border-active)]/40 bg-[var(--border-active)]/10 text-[var(--text-primary)]";
-  return <p className={`rounded-2xl border px-4 py-3 text-sm ${styles}`}>{children}</p>;
+  // Announced: these appear after a save redirects, where nothing else tells a screen reader.
+  return <p role={tone === "error" ? "alert" : "status"} className={`rounded-2xl border px-4 py-3 text-sm ${styles}`}>{children}</p>;
 }
 
 const titleCell = "col-start-2 row-start-1 min-w-0 lg:col-start-1";

@@ -8,7 +8,7 @@ import { sameOrigin } from "@/lib/security";
 
 export const runtime = "nodejs";
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function handle(request: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!sameOrigin(request)) return new Response("Forbidden", { status: 403 });
   const session = await sessionFrom(request);
   if (!session) return adminRedirect(request, "/login");
@@ -31,4 +31,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   await audit(session.email, status ? `set status "${status}"` : "added a note", id);
   return adminRedirect(request, `/s/${id}?saved=1`);
+}
+
+export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+  try {
+    return await handle(request, context);
+  } catch (error) {
+    console.error("[submissions]", error);
+    const { id } = await context.params;
+    return adminRedirect(request, `/s/${encodeURIComponent(id)}?error=failed`);
+  }
 }

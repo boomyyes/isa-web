@@ -7,7 +7,7 @@ import { sameOrigin } from "@/lib/security";
 
 export const runtime = "nodejs";
 
-export async function POST(request: Request) {
+async function handle(request: Request) {
   if (!sameOrigin(request)) return new Response("Forbidden", { status: 403 });
   const session = await sessionFrom(request);
   if (!session) return adminRedirect(request, "/login");
@@ -24,4 +24,13 @@ export async function POST(request: Request) {
   // The audit keeps refs, not the address: the point is that it's gone.
   await audit(session.email, `erased ${refs.length} submission(s) on request`, refs.join(", ") || undefined);
   return adminRedirect(request, `/erase?done=${refs.length}`);
+}
+
+export async function POST(request: Request) {
+  try {
+    return await handle(request);
+  } catch (error) {
+    console.error("[erase]", error);
+    return adminRedirect(request, "/erase?error=failed");
+  }
 }

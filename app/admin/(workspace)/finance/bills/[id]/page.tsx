@@ -62,7 +62,7 @@ export default async function BillPage({
               <dt className="text-[var(--text-secondary)]">{bill.status === "rejected" ? "Rejected" : "Approved"}</dt>
               <dd className="text-[var(--text-primary)]">
                 {bill.decidedBy}, {bill.decidedAt && formatTime(bill.decidedAt.toISOString())}
-                {bill.rejectReason && <span className="block text-red-400">Reason: {bill.rejectReason}</span>}
+                {bill.rejectReason && <span className="block text-danger">Reason: {bill.rejectReason}</span>}
               </dd>
             </>
           )}
@@ -80,7 +80,7 @@ export default async function BillPage({
       <section className={cardClass}>
         <h2 className="font-jetbrains text-sm font-bold uppercase tracking-widest text-[var(--text-primary)]">Receipts</h2>
         {receipts.length === 0 ? (
-          <p className="mt-3 text-sm text-amber-400">No receipt attached yet.</p>
+          <p className="mt-3 text-sm text-warning">No receipt attached yet.</p>
         ) : (
           <ul className="mt-3 space-y-2 text-sm">
             {receipts.map((r, i) => (
@@ -94,7 +94,7 @@ export default async function BillPage({
                     <input type="hidden" name="action" value="receipt-remove" />
                     <input type="hidden" name="billId" value={bill.id} />
                     <input type="hidden" name="receiptId" value={r.id} />
-                    <button className="text-xs text-red-400 underline">Remove</button>
+                    <button className="text-xs text-danger underline">Remove</button>
                   </form>
                 )}
               </li>

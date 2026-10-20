@@ -109,7 +109,7 @@ export default async function LedgerPage({
             <tfoot>
               <tr className="border-t-2 border-white/10 font-semibold text-[var(--text-primary)] [&_td]:px-5 [&_td]:py-4">
                 <td className="px-4 py-3" colSpan={3}>Net (income − expense) for these entries</td>
-                <td className={`px-4 py-3 text-right ${net < 0 ? "text-red-400" : ""}`} colSpan={2}>{formatPaise(net)}</td>
+                <td className={`px-4 py-3 text-right ${net < 0 ? "text-danger" : ""}`} colSpan={2}>{formatPaise(net)}</td>
                 {approver && <td />}
               </tr>
             </tfoot>

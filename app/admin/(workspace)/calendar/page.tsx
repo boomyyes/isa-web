@@ -70,6 +70,7 @@ export default async function CalendarPage({
       {saved === "deleted" && <Notice>Deleted.</Notice>}
       {error === "denied" && <Notice tone="error">You don&apos;t have permission to change the calendar.</Notice>}
       {error === "missing" && <Notice tone="error">That event no longer exists.</Notice>}
+      {error === "failed" && <Notice tone="error">That couldn&apos;t be saved. Try again in a moment.</Notice>}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">

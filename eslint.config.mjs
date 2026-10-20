@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local, gitignored: a scratch folder and the session-notes plugin's files.
+    "mag.off/**",
+    ".remember/**",
   ]),
 ]);
 

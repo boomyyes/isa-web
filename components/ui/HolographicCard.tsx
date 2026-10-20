@@ -37,7 +37,7 @@ export const HolographicCard = React.forwardRef<HTMLDivElement, HolographicCardP
       <div
         ref={mergedRef}
         className={cn(
-          "relative overflow-hidden bg-white/5 dark:bg-[#1A1A1A]/90 border border-[var(--border-color)] transition-colors duration-300",
+          "relative overflow-hidden bg-white/5 dark:bg-dark-grid/90 border border-[var(--border-color)] transition-colors duration-300",
           !disableBackdropBlur && "backdrop-blur-sm",
           className
         )}

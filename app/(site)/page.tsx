@@ -20,7 +20,7 @@ export default async function Home() {
   return (
     <PageTransition>
       <SvgPipelines />
-      <main className="flex flex-col">
+      <main id="main" className="flex flex-col">
         <Hero />
         <VisionMission />
         <IsaacSpotlight pageCount={isaacPageCountValue} />

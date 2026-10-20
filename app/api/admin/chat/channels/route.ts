@@ -7,7 +7,7 @@ import { sameOrigin } from "@/lib/security";
 
 export const runtime = "nodejs";
 
-export async function POST(request: Request) {
+async function handle(request: Request) {
   if (!sameOrigin(request)) return new Response("Forbidden", { status: 403 });
   const session = await sessionFrom(request);
   if (!session) return adminRedirect(request, "/login");
@@ -34,4 +34,13 @@ export async function POST(request: Request) {
   await saveChannel(isUuid(id) ? id : undefined, parsed.data);
   await audit(session.email, `saved chat channel "${parsed.data.name}"`);
   return adminRedirect(request, "/chat?saved=1");
+}
+
+export async function POST(request: Request) {
+  try {
+    return await handle(request);
+  } catch (error) {
+    console.error("[chat channels]", error);
+    return adminRedirect(request, `/chat?error=${encodeURIComponent("That couldn't be saved. Try again in a moment.")}`);
+  }
 }

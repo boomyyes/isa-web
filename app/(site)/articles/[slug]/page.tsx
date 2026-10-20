@@ -42,7 +42,7 @@ export default async function ArticlePage(props: PageProps<"/articles/[slug]">) 
 
   return (
     <PageTransition>
-      <main className="mx-auto max-w-3xl px-6 pt-24 md:pt-32 pb-16 md:pb-24">
+      <main id="main" className="mx-auto max-w-3xl px-6 pt-24 md:pt-32 pb-16 md:pb-24">
         <Link
           href="/initiatives#articles"
           className="inline-flex items-center gap-2 font-jetbrains text-xs uppercase tracking-[0.2em] text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-color)]"

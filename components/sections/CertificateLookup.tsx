@@ -284,7 +284,7 @@ export function CertificateLookup() {
       {error && (
         <p
           role="alert"
-          className="mt-6 flex items-center justify-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 font-jetbrains text-sm text-red-400"
+          className="mt-6 flex items-center justify-center gap-2 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3 font-jetbrains text-sm text-danger"
         >
           <CircleAlert className="h-4 w-4 shrink-0" />
           {error}
@@ -490,7 +490,7 @@ function ChangeCodePanel({
       {error && (
         <p
           role="alert"
-          className="mt-3 flex items-center gap-2 font-jetbrains text-sm text-red-400"
+          className="mt-3 flex items-center gap-2 font-jetbrains text-sm text-danger"
         >
           <CircleAlert className="h-4 w-4 shrink-0" />
           {error}
@@ -577,8 +577,8 @@ function WorkshopCard({
               Digital Copy
             </AngularButton>
           ) : (
-            <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
-              <FileWarning className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+            <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/5 p-3">
+              <FileWarning className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
               <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
                 Your digital certificate hasn&apos;t been uploaded yet. Your
                 attendance is recorded, so it&apos;s on the way.{" "}

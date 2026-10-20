@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 
 const month = (date: string) => date.slice(0, 7);
 
-export async function POST(request: Request) {
+async function handle(request: Request) {
   if (!sameOrigin(request)) return new Response("Forbidden", { status: 403 });
   const session = await sessionFrom(request);
   if (!session) return adminRedirect(request, "/login");
@@ -45,4 +45,13 @@ export async function POST(request: Request) {
     await audit(session.email, `added calendar event "${parsed.data.title}"`);
   }
   return adminRedirect(request, `/calendar?m=${month(parsed.data.date)}&saved=1`);
+}
+
+export async function POST(request: Request) {
+  try {
+    return await handle(request);
+  } catch (error) {
+    console.error("[calendar]", error);
+    return adminRedirect(request, "/calendar?error=failed");
+  }
 }

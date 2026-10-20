@@ -8,7 +8,7 @@ import { AngularButton } from "@/components/ui/AngularButton";
  */
 export default function SiteError({ error, retry }: { error: Error & { digest?: string }; retry: () => void }) {
   return (
-    <main className="mx-auto flex min-h-[70vh] max-w-xl flex-col items-center justify-center gap-6 px-4 py-24 text-center">
+    <main id="main" className="mx-auto flex min-h-[70vh] max-w-xl flex-col items-center justify-center gap-6 px-4 py-24 text-center">
       <p className="font-jetbrains text-xs uppercase tracking-[0.3em] text-[var(--accent-color)]">Connection lost</p>
       <h1 className="text-3xl font-bold text-[var(--text-primary)] md:text-4xl">This page couldn&apos;t load</h1>
       <p className="text-[var(--text-secondary)]">

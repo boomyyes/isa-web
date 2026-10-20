@@ -113,7 +113,7 @@ function RequestLink() {
       {error && (
         <p
           role="alert"
-          className="mt-4 flex items-center justify-center gap-2 font-jetbrains text-sm text-red-400"
+          className="mt-4 flex items-center justify-center gap-2 font-jetbrains text-sm text-danger"
         >
           <CircleAlert className="h-4 w-4 shrink-0" />
           {error}
@@ -190,8 +190,8 @@ function RedeemLink({ token }: { token: string }) {
 
   if (state.status === "failed") {
     return (
-      <div className="rounded-2xl border border-red-500/40 bg-[var(--card-color)]/60 p-6 backdrop-blur-md md:p-8">
-        <CircleAlert className="h-8 w-8 text-red-400" />
+      <div className="rounded-2xl border border-danger/40 bg-[var(--card-color)]/60 p-6 backdrop-blur-md md:p-8">
+        <CircleAlert className="h-8 w-8 text-danger" />
         <h2 className="mt-4 font-jetbrains text-lg font-semibold text-[var(--text-primary)]">
           Link no longer valid
         </h2>
@@ -268,7 +268,7 @@ function RedeemLink({ token }: { token: string }) {
         {error && (
           <p
             role="alert"
-            className="mt-4 flex items-center gap-2 font-jetbrains text-sm text-red-400"
+            className="mt-4 flex items-center gap-2 font-jetbrains text-sm text-danger"
           >
             <CircleAlert className="h-4 w-4 shrink-0" />
             {error}

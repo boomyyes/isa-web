@@ -21,6 +21,7 @@ export default async function ErasePage({
         </Notice>
       )}
       {error === "confirm" && <Notice tone="error">The two addresses didn&apos;t match. Nothing was erased.</Notice>}
+      {error === "failed" && <Notice tone="error">That couldn&apos;t be saved. Try again in a moment.</Notice>}
 
       <section className={`${cardClass} space-y-3 text-sm text-[var(--text-secondary)]`}>
         <p>

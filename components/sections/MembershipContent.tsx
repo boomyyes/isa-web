@@ -111,7 +111,7 @@ const fadeUp = {
 
 export function MembershipContent() {
   return (
-    <main className="relative overflow-hidden">
+    <main id="main" className="relative overflow-hidden">
       {/* ============================= HERO ============================= */}
       <section className="relative mx-auto max-w-7xl px-6 pt-28 pb-20 md:pt-36 md:pb-28">
         {/* ambient glows */}
@@ -179,7 +179,7 @@ export function MembershipContent() {
               className="pointer-events-none absolute inset-0 -z-10 rounded-3xl opacity-40 blur-2xl"
               style={{ background: "var(--border-active)" }}
             />
-            <figure className="clip-angular relative overflow-hidden border border-[var(--border-active)] bg-white/5 p-8 backdrop-blur-xl md:p-10 dark:bg-[#0D0D0D]/60">
+            <figure className="clip-angular relative overflow-hidden border border-[var(--border-active)] bg-white/5 p-8 backdrop-blur-xl md:p-10 dark:bg-dark-bg/60">
               <div
                 aria-hidden
                 className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-70"
@@ -280,7 +280,7 @@ export function MembershipContent() {
       <section className="relative mx-auto max-w-7xl px-6 py-16 md:py-24">
         <m.div
           {...fadeUp}
-          className="clip-angular relative overflow-hidden border border-[var(--border-color)] bg-white/5 p-8 backdrop-blur-xl md:p-12 dark:bg-[#141414]/70"
+          className="clip-angular relative overflow-hidden border border-[var(--border-color)] bg-white/5 p-8 backdrop-blur-xl md:p-12 dark:bg-dark-card/70"
         >
           <div
             aria-hidden
@@ -327,7 +327,7 @@ export function MembershipContent() {
       <section className="relative mx-auto max-w-7xl px-6 py-16 md:py-28">
         <m.div
           {...fadeUp}
-          className="clip-angular relative overflow-hidden border border-[var(--border-active)] bg-white/5 p-8 backdrop-blur-2xl md:p-14 dark:bg-[#0D0D0D]/70"
+          className="clip-angular relative overflow-hidden border border-[var(--border-active)] bg-white/5 p-8 backdrop-blur-2xl md:p-14 dark:bg-dark-bg/70"
         >
           <div
             aria-hidden

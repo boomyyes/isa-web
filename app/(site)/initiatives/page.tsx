@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function InitiativesPage() {
   return (
     <PageTransition>
-      <main className="min-h-screen">
+      <main id="main" className="min-h-screen">
         <InitiativesHub />
       </main>
     </PageTransition>

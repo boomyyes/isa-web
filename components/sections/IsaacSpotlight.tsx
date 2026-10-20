@@ -213,7 +213,7 @@ export function IsaacSpotlight({ pageCount }: IsaacSpotlightProps) {
             <div className="p-6 border border-[var(--border-color)] bg-[var(--card-color)] clip-angular-reverse">
               <p className="text-xs font-jetbrains text-[var(--text-secondary)] mb-2">PRINT STATUS</p>
               <div className="flex items-center gap-4">
-                <div className={`w-3 h-3 animate-pulse ${isaac.printStatus === "Available" ? "bg-emerald-500" : "bg-red-500"}`} />
+                <div className={`w-3 h-3 animate-pulse ${isaac.printStatus === "Available" ? "bg-success" : "bg-danger"}`} />
                 <p className="text-xl font-bold font-inter text-[var(--text-primary)] uppercase">{isaac.printStatus}</p>
               </div>
             </div>

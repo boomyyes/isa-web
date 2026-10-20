@@ -168,14 +168,14 @@ export function Navbar() {
                     aria-current={active ? "page" : undefined}
                     style={{ backgroundImage: ACCENT_FILL }}
                     className={cn(
-                      "group relative mx-1 overflow-hidden rounded-full px-3.5 py-1.5 font-inter text-sm font-semibold text-[#1A1204]",
+                      "group relative mx-1 overflow-hidden rounded-full px-3.5 py-1.5 font-inter text-sm font-semibold text-nav-ink",
                       "shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] transition-shadow duration-300",
                       // The glow is inset and the ring sits on the pill itself:
                       // the island is overflow-hidden, so an outward halo would
                       // be sliced off at the island's edge.
                       active
-                        ? "ring-2 ring-[#F2D08A]"
-                        : "ring-1 ring-[#F2D08A]/60 hover:ring-2 hover:ring-[#F2D08A]"
+                        ? "ring-2 ring-nav-gold"
+                        : "ring-1 ring-nav-gold/60 hover:ring-2 hover:ring-nav-gold"
                     )}
                   >
                     {/* Glint, travelling inside the pill's own box. */}
@@ -270,7 +270,7 @@ export function Navbar() {
                       onClick={() => setIsOpen(false)}
                       aria-current={active ? "page" : undefined}
                       style={{ backgroundImage: ACCENT_FILL }}
-                      className="relative flex min-h-11 items-center gap-2 overflow-hidden rounded-xl px-3 py-2 font-inter text-sm font-semibold text-[#1A1204] shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] ring-1 ring-[#F2D08A]/60"
+                      className="relative flex min-h-11 items-center gap-2 overflow-hidden rounded-xl px-3 py-2 font-inter text-sm font-semibold text-nav-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] ring-1 ring-nav-gold/60"
                     >
                       <span
                         aria-hidden

@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 
-export async function POST(request: Request) {
+async function handle(request: Request) {
   if (!sameOrigin(request)) return json({ error: "Forbidden." }, 403);
   const session = await sessionFrom(request);
   if (!session) return json({ error: "Sign in again." }, 401);
@@ -31,4 +31,13 @@ export async function POST(request: Request) {
   if (!own) await audit(session.email, `removed a chat message by ${message.createdBy}`);
   await signal(message.channelId, "deleted");
   return json({ ok: true });
+}
+
+export async function POST(request: Request) {
+  try {
+    return await handle(request);
+  } catch (error) {
+    console.error("[chat delete]", error);
+    return json({ error: "That couldn't be deleted. Try again in a moment." }, 503);
+  }
 }

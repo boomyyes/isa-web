@@ -15,7 +15,7 @@ export function LegalPage({
   children: ReactNode;
 }) {
   return (
-    <main className="mx-auto max-w-3xl px-6 pt-24 md:pt-32 pb-16 md:pb-24">
+    <main id="main" className="mx-auto max-w-3xl px-6 pt-24 md:pt-32 pb-16 md:pb-24">
       <h1 className="font-jetbrains text-3xl font-bold tracking-tight text-[var(--text-primary)] sm:text-4xl">
         {title}
       </h1>

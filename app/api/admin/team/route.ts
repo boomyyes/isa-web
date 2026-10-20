@@ -27,7 +27,7 @@ const LEADERSHIP: readonly Role[] = ["advisor", "president", "treasurer"];
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export async function POST(request: Request) {
+async function handle(request: Request) {
   if (!sameOrigin(request)) return new Response("Forbidden", { status: 403 });
   const session = await sessionFrom(request);
   if (!session) return adminRedirect(request, "/login");
@@ -72,4 +72,13 @@ export async function POST(request: Request) {
     return adminRedirect(request, "/team");
   }
   return adminRedirect(request, "/team?saved=1");
+}
+
+export async function POST(request: Request) {
+  try {
+    return await handle(request);
+  } catch (error) {
+    console.error("[team]", error);
+    return adminRedirect(request, "/team?error=failed");
+  }
 }

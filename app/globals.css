@@ -24,7 +24,9 @@
   --color-light-bg: #F4F7FA;
   --color-light-card: #FFFFFF;
   --color-light-border: #00A3C4;
-  --color-light-border-active: #E65100;
+  /* #C2410C, not the old #E65100: the accent is also small text, and this
+     clears 4.5:1 on both the light bg (4.8) and white cards (5.2). */
+  --color-light-border-active: #C2410C;
   --color-light-text-primary: #0B1220;
   --color-light-text-secondary: #475569;
 
@@ -38,6 +40,18 @@
      are set on the Artemis wrapper. */
   --font-cinzel: var(--font-cinzel-src);
   --font-cormorant: var(--font-cormorant-src);
+
+  /* The two hard-coded colours of the navbar's gold pills. */
+  --color-nav-gold: #F2D08A;
+  --color-nav-ink: #1A1204;
+}
+
+/* State colours as utilities (text-danger, bg-success/10, ...). Inline, so
+   each resolves to the per-theme var below rather than a fixed value. */
+@theme inline {
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
 }
 
 @layer base {
@@ -52,6 +66,11 @@
     /* Second colour for the components/fx effects. Inverted per theme, as the
        old hero gear was: orange highlight on cyan in dark, cyan on orange in light. */
     --fx-highlight: var(--color-light-border);
+    /* Errors, success and warnings. The 700 shades: the 400s the dark theme
+       uses are unreadable on the light bg (red-400 is 2.6:1). */
+    --danger: #B91C1C;
+    --success: #047857;
+    --warning: #B45309;
   }
 
   .dark {
@@ -63,6 +82,9 @@
     --text-secondary: var(--color-dark-text-secondary);
     --accent-color: var(--color-dark-accent);
     --fx-highlight: var(--color-dark-accent);
+    --danger: #F87171;
+    --success: #34D399;
+    --warning: #FBBF24;
   }
 
   /* ------------------------------------------------------------------ *

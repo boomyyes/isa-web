@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { AdminShell, buttonClass, cardClass, dangerButtonClass, formatTime, Notice } from "@/components/admin/AdminShell";
 import { PlainText } from "@/components/admin/PlainText";
 import { fieldClass } from "@/components/ui/formStyles";
@@ -66,7 +67,7 @@ export default async function ForumThreadPage({
           <form method="post" action="/api/admin/forum">
             <input type="hidden" name="action" value="thread-delete" />
             <input type="hidden" name="threadId" value={thread.id} />
-            <button className={`${dangerButtonClass} ${small}`}>Delete thread</button>
+            <ConfirmButton message={`Delete this thread and its ${thread.replyCount + 1} post${thread.replyCount === 0 ? "" : "s"}?`} className={`${dangerButtonClass} ${small}`}>Delete thread</ConfirmButton>
           </form>
         </div>
       )}
@@ -97,7 +98,7 @@ export default async function ForumThreadPage({
                       <form method="post" action="/api/admin/forum">
                         <input type="hidden" name="action" value="post-delete" />
                         <input type="hidden" name="postId" value={p.id} />
-                        <button className="text-red-400 underline">Delete</button>
+                        <ConfirmButton message="Delete this post?" className="text-danger underline">Delete</ConfirmButton>
                       </form>
                     )}
                   </div>

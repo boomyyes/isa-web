@@ -87,7 +87,13 @@ export default async function ForumPage({ searchParams }: { searchParams: Promis
                   <form method="post" action="/api/admin/forum">
                     <input type="hidden" name="action" value="category-delete" />
                     <input type="hidden" name="id" value={c.id} />
-                    <button className={`${dangerButtonClass} !px-3 !py-1.5`}>Delete (only if empty)</button>
+                    <button
+                      disabled={"threads" in c && c.threads > 0}
+                      title={"threads" in c && c.threads > 0 ? "Move or delete its threads first" : undefined}
+                      className={`${dangerButtonClass} !px-3 !py-1.5 disabled:cursor-not-allowed disabled:opacity-50`}
+                    >
+                      Delete (only if empty)
+                    </button>
                   </form>
                 )}
               </div>

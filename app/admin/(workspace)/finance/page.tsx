@@ -72,7 +72,7 @@ export default async function FinanceOverviewPage({
               ].map(([label, value]) => (
                 <div key={label as string}>
                   <dt className="text-xs text-[var(--text-secondary)]">{label}</dt>
-                  <dd className={`mt-1 text-lg font-semibold tabular-nums ${(value as number) < 0 ? "text-red-400" : "text-[var(--text-primary)]"}`}>
+                  <dd className={`mt-1 text-lg font-semibold tabular-nums ${(value as number) < 0 ? "text-danger" : "text-[var(--text-primary)]"}`}>
                     {formatPaise(value as number)}
                   </dd>
                 </div>
@@ -153,14 +153,14 @@ export default async function FinanceOverviewPage({
               <tr key={r.id} className={`${tableRowClass} ${r.archived ? "opacity-60" : ""}`}>
                 <td className="px-4 py-3 text-left">
                   <Link href={`${base}/finance/ledger?budget=${r.id}`} className="underline underline-offset-2">{r.name}</Link>
-                  {r.over && <span className="ml-2 rounded-full bg-red-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-red-400">Over budget</span>}
+                  {r.over && <span className="ml-2 rounded-full bg-danger/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-danger">Over budget</span>}
                 </td>
                 <td className="px-4 py-3">{formatPaise(r.allocated)}</td>
                 <td className="px-4 py-3">{formatPaise(r.income)}</td>
                 <td className="px-4 py-3">{formatPaise(r.spent)}</td>
                 <td className="px-4 py-3">{formatPaise(r.committed)}</td>
                 <td className="px-4 py-3 text-[var(--text-secondary)]">{formatPaise(r.awaiting)}</td>
-                <td className={`px-4 py-3 font-semibold ${r.remaining < 0 ? "text-red-400" : ""}`}>{formatPaise(r.remaining)}</td>
+                <td className={`px-4 py-3 font-semibold ${r.remaining < 0 ? "text-danger" : ""}`}>{formatPaise(r.remaining)}</td>
               </tr>
             ))}
             {rows.length > 0 && (

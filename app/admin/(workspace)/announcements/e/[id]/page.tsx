@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { AdminShell, buttonClass, cardClass, dangerButtonClass, Notice } from "@/components/admin/AdminShell";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import { requireCapability } from "@/lib/admin/session";
@@ -58,7 +59,7 @@ export default async function EditAnnouncementPage({
           <form method="post" action="/api/admin/announcements" className={cardClass}>
             <input type="hidden" name="action" value="delete" />
             <input type="hidden" name="id" value={a.id} />
-            <button className={dangerButtonClass}>Delete announcement</button>
+            <ConfirmButton message="Delete this announcement? This can't be undone." className={dangerButtonClass}>Delete announcement</ConfirmButton>
           </form>
         </>
       )}

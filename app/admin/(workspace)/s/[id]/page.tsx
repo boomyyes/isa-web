@@ -53,6 +53,7 @@ export default async function SubmissionPage({
     <AdminShell title={`${FORMS[sub.form].label} ${sub.id}`}>
       {saved && <Notice>Saved. The sheet updates on its next sync.</Notice>}
       {error === "denied" && <Notice tone="error">Viewers can&apos;t change submissions.</Notice>}
+      {error === "failed" && <Notice tone="error">That couldn&apos;t be saved. Try again in a moment.</Notice>}
 
       <section className={cardClass}>
         <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-[10rem_1fr]">

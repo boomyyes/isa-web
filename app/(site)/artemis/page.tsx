@@ -56,7 +56,7 @@ export default function ArtemisPage() {
       {/* `relative` anchors the sections; ArtemisSky pins itself to the viewport
           from inside, which is what lets it cover the site's global background.
           See the note in ArtemisSky for why -z-10 is correct there. */}
-      <main className="relative min-h-screen">
+      <main id="main" className="relative min-h-screen">
         <ArtemisSky />
 
         {/* The hunt is over, so the page opens on its epilogue and a promise of

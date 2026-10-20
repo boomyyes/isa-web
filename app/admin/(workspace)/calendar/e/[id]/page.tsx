@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { AdminShell, cardClass, dangerButtonClass, formatTime, Notice } from "@/components/admin/AdminShell";
 import { CalendarEventForm } from "@/components/admin/CalendarEventForm";
 import { requireAdmin } from "@/lib/admin/session";
@@ -45,7 +46,7 @@ export default async function CalendarEventPage({
           <form method="post" action="/api/admin/calendar" className={cardClass}>
             <input type="hidden" name="action" value="delete" />
             <input type="hidden" name="id" value={event.id} />
-            <button className={dangerButtonClass}>Delete event</button>
+            <ConfirmButton message="Delete this event? This can't be undone." className={dangerButtonClass}>Delete event</ConfirmButton>
           </form>
         </>
       ) : (

@@ -6,6 +6,7 @@
 import "server-only";
 import { createHash } from "node:crypto";
 import * as Ably from "ably";
+import { channelName, WORKSPACE_ID } from "./ablyChannels";
 
 let rest: Ably.Rest | null = null;
 
@@ -18,7 +19,7 @@ function client(): Ably.Rest {
   return rest;
 }
 
-export const channelName = (channelId: string) => `chat:${channelId}`;
+export { channelName, WORKSPACE_ID };
 
 /** A stable pseudonym for Ably's clientId, so Ably never learns admin emails. */
 const pseudonym = (email: string) => createHash("sha256").update(`isa-chat:${email}`).digest("hex").slice(0, 16);
@@ -37,13 +38,6 @@ export function subscribeTokenRequest(email: string, channelIds: string[] | null
     ttl: 60 * 60 * 1000,
   });
 }
-
-/**
- * Every admin tab listens on this one for "a sidebar count changed", then
- * refetches its own counts. A chat channel id because the API key only covers
- * chat:*; real ids are UUIDs, so it can't collide. Keep in step with LiveUpdates.
- */
-export const WORKSPACE_ID = "_workspace";
 
 /** Tells listeners to refetch. Best effort: a missed signal is caught by the client's periodic refresh or reconnect. */
 export async function signal(channelId: string, kind: "new" | "deleted" | "announcements" | "bills") {

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function MembershipApplyPage() {
   return (
     <PageTransition>
-      <main className="mx-auto max-w-3xl px-6 pt-24 pb-16 md:pt-32 md:pb-24">
+      <main id="main" className="mx-auto max-w-3xl px-6 pt-24 pb-16 md:pt-32 md:pb-24">
         <header className="relative mb-10">
           {/* ambient glow behind the title */}
           <div

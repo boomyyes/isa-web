@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import * as Ably from "ably";
 import { Loader2, Send, Trash2 } from "lucide-react";
+import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { PlainText } from "@/components/admin/PlainText";
 import { fieldClass } from "@/components/ui/formStyles";
 
@@ -161,7 +162,6 @@ export function ChatRoom({
   }
 
   async function remove(id: string) {
-    if (!confirm("Delete this message?")) return;
     const res = await fetch("/api/admin/chat/delete", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -184,7 +184,7 @@ export function ChatRoom({
       <div className="flex items-center justify-between border-b border-[var(--border-color)] px-4 py-2 text-xs text-[var(--text-secondary)]">
         <span>
           <span
-            className={`mr-1.5 inline-block h-2 w-2 rounded-full ${live === "live" ? "bg-emerald-500" : live === "connecting" ? "bg-amber-500" : "bg-red-500"}`}
+            className={`mr-1.5 inline-block h-2 w-2 rounded-full ${live === "live" ? "bg-success" : live === "connecting" ? "bg-warning" : "bg-danger"}`}
           />
           {live === "live" ? "Live" : live === "connecting" ? "Connecting…" : "Live updates unavailable, checking every 20 seconds"}
         </span>
@@ -219,21 +219,22 @@ export function ChatRoom({
                 {m.deleted ? <span className="italic text-[var(--text-secondary)]">Message deleted</span> : <PlainText text={m.body} />}
               </div>
               {!m.deleted && (mine || canModerate) && (
-                <button
+                <ConfirmButton
                   type="button"
-                  onClick={() => remove(m.id)}
+                  message="Delete this message?"
+                  onConfirm={() => remove(m.id)}
                   className="ml-1 align-top text-[var(--text-secondary)] opacity-0 transition group-hover:opacity-100 focus:opacity-100"
                   aria-label="Delete message"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                </ConfirmButton>
               )}
             </div>
           );
         })}
       </div>
 
-      {error && <p role="alert" className="px-4 pb-1 text-xs text-red-400">{error}</p>}
+      {error && <p role="alert" className="px-4 pb-1 text-xs text-danger">{error}</p>}
 
       {archived ? (
         <p className="border-t border-[var(--border-color)] p-4 text-sm text-[var(--text-secondary)]">This channel is archived and read-only.</p>

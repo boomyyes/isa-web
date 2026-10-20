@@ -31,7 +31,7 @@ export const runtime = "nodejs";
 
 const err = (message: string) => `error=${encodeURIComponent(message)}`;
 
-export async function POST(request: Request) {
+async function handle(request: Request) {
   if (!sameOrigin(request)) return new Response("Forbidden", { status: 403 });
   const session = await sessionFrom(request);
   if (!session) return adminRedirect(request, "/login");
@@ -136,4 +136,13 @@ export async function POST(request: Request) {
   }
 
   return adminRedirect(request, "/forum");
+}
+
+export async function POST(request: Request) {
+  try {
+    return await handle(request);
+  } catch (error) {
+    console.error("[forum]", error);
+    return adminRedirect(request, `/forum?${err("That couldn't be saved. Try again in a moment.")}`);
+  }
 }

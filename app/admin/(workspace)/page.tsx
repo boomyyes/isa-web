@@ -138,7 +138,7 @@ export default async function DashboardPage({
                   Overview <ArrowUpRight aria-hidden className="size-3" />
                 </Link>
               </div>
-              <p className={cn("mt-4 text-4xl font-bold tabular-nums", remaining < 0 && "text-red-400")}>{formatPaise(remaining)}</p>
+              <p className={cn("mt-4 text-4xl font-bold tabular-nums", remaining < 0 && "text-danger")}>{formatPaise(remaining)}</p>
               <p className="mt-1 font-jetbrains text-xs text-[var(--text-secondary)]">
                 {yearly
                   ? `of the FY ${yearly.label} treasury of ${formatPaise(allocated)}, after approved bills`

@@ -45,15 +45,15 @@ const STATUS_STYLES: Record<
   { dot: string; text: string; ring: string; glow: string }
 > = {
   Live: {
-    dot: "bg-emerald-400",
-    text: "text-emerald-400",
-    ring: "border-emerald-400/40 bg-emerald-400/10",
+    dot: "bg-success",
+    text: "text-success",
+    ring: "border-success/40 bg-success/10",
     glow: "shadow-[0_0_12px_rgba(16,185,129,0.45)]",
   },
   "In Progress": {
-    dot: "bg-amber-400",
-    text: "text-amber-400",
-    ring: "border-amber-400/40 bg-amber-400/10",
+    dot: "bg-warning",
+    text: "text-warning",
+    ring: "border-warning/40 bg-warning/10",
     glow: "shadow-[0_0_12px_rgba(245,158,11,0.45)]",
   },
   Completed: {
@@ -71,9 +71,9 @@ const SCOPE_STYLES: Record<
   { dot: string; text: string; ring: string; glow: string }
 > = {
   International: {
-    dot: "bg-amber-400",
-    text: "text-amber-400",
-    ring: "border-amber-400/40 bg-amber-400/10",
+    dot: "bg-warning",
+    text: "text-warning",
+    ring: "border-warning/40 bg-warning/10",
     glow: "shadow-[0_0_12px_rgba(245,158,11,0.45)]",
   },
   National: {
@@ -83,9 +83,9 @@ const SCOPE_STYLES: Record<
     glow: "shadow-[0_0_12px_rgba(167,139,250,0.45)]",
   },
   State: {
-    dot: "bg-emerald-400",
-    text: "text-emerald-400",
-    ring: "border-emerald-400/40 bg-emerald-400/10",
+    dot: "bg-success",
+    text: "text-success",
+    ring: "border-success/40 bg-success/10",
     glow: "shadow-[0_0_12px_rgba(16,185,129,0.45)]",
   },
   Institute: {

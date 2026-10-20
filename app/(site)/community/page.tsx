@@ -156,7 +156,7 @@ export default function CommunityPage() {
 
   return (
     <PageTransition>
-      <main className="mx-auto max-w-7xl px-6 pt-24 md:pt-32 pb-16 md:pb-24">
+      <main id="main" className="mx-auto max-w-7xl px-6 pt-24 md:pt-32 pb-16 md:pb-24">
         {/* Leadership notes. Two columns from lg, where there is room for the
             mentor's note beside the principal's; stacked below that. */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

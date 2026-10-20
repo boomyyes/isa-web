@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 export default function CertificateResetPage() {
   return (
     <PageTransition>
-      <main className="mx-auto flex min-h-screen max-w-2xl flex-col px-6 pt-28 pb-16 md:pt-36 md:pb-24">
+      <main id="main" className="mx-auto flex min-h-screen max-w-2xl flex-col px-6 pt-28 pb-16 md:pt-36 md:pb-24">
         <header className="relative">
           <div
             aria-hidden

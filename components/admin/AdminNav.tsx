@@ -7,6 +7,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, use, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
+import type { NavCounts } from "@/lib/admin/navCounts";
+import { channelName, WORKSPACE_ID } from "@/lib/ablyChannels";
 import {
   BookOpen,
   CalendarDays,
@@ -48,9 +50,6 @@ export const NAV_ICONS = {
 } satisfies Record<string, LucideIcon>;
 
 export type NavIcon = keyof typeof NAV_ICONS;
-
-/** Badge counts, streamed from the server after the page has rendered. */
-export type NavCounts = { unread: number; awaiting: number };
 
 export type AdminNavSection = {
   title: string;
@@ -104,7 +103,7 @@ export function LiveUpdates() {
       realtime = new Realtime({ authUrl: "/api/admin/live/token", authMethod: "GET" });
       // Every (re)connect refetches, which also covers signals missed while asleep or offline.
       realtime.connection.on("connected", refetch);
-      realtime.channels.get("chat:_workspace").subscribe(refetch); // WORKSPACE_ID in lib/ably.ts
+      realtime.channels.get(channelName(WORKSPACE_ID)).subscribe(refetch);
     }).catch(() => {
       // Offline or a failed chunk: badges update on the next load instead.
     });
@@ -207,6 +206,25 @@ export function AdminNav({
   useSlidingPill(navRef, pillRef);
   // The frame persists across pages, so the mobile drawer has to be shut by hand.
   useEffect(() => navRef.current?.closest("details")?.removeAttribute("open"), [pathname]);
+  // While the drawer is open, the rest of the frame is inert, and Escape closes it.
+  useEffect(() => {
+    const drawer = navRef.current?.closest("details");
+    if (!drawer) return;
+    const others = () => [...(drawer.parentElement?.children ?? [])].filter((el) => el !== drawer);
+    const onToggle = () => others().forEach((el) => el.toggleAttribute("inert", drawer.open));
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || !drawer.open) return;
+      drawer.removeAttribute("open");
+      drawer.querySelector("summary")?.focus();
+    };
+    drawer.addEventListener("toggle", onToggle);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      drawer.removeEventListener("toggle", onToggle);
+      document.removeEventListener("keydown", onKey);
+      others().forEach((el) => el.removeAttribute("inert"));
+    };
+  }, []);
   // On admin.isarait.in the URL has no /admin prefix while `home` may be ""
   // (subdomain) or "/admin" (path mode); normalise both to compare.
   const root = home || "/";

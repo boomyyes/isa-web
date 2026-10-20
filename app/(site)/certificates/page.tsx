@@ -46,7 +46,7 @@ const CERTIFICATE_FAQS: FAQItem[] = [
 export default function CertificatesPage() {
   return (
     <PageTransition>
-      <main className="mx-auto flex min-h-screen max-w-5xl flex-col px-6 pt-28 pb-16 md:pt-36 md:pb-24">
+      <main id="main" className="mx-auto flex min-h-screen max-w-5xl flex-col px-6 pt-28 pb-16 md:pt-36 md:pb-24">
         {/* Header */}
         <header className="relative">
           {/* ambient glow behind the title */}

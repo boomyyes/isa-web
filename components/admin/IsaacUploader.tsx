@@ -115,14 +115,14 @@ export function IsaacUploader({ buttonClass }: { buttonClass: string }) {
 
       <div aria-live="polite" className="text-sm">
         {status.kind === "done" && (
-          <p className="text-emerald-400">
+          <p className="text-success">
             Published ({status.pages} pages). The site shows it after the automatic redeploy, about 2 minutes.{" "}
             <a href={status.url} target="_blank" rel="noreferrer" className="text-[var(--accent-color)] underline">
               View the commit
             </a>
           </p>
         )}
-        {status.kind === "error" && <p className="text-red-400">{status.message}</p>}
+        {status.kind === "error" && <p className="text-danger">{status.message}</p>}
       </div>
     </form>
   );

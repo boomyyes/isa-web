@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default function HelpPage() {
   return (
     <PageTransition>
-      <main className="mx-auto max-w-7xl px-6 pt-24 md:pt-32 pb-16 md:pb-24">
+      <main id="main" className="mx-auto max-w-7xl px-6 pt-24 md:pt-32 pb-16 md:pb-24">
         {/* Header */}
         <header className="relative">
           {/* ambient glow behind the title */}

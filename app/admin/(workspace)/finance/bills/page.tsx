@@ -86,7 +86,7 @@ export default async function BillsPage({
                   <td className="whitespace-nowrap px-4 py-3">{b.billDate}</td>
                   <td className="px-4 py-3">
                     <Link href={`${base}/finance/bills/${b.id}`} className="underline underline-offset-2">{b.vendor}</Link>
-                    {receipts === 0 && <span className="ml-2 text-xs text-amber-400">no receipt</span>}
+                    {receipts === 0 && <span className="ml-2 text-xs text-warning">no receipt</span>}
                   </td>
                   <td className="px-4 py-3">{budgetName}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-right">{formatPaise(b.amountPaise)}</td>

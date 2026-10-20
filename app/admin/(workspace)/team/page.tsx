@@ -33,6 +33,7 @@ const ERRORS: Record<string, string> = {
   fixed: "That address is an Admin set in Vercel (ADMIN_OWNERS) and can only be changed there.",
   domain: "Joint Core need a domain.",
   leadership: "Only the Faculty Advisor or Admin can grant, change or remove the Faculty Advisor, President or Treasurer roles.",
+  failed: "That couldn't be saved. Try again in a moment.",
 };
 
 export default async function TeamPage({

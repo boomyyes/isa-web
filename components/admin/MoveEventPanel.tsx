@@ -122,7 +122,7 @@ function MoveForm({
     }
   }
 
-  const err = (k: string) => (errors[k] ? <p className="mt-1 text-xs text-red-400">{errors[k]}</p> : null);
+  const err = (k: string) => (errors[k] ? <p className="mt-1 text-xs text-danger">{errors[k]}</p> : null);
 
   return (
     <div className="space-y-4 border-t border-[var(--border-color)] p-4">
@@ -174,7 +174,7 @@ function MoveForm({
           <a href={state.url} target="_blank" rel="noreferrer" className="text-[var(--accent-color)] underline">View the commit</a>
         </p>
       )}
-      {state.kind === "error" && <p role="alert" className="text-sm text-red-400">{state.message}</p>}
+      {state.kind === "error" && <p role="alert" className="text-sm text-danger">{state.message}</p>}
 
       <button type="button" className={primary} disabled={state.kind === "busy" || state.kind === "done"} onClick={move}>
         {state.kind === "busy" && <Loader2 className="h-4 w-4 animate-spin" />}

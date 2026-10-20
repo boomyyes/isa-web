@@ -111,7 +111,7 @@ export function MembershipForm() {
   const busy = status.kind === "sending";
   const fieldError = (key: string) =>
     errors[key] ? (
-      <p id={`m-${key}-error`} className="mt-1.5 text-xs text-red-400">
+      <p id={`m-${key}-error`} className="mt-1.5 text-xs text-danger">
         {errors[key]}
       </p>
     ) : null;
@@ -333,7 +333,7 @@ export function MembershipForm() {
       </AngularButton>
 
       {status.kind === "error" && (
-        <p role="alert" className="flex items-center justify-center gap-2 font-jetbrains text-sm text-red-400">
+        <p role="alert" className="flex items-center justify-center gap-2 font-jetbrains text-sm text-danger">
           <CircleAlert className="h-4 w-4 shrink-0" />
           {status.message}
         </p>
