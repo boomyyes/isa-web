@@ -1,4 +1,4 @@
-import { AdminFrame } from "@/components/admin/AdminShell";
+import { AdminFrame } from "@/components/admin/AdminFrame";
 import { requireAdmin } from "@/lib/admin/session";
 
 /**
