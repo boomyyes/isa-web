@@ -27,6 +27,11 @@ const PDFJS_RUNTIME_FILES = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
 
+  // Revisiting a dynamic page within 30s reuses the browser's copy instead of
+  // re-rendering on the server. Admin saves are full-page form POSTs, which
+  // clear this cache, so your own edits still show at once.
+  experimental: { staleTimes: { dynamic: 30 } },
+
   async headers() {
     return [
       { source: "/:path*", headers: SECURITY_HEADERS },
