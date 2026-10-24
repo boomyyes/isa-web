@@ -8,13 +8,11 @@
     "tenure": "2026-27"
   },
   {
-    "id": "evt-cvml-2026",
+    "id": "evt-ros-2026",
     "date": "2026-08-14",
-    "title": "Computer Vision & Machine Learning",
+    "title": "ROS2 Workshop",
     "type": "Workshop",
     "venue": "RAIT",
-    "image": "/events/CVML_2026.jpg",
-    "description": "ISA-RAIT organised a hands-on workshop on Computer Vision and Machine Learning on 14th August 2026, introducing participants to real-world AI workflows and practical implementation. The session focused on building end-to-end AI pipelines while bridging the gap between theoretical understanding and applied intelligence. Participants worked through the Titanic Survival Prediction dataset from Kaggle, covering data preprocessing, feature engineering and model building with Logistic Regression and Decision Trees, alongside an introduction to the core concepts of supervised learning and model evaluation. The workshop also featured a live demonstration of moon crater detection using computer vision techniques with OpenCV, and exposure to real-time vision system concepts using Python libraries including Pandas, NumPy, Scikit-learn and OpenCV. It was conducted by Yash Patil, an ISA-RAIT Joint Core Member, who guided participants through each stage of the AI pipeline with practical insights and interactive learning. ISA-RAIT extends its gratitude to Dr. Sharad P. Jadhav, Head of the Department, the organising team and all participants for making the event a success.",
     "tenure": "2026-27"
   },
   {
@@ -27,13 +25,13 @@
     "tenure": "2026-27"
   },
   {
-    "id": "evt-ros-2026",
+    "id": "evt-cvml-2026",
     "date": "2026-08-14",
-    "title": "ROS2 Workshop",
+    "title": "Computer Vision & Machine Learning",
     "type": "Workshop",
     "venue": "RAIT",
-    "image": "",
-    "description": "",
+    "image": "/events/CVML_2026.jpg",
+    "description": "ISA-RAIT organised a hands-on workshop on Computer Vision and Machine Learning on 14th August 2026, introducing participants to real-world AI workflows and practical implementation. The session focused on building end-to-end AI pipelines while bridging the gap between theoretical understanding and applied intelligence. Participants worked through the Titanic Survival Prediction dataset from Kaggle, covering data preprocessing, feature engineering and model building with Logistic Regression and Decision Trees, alongside an introduction to the core concepts of supervised learning and model evaluation. The workshop also featured a live demonstration of moon crater detection using computer vision techniques with OpenCV, and exposure to real-time vision system concepts using Python libraries including Pandas, NumPy, Scikit-learn and OpenCV. It was conducted by Yash Patil, an ISA-RAIT Joint Core Member, who guided participants through each stage of the AI pipeline with practical insights and interactive learning. ISA-RAIT extends its gratitude to Dr. Sharad P. Jadhav, Head of the Department, the organising team and all participants for making the event a success.",
     "tenure": "2026-27"
   },
   {
