@@ -1,5 +1,13 @@
 [
   {
+    "id": "evt-artemis",
+    "title": "Artemis Hackathon",
+    "date": "2026-09-26",
+    "type": "Hackathon",
+    "venue": "RAIT",
+    "tenure": "2026-27"
+  },
+  {
     "id": "evt-cvml-2026",
     "date": "2026-08-14",
     "title": "Computer Vision & Machine Learning",
