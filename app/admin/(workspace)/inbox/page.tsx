@@ -11,16 +11,17 @@ export const dynamic = "force-dynamic";
 export default async function InboxPage({
   searchParams,
 }: {
-  searchParams: Promise<{ form?: string; q?: string; denied?: string; error?: string }>;
+  searchParams: Promise<{ form?: string; q?: string; denied?: string; error?: string; deleted?: string }>;
 }) {
   const session = await requireAdmin();
   const { base } = session;
-  const { form, q, denied, error } = await searchParams;
+  const { form, q, denied, error, deleted } = await searchParams;
   const subs = await listSubmissions({ form, q, role: session.role });
 
   return (
     <AdminShell title="Inbox">
       {denied && <Notice tone="error">Your role doesn&apos;t allow that.</Notice>}
+      {deleted && <Notice>Submission deleted.</Notice>}
       {error === "missing" && <Notice tone="error">That submission no longer exists.</Notice>}
 
       <form method="get" action={`${base}/inbox`} className="flex flex-wrap gap-3">

@@ -4,10 +4,12 @@ import {
   AdminShell,
   buttonClass,
   cardClass,
+  dangerButtonClass,
   formatTime,
   Notice,
   pillClass,
 } from "@/components/admin/AdminShell";
+import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { fieldClass, labelClass } from "@/components/ui/formStyles";
 import { requireAdmin } from "@/lib/admin/session";
 import { formVisibleTo, getSubmission } from "@/lib/admin/submissions";
@@ -117,6 +119,14 @@ export default async function SubmissionPage({
               <textarea id="note" name="note" rows={3} maxLength={1000} className={fieldClass} />
             </div>
             <button className={buttonClass}>Save</button>
+          </form>
+        )}
+        {editor && (
+          <form method="post" action={`/api/admin/submissions/${sub.id}`} className="mt-4">
+            <input type="hidden" name="action" value="delete" />
+            <ConfirmButton message={`Delete ${sub.id}? This can't be undone.`} className={dangerButtonClass}>
+              Delete submission
+            </ConfirmButton>
           </form>
         )}
       </section>

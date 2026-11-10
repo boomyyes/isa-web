@@ -68,6 +68,18 @@ export async function updateSubmission(
  * DPDP erasure: deletes everything held under an email address and queues the
  * matching sheet rows for deletion. Returns the refs erased.
  */
+/** One ref, same cleanup as eraseByEmail (index, sync queue, sheet row). */
+export async function deleteSubmission(sub: StoredSubmission): Promise<void> {
+  const email = "email" in sub.data && typeof sub.data.email === "string" ? sub.data.email : null;
+  const tx = redis().multi();
+  tx.del(subKey(sub.id));
+  if (email) tx.srem(emailKey(email.trim().toLowerCase()), sub.id);
+  tx.zrem(INDEX_KEY, sub.id);
+  tx.lrem(PENDING_KEY, 0, sub.id);
+  tx.rpush(ERASE_KEY, sub.id);
+  await tx.exec();
+}
+
 export async function eraseByEmail(email: string): Promise<string[]> {
   const key = emailKey(email.trim().toLowerCase());
   const ids = await redis().smembers(key);
