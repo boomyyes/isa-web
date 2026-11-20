@@ -59,16 +59,6 @@
       "name": "Suhas Dongre",
       "photo": "/team/suhas-dongre.jpg",
       "linkedin": "https://www.linkedin.com/in/suhasdongre/"
-    },
-    {
-      "id": "sub-cto",
-      "role": "Chief Technical Officer",
-      "name": "Chris Misquitta",
-      "photo": "/team/chris-misquitta.jpg",
-      "linkedin": "https://www.linkedin.com/in/chrismm31313/",
-      "github": "https://github.com/CMM31313",
-      "technical": true,
-      "hidden": true
     }
   ],
   "jointCore": [
@@ -182,8 +172,7 @@
           "id": "jc-admin-gharat",
           "role": "Administration Co-head",
           "name": "Atharv Gharat",
-          "linkedin": "https://www.linkedin.com/in/atharva-gharat-b12a6b306/",
-          "hidden": true
+          "linkedin": "https://www.linkedin.com/in/atharva-gharat-b12a6b306/"
         },
         {
           "id": "jc-admin-ishan",
